@@ -1,5 +1,9 @@
 # Lean Ridgelet
 
+<!-- BEGIN GENERATED BADGES -->
+<p align="center"><a href="https://github.com/shosonoda/lean-ridgelet/actions/workflows/audit.yml"><img alt="Assumption audit" src="https://img.shields.io/github/actions/workflow/status/shosonoda/lean-ridgelet/audit.yml?branch=main&amp;label=assumption%20audit&amp;style=flat-square"></a> <a href="https://lean-lang.org/"><img alt="Lean 4.32.0" src="https://img.shields.io/badge/Lean-4.32.0-0f4c81.svg?style=flat-square"></a> <a href="https://arxiv.org/abs/2106.04770"><img alt="arXiv 2106.04770" src="https://img.shields.io/badge/arXiv-2106.04770-b31b1b.svg?style=flat-square"></a> <a href="LICENSE"><img alt="Apache 2.0" src="https://img.shields.io/badge/license-Apache--2.0-blue.svg?style=flat-square"></a></p>
+<!-- END GENERATED BADGES -->
+
 Lean formalization of integral representations of depth-2 fully-connected neural networks and
 ridgelet transforms. The current focus is the L2 theory of ridgelet transforms, including its
 Fourier--dilation coordinates, synthesis and ridgelet operators, general solution, and standard
@@ -7,6 +11,7 @@ activation functions.
 
 - [Blueprint and API documentation](https://shosonoda.github.io/lean-ridgelet/)
 - [L1 theory (arXiv:1505.03654)](https://arxiv.org/abs/1505.03654)
+- [L2 theory (arXiv:2106.04770)](https://arxiv.org/abs/2106.04770)
 - [L2 theory source project](https://github.com/shosonoda/-draft-Ghosts)
 
 The public repository is a reproducible mirror of the private development repository. Private
@@ -22,12 +27,22 @@ lake exe cache get
 lake build
 ```
 
+The Lean badge is generated from the version pinned in `lean-toolchain`. After changing that file,
+refresh and check the generated badge block with:
+
+```bash
+python3 scripts/update-readme-badges.py
+python3 scripts/update-readme-badges.py --check
+```
+
 Run the repository-wide audit for proof placeholders, kernel axioms, and proposition-valued fields
 in project-defined structures and typeclasses with:
 
 ```bash
 ./scripts/audit-assumptions.sh
 ```
+
+The `Assumption audit` badge reports the dedicated GitHub Actions workflow that runs this command.
 
 ## Build the documentation
 

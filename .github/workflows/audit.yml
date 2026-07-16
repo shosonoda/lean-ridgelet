@@ -1,0 +1,34 @@
+name: Assumption audit
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: assumption-audit-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  audit:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out the public source
+        uses: actions/checkout@v6
+
+      - name: Set up Lean and fetch the Mathlib cache
+        uses: leanprover/lean-action@v1
+        with:
+          auto-config: false
+          use-github-cache: false
+          use-mathlib-cache: true
+
+      - name: Check generated README badges
+        run: python3 scripts/update-readme-badges.py --check
+
+      - name: Audit assumptions
+        run: ./scripts/audit-assumptions.sh
