@@ -1,7 +1,6 @@
 # Lake build products and generated documentation
 .lake/
 _out/
-docbuild/.lake/
 
 # Editor and operating-system metadata
 .DS_Store
