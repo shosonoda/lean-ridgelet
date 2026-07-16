@@ -11,6 +11,7 @@ from pathlib import Path
 
 
 CHAPTERS = (
+    ("overview", "Overview of the L2 main results"),
     ("foundations", "Fourier conventions and Hilbert spaces"),
     ("fourier-dilation", "Fourier--dilation coordinates"),
     ("operators", "Synthesis, ridgelets, and reconstruction"),
@@ -49,6 +50,17 @@ STYLE = """
   max-height: 32rem;
   overflow: auto;
   white-space: pre-wrap;
+}
+</style>
+"""
+
+OVERVIEW_STYLE = """
+<style id="lean-ridgelet-overview-style">
+/* Verso uses one counter for all theorem-like kinds. The authored first sentence carries the
+   manuscript's independent Proposition/Theorem/Lemma numbering, so suppress that shared count. */
+.bp_wrapper > .bp_heading .bp_label,
+.bp_code_block > summary .bp_label {
+  display: none;
 }
 </style>
 """
@@ -129,6 +141,8 @@ def process_chapter(repo_root: Path, output_root: Path, slug: str) -> int:
     document, implementation_count = inject_implementations(document, repo_root)
     if "lean-ridgelet-blueprint-style" not in document:
         document = document.replace("</head>", STYLE + "</head>", 1)
+    if slug == "overview" and "lean-ridgelet-overview-style" not in document:
+        document = document.replace("</head>", OVERVIEW_STYLE + "</head>", 1)
     index.write_text(document, encoding="utf-8")
     return implementation_count
 
@@ -173,7 +187,7 @@ def main() -> None:
     if total == 0:
         raise RuntimeError("no Lean definition implementations were inserted")
     verify_navigation(output_root)
-    print("verified Blueprint navigation across all six chapters")
+    print("verified Blueprint navigation across all seven chapters")
 
 
 if __name__ == "__main__":

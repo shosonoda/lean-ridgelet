@@ -43,7 +43,7 @@ Preview the complete generated site through a local HTTP server:
 python3 -m http.server 8000 --directory _out/blueprint
 ```
 
-Then open <http://localhost:8000/html-multi/>. It links to six separately rendered chapters whose
+Then open <http://localhost:8000/html-multi/>. It links to seven separately rendered chapters whose
 nodes connect the informal statements to their Lean declarations. A direct chapter URL is, for
 example, <http://localhost:8000/chapters/foundations/html-multi/>. Stop the server with `Ctrl-C`.
 Serving over HTTP ensures that Blueprint preview data and browser modules are loaded correctly.

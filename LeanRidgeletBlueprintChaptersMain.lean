@@ -1,5 +1,6 @@
 import VersoManual
 import VersoBlueprint.PreviewManifest
+import LeanRidgeletBlueprint.Chapters.Overview
 import LeanRidgeletBlueprint.Chapters.Foundations
 import LeanRidgeletBlueprint.Chapters.FourierDilation
 import LeanRidgeletBlueprint.Chapters.Operators
@@ -9,6 +10,12 @@ import LeanRidgeletBlueprint.Chapters.FurtherResults
 
 open Verso Doc
 open Verso.Genre Manual
+
+private def overviewMain (args : List String) : IO UInt32 :=
+  Informal.PreviewManifest.blueprintMainWithPreviewData
+    (%doc LeanRidgeletBlueprint.Chapters.Overview)
+    args
+    (extensionImpls := by exact extension_impls%)
 
 private def foundationsMain (args : List String) : IO UInt32 :=
   Informal.PreviewManifest.blueprintMainWithPreviewData
@@ -48,6 +55,7 @@ private def furtherResultsMain (args : List String) : IO UInt32 :=
 
 def main (args : List String) : IO UInt32 :=
   match args with
+  | "overview" :: rest => overviewMain rest
   | "foundations" :: rest => foundationsMain rest
   | "fourier-dilation" :: rest => fourierDilationMain rest
   | "operators" :: rest => operatorsMain rest

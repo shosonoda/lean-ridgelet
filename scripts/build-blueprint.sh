@@ -5,6 +5,7 @@ set -euo pipefail
 lake build \
   LeanRidgelet \
   LeanRidgeletBlueprint \
+  LeanRidgeletBlueprint.Chapters.Overview \
   LeanRidgeletBlueprint.Chapters.Foundations \
   LeanRidgeletBlueprint.Chapters.FourierDilation \
   LeanRidgeletBlueprint.Chapters.Operators \
@@ -18,6 +19,7 @@ test -f _out/blueprint/html-multi/index.html
 test -f _out/blueprint/html-multi/-verso-data/blueprint-manifest.json
 
 chapters=(
+  overview
   foundations
   fourier-dilation
   operators
