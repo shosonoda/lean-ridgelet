@@ -24,6 +24,7 @@ jobs:
         with:
           # lean-action implements this as `lake exe cache get`.
           auto-config: false
+          use-github-cache: false
           use-mathlib-cache: true
 
       - name: Restore the doc-gen4 build cache
