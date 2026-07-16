@@ -1,0 +1,66 @@
+name: Documentation
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: pages
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out the public source
+        uses: actions/checkout@v6
+
+      - name: Set up Lean and build the library
+        uses: leanprover/lean-action@v1
+
+      - name: Audit assumptions
+        run: ./scripts/audit-assumptions.sh
+
+      - name: Build the Verso Blueprint
+        run: ./scripts/build-blueprint.sh
+
+      - name: Build the doc-gen4 API documentation
+        run: ./scripts/build-docs.sh
+
+      - name: Assemble the Pages site
+        run: |
+          mkdir -p _site/blueprint _site/api
+          rsync -a _out/blueprint/ _site/blueprint/
+          rsync -a docbuild/.lake/build/doc/ _site/api/
+          cp pages/index.html _site/index.html
+          touch _site/.nojekyll
+          sed -i \
+            's#../../../docbuild/.lake/build/doc/index.html#../../api/index.html#g' \
+            _site/blueprint/html-multi/index.html
+
+      - name: Configure GitHub Pages
+        uses: actions/configure-pages@v5
+
+      - name: Upload the Pages artifact
+        uses: actions/upload-pages-artifact@v4
+        with:
+          path: _site
+
+  deploy:
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    permissions:
+      contents: read
+      pages: write
+      id-token: write
+    runs-on: ubuntu-latest
+    needs: build
+    steps:
+      - name: Deploy GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4

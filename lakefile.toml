@@ -1,0 +1,33 @@
+name = "lean-ridgelet"
+version = "0.1.0"
+keywords = ["math"]
+defaultTargets = ["LeanRidgelet"]
+precompileModules = false
+
+[leanOptions]
+pp.unicode.fun = true # pretty-prints `fun a ↦ b`
+relaxedAutoImplicit = false
+weak.linter.mathlibStandardSet = true
+maxSynthPendingDepth = 3
+
+[[require]]
+name = "VersoBlueprint"
+git = "https://github.com/leanprover/verso-blueprint"
+rev = "v4.32.0"
+
+# Keep Mathlib last so that its pins win when transitive dependencies overlap.
+[[require]]
+name = "mathlib"
+scope = "leanprover-community"
+rev = "v4.32.0"
+
+[[lean_lib]]
+name = "LeanRidgelet"
+
+[[lean_lib]]
+name = "LeanRidgeletBlueprint"
+
+[[lean_exe]]
+name = "blueprint-gen"
+root = "LeanRidgeletBlueprintMain"
+supportInterpreter = true
