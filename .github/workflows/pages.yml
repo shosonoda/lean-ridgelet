@@ -28,7 +28,8 @@ jobs:
           use-mathlib-cache: true
 
       - name: Restore the doc-gen4 tool build cache
-        uses: actions/cache@v5
+        id: doc-gen4-tool-cache
+        uses: actions/cache/restore@v5
         with:
           path: |
             .lake/packages/doc-gen4/.lake/build
@@ -39,11 +40,29 @@ jobs:
             .lake/packages/MD4Lean/.lake/build
           key: doc-gen4-tool-${{ runner.os }}-${{ runner.arch }}-${{ hashFiles('docbuild/lake-manifest.json', 'lean-toolchain') }}
 
+      - name: Build the doc-gen4 tool on a cache miss
+        if: steps.doc-gen4-tool-cache.outputs.cache-hit != 'true'
+        working-directory: docbuild
+        run: lake build doc-gen4
+
+      - name: Save the doc-gen4 tool build cache
+        if: steps.doc-gen4-tool-cache.outputs.cache-hit != 'true'
+        uses: actions/cache/save@v5
+        with:
+          path: |
+            .lake/packages/doc-gen4/.lake/build
+            .lake/packages/leansqlite/.lake/build
+            .lake/packages/Cli/.lake/build
+            .lake/packages/UnicodeBasic/.lake/build
+            .lake/packages/BibtexQuery/.lake/build
+            .lake/packages/MD4Lean/.lake/build
+          key: ${{ steps.doc-gen4-tool-cache.outputs.cache-primary-key }}
+
       - name: Restore the doc-gen4 build cache
         uses: actions/cache@v5
         with:
           path: docbuild/.lake
-          key: doc-gen4-v2-${{ runner.os }}-${{ runner.arch }}-${{ hashFiles('**/lake-manifest.json', '**/lean-toolchain', 'docbuild/lakefile.toml') }}
+          key: doc-gen4-${{ runner.os }}-${{ runner.arch }}-${{ hashFiles('**/lake-manifest.json', '**/lean-toolchain', 'docbuild/lakefile.toml') }}
 
       - name: Build the library and audit assumptions
         run: ./scripts/audit-assumptions.sh
