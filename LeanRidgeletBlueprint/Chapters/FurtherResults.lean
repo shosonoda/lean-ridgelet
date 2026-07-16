@@ -13,6 +13,9 @@ set_option linter.style.longLine false
 set_option verso.blueprint.externalCode.strictResolve true
 
 #doc (Manual) "Further results from the source manuscript" =>
+%%%
+file := "further-results"
+%%%
 
 The following results appear in `05journal/body.tex` but lie beyond the current formalization of
 Chapters 2--5. They are recorded as unformalized nodes with their dependencies made explicit.

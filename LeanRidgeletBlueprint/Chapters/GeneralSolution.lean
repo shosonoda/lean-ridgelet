@@ -13,6 +13,9 @@ set_option linter.style.longLine false
 set_option verso.blueprint.externalCode.strictResolve true
 
 #doc (Manual) "Null space and the general solution" =>
+%%%
+file := "general-solution"
+%%%
 
 :::definition "visible_projection" (lean := "LeanRidgelet.networkVisibleProjection")
 Define the operator projecting parameter space onto its visible component by

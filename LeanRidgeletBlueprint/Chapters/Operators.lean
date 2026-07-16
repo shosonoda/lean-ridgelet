@@ -13,6 +13,9 @@ set_option linter.style.longLine false
 set_option verso.blueprint.externalCode.strictResolve true
 
 #doc (Manual) "Synthesis, ridgelets, and reconstruction" =>
+%%%
+file := "operators"
+%%%
 
 :::definition "network_synthesis" (lean := "LeanRidgelet.networkSynthesis")
 For an activation $`\sigma\in\mathcal A_{s,t}`, define the synthesis operator fiberwise by

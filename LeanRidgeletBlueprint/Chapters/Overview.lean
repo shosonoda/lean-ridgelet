@@ -13,6 +13,9 @@ set_option linter.style.longLine false
 set_option verso.blueprint.externalCode.strictResolve true
 
 #doc (Manual) "Overview of the L2 main results" =>
+%%%
+file := "overview"
+%%%
 
 This chapter lists the numbered results of the L2 manuscript in publication order. A green Lean
 declaration is a thin wrapper around the coordinate-based implementation already present in the

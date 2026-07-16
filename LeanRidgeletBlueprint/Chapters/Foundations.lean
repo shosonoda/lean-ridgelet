@@ -13,6 +13,9 @@ set_option linter.style.longLine false
 set_option verso.blueprint.externalCode.strictResolve true
 
 #doc (Manual) "Fourier conventions and Hilbert spaces" =>
+%%%
+file := "foundations"
+%%%
 
 :::source_document "ghosts-l2"
 %%%

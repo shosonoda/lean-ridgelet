@@ -13,6 +13,9 @@ set_option linter.style.longLine false
 set_option verso.blueprint.externalCode.strictResolve true
 
 #doc (Manual) "Standard activation functions" =>
+%%%
+file := "activations"
+%%%
 
 :::proposition "gaussian_activation" (lean := "LeanRidgelet.gaussianActivation, LeanRidgelet.gaussianActivation_ne_zero")
 The Gaussian Fourier coordinate $`e^{-\omega^2/2}` belongs to $`L^2(\mathbb R)` and defines a

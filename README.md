@@ -43,13 +43,15 @@ Preview the complete generated site through a local HTTP server:
 python3 -m http.server 8000 --directory _out/blueprint
 ```
 
-Then open <http://localhost:8000/html-multi/>. It links to seven separately rendered chapters whose
-nodes connect the informal statements to their Lean declarations. A direct chapter URL is, for
-example, <http://localhost:8000/chapters/foundations/html-multi/>. Stop the server with `Ctrl-C`.
-Serving over HTTP ensures that Blueprint preview data and browser modules are loaded correctly.
+Then open <http://localhost:8000/html-multi/>. Verso's standard multi-page renderer splits the
+document into seven chapters whose nodes connect the informal statements to their Lean
+declarations. A direct chapter URL is, for example,
+<http://localhost:8000/html-multi/foundations/>. Stop the server with `Ctrl-C`. Serving over HTTP
+ensures that Blueprint preview data and browser modules are loaded correctly.
+The left sidebar is Verso's generated table of contents and links to all seven chapter pages.
 
-Each chapter's left-hand table of contents links to the other chapters. Definition panels include
-the Lean implementation beginning at `:=` when the declaration belongs to this project.
+Definition panels include the Lean implementation beginning at `:=` when the declaration belongs
+to this project.
 
 Generate the doc-gen4 API documentation with:
 

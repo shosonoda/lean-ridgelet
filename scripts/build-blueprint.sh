@@ -2,16 +2,8 @@
 
 set -euo pipefail
 
-lake build \
-  LeanRidgelet \
-  LeanRidgeletBlueprint \
-  LeanRidgeletBlueprint.Chapters.Overview \
-  LeanRidgeletBlueprint.Chapters.Foundations \
-  LeanRidgeletBlueprint.Chapters.FourierDilation \
-  LeanRidgeletBlueprint.Chapters.Operators \
-  LeanRidgeletBlueprint.Chapters.GeneralSolution \
-  LeanRidgeletBlueprint.Chapters.Activations \
-  LeanRidgeletBlueprint.Chapters.FurtherResults
+lake build LeanRidgeletBlueprint.Assembly:olean
+rm -rf _out/blueprint
 lake lean LeanRidgeletBlueprintMain.lean -- \
   --run LeanRidgeletBlueprintMain.lean --output _out/blueprint
 
@@ -29,16 +21,12 @@ chapters=(
 )
 
 for chapter in "${chapters[@]}"; do
-  output="_out/blueprint/chapters/$chapter"
-  lake lean LeanRidgeletBlueprintChaptersMain.lean -- \
-    --run LeanRidgeletBlueprintChaptersMain.lean "$chapter" --output "$output"
-  test -f "$output/html-multi/index.html"
-  test -f "$output/html-multi/-verso-data/blueprint-manifest.json"
+  test -f "_out/blueprint/html-multi/$chapter/index.html"
 done
 
 python3 scripts/postprocess-blueprint.py _out/blueprint
 
-grep -q 'lean-ridgelet-chapter-toc' \
-  _out/blueprint/chapters/foundations/html-multi/index.html
+grep -q 'class="split-toc book"' \
+  _out/blueprint/html-multi/index.html
 grep -q 'bp_external_decl_implementation' \
-  _out/blueprint/chapters/foundations/html-multi/index.html
+  _out/blueprint/html-multi/foundations/index.html

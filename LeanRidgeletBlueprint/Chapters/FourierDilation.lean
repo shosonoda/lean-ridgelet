@@ -13,6 +13,9 @@ set_option linter.style.longLine false
 set_option verso.blueprint.externalCode.strictResolve true
 
 #doc (Manual) "Fourier--dilation coordinates" =>
+%%%
+file := "fourier-dilation"
+%%%
 
 This chapter corresponds to the Fourier--dilation coordinate transform in `05journal/body.tex`
 and the change-of-variables proof in `05journal/supp.tex`.

@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 
-"""Add project-specific navigation and Lean definition bodies to Blueprint HTML."""
+"""Add Lean definition bodies and small presentation fixes to Blueprint HTML."""
 
 from __future__ import annotations
 
@@ -20,11 +20,6 @@ CHAPTERS = (
     ("further-results", "Further results from the source manuscript"),
 )
 
-TOC_PATTERN = re.compile(
-    r'(<div class="split-toc book">\s*<div class="title">\s*'
-    r'<span class="no-toggle"></span><span class="">Table of Contents</span></div>)'
-    r'(\s*</div>)'
-)
 DECL_PATTERN = re.compile(
     r'(?P<prefix><div class="declaration decl [^"]*" '
     r'data-decl="(?P<decl>[^"]+)" data-kind="(?P<kind>def|abbrev)">.*?)'
@@ -64,31 +59,6 @@ OVERVIEW_STYLE = """
 }
 </style>
 """
-
-
-def chapter_toc(current: str) -> str:
-    rows = [
-        '<tr class="unnumbered"><td class="num"></td>'
-        '<td><a href="../../../html-multi/index.html">Blueprint home</a></td></tr>'
-    ]
-    for slug, title in CHAPTERS:
-        current_class = "current " if slug == current else ""
-        rows.append(
-            f'<tr class="{current_class}unnumbered"><td class="num"></td>'
-            f'<td><a href="../../{slug}/html-multi/index.html">'
-            f"{html.escape(title)}</a></td></tr>"
-        )
-    return '<table class="lean-ridgelet-chapter-toc">' + "".join(rows) + "</table>"
-
-
-def inject_toc(document: str, current: str) -> str:
-    if "lean-ridgelet-chapter-toc" in document:
-        return document
-    replacement = lambda match: match.group(1) + chapter_toc(current) + match.group(2)
-    document, count = TOC_PATTERN.subn(replacement, document, count=1)
-    if count != 1:
-        raise RuntimeError(f"could not locate the empty Table of Contents for {current}")
-    return document
 
 
 def source_implementation(repo_root: Path, source_match: re.Match[str]) -> str | None:
@@ -133,11 +103,10 @@ def inject_implementations(document: str, repo_root: Path) -> tuple[str, int]:
 
 
 def process_chapter(repo_root: Path, output_root: Path, slug: str) -> int:
-    index = output_root / "chapters" / slug / "html-multi" / "index.html"
+    index = output_root / "html-multi" / slug / "index.html"
     if not index.is_file():
         raise FileNotFoundError(index)
     document = index.read_text(encoding="utf-8")
-    document = inject_toc(document, slug)
     document, implementation_count = inject_implementations(document, repo_root)
     if "lean-ridgelet-blueprint-style" not in document:
         document = document.replace("</head>", STYLE + "</head>", 1)
@@ -148,19 +117,23 @@ def process_chapter(repo_root: Path, output_root: Path, slug: str) -> int:
 
 
 def verify_navigation(output_root: Path) -> None:
-    hrefs = ["../../../html-multi/index.html"] + [
-        f"../../{slug}/html-multi/index.html" for slug, _ in CHAPTERS
+    html_root = output_root / "html-multi"
+    pages = [html_root / "index.html"] + [
+        html_root / slug / "index.html" for slug, _ in CHAPTERS
     ]
-    for slug, _ in CHAPTERS:
-        index = output_root / "chapters" / slug / "html-multi" / "index.html"
+    for page_number, index in enumerate(pages):
         document = index.read_text(encoding="utf-8")
-        if document.count('class="lean-ridgelet-chapter-toc"') != 1:
-            raise RuntimeError(f"expected exactly one chapter table of contents in {index}")
-        for href in hrefs:
-            if f'href="{href}"' not in document:
-                raise RuntimeError(f"missing navigation link {href} in {index}")
-            if not (index.parent / href).resolve().is_file():
-                raise RuntimeError(f"navigation target does not exist: {index.parent / href}")
+        if document.count('class="split-toc book"') != 1:
+            raise RuntimeError(f"expected exactly one standard Verso table of contents in {index}")
+        for slug, title in CHAPTERS:
+            if f'href="{slug}/' not in document or title not in document:
+                raise RuntimeError(f"missing standard chapter link for {slug} in {index}")
+            if not (html_root / slug / "index.html").is_file():
+                raise RuntimeError(f"missing standard chapter page for {slug}")
+        if page_number > 0 and 'rel="prev"' not in document:
+            raise RuntimeError(f"missing standard previous-page navigation in {index}")
+        if page_number + 1 < len(pages) and 'rel="next"' not in document:
+            raise RuntimeError(f"missing standard next-page navigation in {index}")
 
 
 def main() -> None:
@@ -187,7 +160,7 @@ def main() -> None:
     if total == 0:
         raise RuntimeError("no Lean definition implementations were inserted")
     verify_navigation(output_root)
-    print("verified Blueprint navigation across all seven chapters")
+    print("verified standard Verso navigation across all seven chapters")
 
 
 if __name__ == "__main__":
