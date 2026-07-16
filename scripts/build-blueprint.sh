@@ -33,3 +33,10 @@ for chapter in "${chapters[@]}"; do
   test -f "$output/html-multi/index.html"
   test -f "$output/html-multi/-verso-data/blueprint-manifest.json"
 done
+
+python3 scripts/postprocess-blueprint.py _out/blueprint
+
+grep -q 'lean-ridgelet-chapter-toc' \
+  _out/blueprint/chapters/foundations/html-multi/index.html
+grep -q 'bp_external_decl_implementation' \
+  _out/blueprint/chapters/foundations/html-multi/index.html

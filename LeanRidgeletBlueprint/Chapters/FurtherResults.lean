@@ -14,36 +14,37 @@ set_option verso.blueprint.externalCode.strictResolve true
 
 #doc (Manual) "Further results from the source manuscript" =>
 
-以下は `05journal/body.tex` に並ぶが、現在の Ch.2--5 形式化の外側にあるため、
-依存先を明示した未形式化 node として記録する。
+The following results appear in `05journal/body.tex` but lie beyond the current formalization of
+Chapters 2--5. They are recorded as unformalized nodes with their dependencies made explicit.
 
 :::theorem "encoding_and_perturbative_readout"
-null fiber の正規直交列には可算個の $`L^2` 関数を等長に符号化できる。
-適切な additive parameter perturbation は null component を変えずに選択した関数を
-visible component へ読み出し、その perturbation は一意最小ノルムである。
+A countable family of $`L^2` functions can be encoded isometrically into an orthonormal sequence
+in the null fiber. A suitable additive parameter perturbation reads a selected function into the
+visible component without changing the null component, and this perturbation is the unique one of
+minimum norm.
 :::
 
 :::definition "measure_valued_synthesis"
-有限複素 Radon measure $`\mu` と局所化した data measure $`\nu` に対し、
-feature の Bochner integral として measure-valued synthesis $`S_\nu[\mu]` を定める。
+For a finite complex Radon measure $`\mu` and a localized data measure $`\nu`, define the
+measure-valued synthesis $`S_\nu[\mu]` as the Bochner integral of the feature map.
 :::
 
 :::theorem "normalized_finite_width_null_approximation" (uses := "measure_valued_synthesis")
-total variation が一の null measure は、width $`N` の atomic measure で近似でき、
-output norm は $`O(N^{-1/2})` で 0 に収束する。
+A null measure of total variation one can be approximated by an atomic measure of width $`N`,
+whose output norm converges to zero at rate $`O(N^{-1/2})`.
 :::
 
 :::lemma_ "truncated_monte_carlo_quadrature" (uses := "measure_valued_synthesis")
-有限測度の bounded parameter domain 上で一様 Monte Carlo 標本を取ると、truncation error と
-sampling error を分離でき、後者の mean-square は $`O(N^{-1})` で評価できる。
+Uniform Monte Carlo sampling on a bounded parameter domain for a finite measure separates the
+truncation error from the sampling error, and the latter has mean square $`O(N^{-1})`.
 :::
 
 :::corollary "discretizable_ridgelet_null_elements" (uses := "normalized_finite_width_null_approximation")
-連続かつ高々多項式増大の activation と compactly supported data measure に対し、
-Schwartz ridgelet null element から finite-width null approximation を構成できる。
+For a continuous activation of at most polynomial growth and a compactly supported data measure,
+every Schwartz ridgelet null element yields a finite-width null approximation.
 :::
 
 :::proposition "exact_finite_null_relations"
-activation の parity は exact two-atom null relation を与える。ReLU ではさらに affine
-cancellation 条件から有限個の neuron の exact null relation が得られる。
+The parity of an activation gives an exact two-atom null relation. For ReLU, affine cancellation
+conditions give further exact null relations among finitely many neurons.
 :::

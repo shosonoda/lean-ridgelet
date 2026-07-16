@@ -37,8 +37,19 @@ Generate the Verso Blueprint with:
 ./scripts/build-blueprint.sh
 ```
 
-The entry page is `_out/blueprint/html-multi/index.html`. It links to six separately rendered
-chapters whose nodes connect the informal statements to their Lean declarations.
+Preview the complete generated site through a local HTTP server:
+
+```bash
+python3 -m http.server 8000 --directory _out/blueprint
+```
+
+Then open <http://localhost:8000/html-multi/>. It links to six separately rendered chapters whose
+nodes connect the informal statements to their Lean declarations. A direct chapter URL is, for
+example, <http://localhost:8000/chapters/foundations/html-multi/>. Stop the server with `Ctrl-C`.
+Serving over HTTP ensures that Blueprint preview data and browser modules are loaded correctly.
+
+Each chapter's left-hand table of contents links to the other chapters. Definition panels include
+the Lean implementation beginning at `:=` when the declaration belongs to this project.
 
 Generate the doc-gen4 API documentation with:
 

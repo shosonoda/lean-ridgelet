@@ -15,54 +15,52 @@ set_option verso.blueprint.externalCode.strictResolve true
 #doc (Manual) "Null space and the general solution" =>
 
 :::definition "visible_projection" (lean := "LeanRidgelet.networkVisibleProjection")
-parameter space の可視成分への作用素を
-$`P=S_\sigma^\dagger S_\sigma` と定める。
+Define the operator projecting parameter space onto its visible component by
+$`P=S_\sigma^\dagger\circ S_\sigma`.
 :::
 
 :::theorem "visible_projection_properties" (lean := "LeanRidgelet.isIdempotentElem_networkVisibleProjection, LeanRidgelet.isSelfAdjoint_networkVisibleProjection")
-$`\sigma\ne0` なら $`P^2=P=P^*` である。
+If $`\sigma\ne0` then $`P^2=P=P^*`.
 :::
 
 :::theorem "visible_projection_range_kernel" (lean := "LeanRidgelet.ker_networkVisibleProjection, LeanRidgelet.range_networkVisibleProjection")
-可視射影の kernel と range は
-$$`\ker P=\ker S_\sigma,\qquad\operatorname{ran}P=(\ker S_\sigma)^\perp`
-である。
+The kernel and range of the visible projection are
+$$`\ker P=\ker S_\sigma,\qquad\operatorname{ran}P=(\ker S_\sigma)^\perp`.
 :::
 
 :::theorem "fiberwise_null_space" (lean := "LeanRidgelet.mem_ker_networkSynthesis_iff")
-parameter $`\gamma` が null space に属することと、almost every $`x` で
-$`L_\sigma[\gamma(x)]=0` となることは同値である。すなわち Fourier--dilation 座標で
-$$`T(\ker S_\sigma)=L^2(\mathbb R^m;\ker L_\sigma)`
-となる。
+A parameter $`\gamma` belongs to the null space if and only if
+$`L_\sigma[\gamma(x)]=0` for almost every $`x`. Equivalently, in Fourier--dilation coordinates,
+$$`T[\ker S_\sigma]=L^2(\mathbb R^m;\ker L_\sigma)`.
 :::
 
 :::theorem "general_solution_kernel_translate" (lean := "LeanRidgelet.networkSolution_iff_kernel_translate")
-$`\sigma\ne0` とする。方程式 $`S_\sigma\gamma=f` の完全な解集合は
-$$`S_\sigma^\dagger f+\ker S_\sigma`
-である。
+Assume $`\sigma\ne0`. The complete solution set of $`S_\sigma[\gamma]=f` is
+$$`S_\sigma^\dagger[f]+\ker S_\sigma`.
 :::
 
 :::theorem "minimum_norm_solution" (lean := "LeanRidgelet.normalizedNetworkRightInverse_unique_minimal")
-$`S_\sigma^\dagger f` は $`S_\sigma\gamma=f` を満たす唯一の最小ノルム解である。
+$`S_\sigma^\dagger[f]` is the unique minimum-norm solution of
+$`S_\sigma[\gamma]=f`.
 :::
 
 :::definition "fiber_coefficient" (lean := "LeanRidgelet.fiberCoefficient")
-$`L^2(\mathbb R^m)` の Hilbert basis $`(e_i)` に沿う parameter の fiber coefficient
-$`q_i` を Bochner integral で定める。
+For a Hilbert basis $`(e_i)` of $`L^2(\mathbb R^m)`, define the fiber coefficient $`q_i` of a
+parameter by a Bochner integral.
 :::
 
 :::theorem "ridgelet_series" (lean := "LeanRidgelet.hasSum_ridgeletOperator_fiberCoefficient")
-任意の parameter distribution は Hilbert basis に沿う ridgelet series
-$$`\gamma=\sum_i R_{q_i}e_i`
-に展開できる。
+Every parameter distribution has the ridgelet-series expansion
+$$`\gamma=\sum_i R_{q_i}[e_i]`.
 :::
 
 :::theorem "null_ridgelet_coefficients" (lean := "LeanRidgelet.activationFiberFunctional_fiberCoefficient_eq_zero_of_mem_ker")
-$`\gamma\in\ker S_\sigma` なら、その全ての coefficient fiber $`q_i` は
-$`\ker L_\sigma` に属する。
+If $`\gamma\in\ker S_\sigma`, then every coefficient fiber $`q_i` belongs to
+$`\ker L_\sigma`.
 :::
 
 :::theorem "null_space_structure" (lean := "LeanRidgelet.mem_ker_networkSynthesis_iff, LeanRidgelet.hasSum_ridgeletOperator_fiberCoefficient, LeanRidgelet.networkSolution_iff_kernel_translate, LeanRidgelet.normalizedNetworkRightInverse_unique_minimal") (uses := "fiberwise_null_space, ridgelet_series, null_ridgelet_coefficients, general_solution_kernel_translate, minimum_norm_solution")
-以上を合わせると、固定した Hilbert basis に関して null ridgelet series は存在し一意であり、
-一般解は canonical particular solution と任意の null series の和として尽くされる。
+Together, these results show that the null ridgelet series relative to a fixed Hilbert basis exists
+and is unique, and that every solution is the sum of the canonical particular solution and an
+arbitrary null series.
 :::
