@@ -33,17 +33,17 @@ theorem surjective_reluSynthesis (m : ℕ) [NeZero m] (t : ℝ)
     Function.Surjective (reluSynthesis m t ht) :=
   surjective_networkSynthesis m 0 t (reluActivation_ne_zero t ht)
 
-/-- The Riesz-dual rectified-linear-unit fiber. -/
+/-- The rectified-linear-unit Riesz representer `h_σ`. -/
 def reluRieszRepresenter (m : ℕ) [NeZero m] (t : ℝ) (ht : (3 : ℝ) / 2 < t) :
     FiberSpace m 0 t :=
   activationRieszRepresenter m 0 t (reluActivation t ht)
 
 @[simp]
 theorem inner_reluRieszRepresenter (m : ℕ) [NeZero m] (t : ℝ)
-    (ht : (3 : ℝ) / 2 < t) (q : FiberSpace m 0 t) :
-    inner ℂ (reluRieszRepresenter m t ht) q =
-      activationFiberFunctional m 0 t (reluActivation t ht) q :=
-  inner_activationRieszRepresenter m 0 t (reluActivation t ht) q
+    (ht : (3 : ℝ) / 2 < t) (h : FiberSpace m 0 t) :
+    inner ℂ (reluRieszRepresenter m t ht) h =
+      activationFiberFunctional m 0 t (reluActivation t ht) h :=
+  inner_activationRieszRepresenter m 0 t (reluActivation t ht) h
 
 theorem adjoint_reluSynthesis (m : ℕ) [NeZero m] (t : ℝ)
     (ht : (3 : ℝ) / 2 < t) :

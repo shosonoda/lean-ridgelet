@@ -9,11 +9,12 @@ public import LeanRidgelet.Operator.GeneralSolution
 public import LeanRidgelet.Operator.Synthesis
 
 /-!
-# Ridgelet operators and the general solution
+# Concrete coordinate operators and the general solution
 
-This file specializes the abstract ridgelet, adjoint, projection, and general-solution theory to
-the activation, fiber, and parameter Hilbert spaces. It supplies the operator-theoretic content of
-Theorems 2--3 in Fourier--dilation coordinates.
+This file specializes the abstract simple-tensor, adjoint, projection, and general-solution theory
+to the activation, coefficient, and transported parameter Hilbert spaces. In the present
+coordinate model `T = I`, so `ridgeletOperator h` represents `J_h`; after transport to the original
+parameter space it represents the manuscript operator `R_h = T* J_h`.
 -/
 
 @[expose] public section
@@ -25,38 +26,41 @@ open scoped ComplexConjugate InnerProduct
 
 namespace LeanRidgelet
 
-/-- A ridgelet operator with a prescribed fiber in Fourier--dilation coordinates. -/
-def ridgeletOperator (m : ℕ) [NeZero m] (s t : ℝ) (q : FiberSpace m s t) :
+/-- The simple-tensor operator `J_h` in the transported unitary-coordinate model.
+
+The name `ridgeletOperator` is retained for API compatibility; on the original parameter space
+the corresponding operator is `R_h = T* J_h`. -/
+def ridgeletOperator (m : ℕ) [NeZero m] (s t : ℝ) (h : FiberSpace m s t) :
     TargetSpace m →L[ℂ] ParameterSpace m s t :=
-  fiberRidgelet volume q
+  fiberRidgelet volume h
 
-/-- The ridgelet operator is the simple tensor `x ↦ f(x)q`. -/
+/-- In unitary coordinates, `J_h[f]` is the simple tensor `x ↦ f(x)h`. -/
 theorem ridgeletOperator_apply_ae (m : ℕ) [NeZero m] (s t : ℝ)
-    (q : FiberSpace m s t) (f : TargetSpace m) :
-    ridgeletOperator m s t q f =ᵐ[volume] fun x ↦ f x • q :=
-  fiberRidgelet_apply_ae volume q f
+    (h : FiberSpace m s t) (f : TargetSpace m) :
+    ridgeletOperator m s t h f =ᵐ[volume] fun x ↦ f x • h :=
+  fiberRidgelet_apply_ae volume h f
 
-/-- Reconstruction by a prescribed fiber, in coordinate form. -/
+/-- Coordinate reconstruction `\widetilde L_σ J_h = L_σ[h] I`. -/
 theorem networkSynthesis_comp_ridgeletOperator (m : ℕ) [NeZero m] (s t : ℝ)
-    (σ : ActivationSpace s t) (q : FiberSpace m s t) :
-    networkSynthesis m s t σ ∘L ridgeletOperator m s t q =
-      activationFiberFunctional m s t σ q •
+    (σ : ActivationSpace s t) (h : FiberSpace m s t) :
+    networkSynthesis m s t σ ∘L ridgeletOperator m s t h =
+      activationFiberFunctional m s t σ h •
         ContinuousLinearMap.id ℂ (TargetSpace m) :=
-  fiberSynthesis_comp_fiberRidgelet volume (activationFiberFunctional m s t σ) q
+  fiberSynthesis_comp_fiberRidgelet volume (activationFiberFunctional m s t σ) h
 
-/-- The Riesz-dual fiber associated with an activation. -/
+/-- The Riesz representer `h_σ` associated with an activation functional. -/
 def activationRieszRepresenter (m : ℕ) [NeZero m] (s t : ℝ)
     (σ : ActivationSpace s t) : FiberSpace m s t :=
   rieszRepresenter (activationFiberFunctional m s t σ)
 
 @[simp]
 theorem inner_activationRieszRepresenter (m : ℕ) [NeZero m] (s t : ℝ)
-    (σ : ActivationSpace s t) (q : FiberSpace m s t) :
-    inner ℂ (activationRieszRepresenter m s t σ) q =
-      activationFiberFunctional m s t σ q :=
-  inner_rieszRepresenter (activationFiberFunctional m s t σ) q
+    (σ : ActivationSpace s t) (h : FiberSpace m s t) :
+    inner ℂ (activationRieszRepresenter m s t σ) h =
+      activationFiberFunctional m s t σ h :=
+  inner_rieszRepresenter (activationFiberFunctional m s t σ) h
 
-/-- The normalization constant `cσ = ‖qσ‖²`. -/
+/-- The normalization constant `cσ = ‖hσ‖²`. -/
 def activationNormalization (m : ℕ) [NeZero m] (s t : ℝ)
     (σ : ActivationSpace s t) : ℝ :=
   fiberNormalization (activationFiberFunctional m s t σ)
@@ -66,18 +70,18 @@ theorem activationNormalization_eq_norm_sq (m : ℕ) [NeZero m] (s t : ℝ)
     activationNormalization m s t σ = ‖activationRieszRepresenter m s t σ‖ ^ 2 :=
   rfl
 
-/-- A nonzero activation induces a nonzero fiber functional. -/
+/-- A nonzero activation induces a nonzero coefficient functional. -/
 theorem activationFiberFunctional_ne_zero (m : ℕ) [NeZero m] (s t : ℝ)
     {σ : ActivationSpace s t} (hσ : σ ≠ 0) :
     activationFiberFunctional m s t σ ≠ 0 := by
   intro hfunctional
   have hcoefficient : (2 * (Real.pi : ℂ)) ^ (m - 1) ≠ 0 :=
     pow_ne_zero _ (mul_ne_zero (by norm_num) (Complex.ofReal_ne_zero.mpr Real.pi_ne_zero))
-  have hrange (q : FiberSpace m s t) :
-      inner ℂ (star σ) (fiberDualCoordinate m s t q) = 0 := by
-    have hvalue := congrArg (fun L : FiberSpace m s t →L[ℂ] ℂ ↦ L q) hfunctional
+  have hrange (h : FiberSpace m s t) :
+      inner ℂ (star σ) (fiberDualCoordinate m s t h) = 0 := by
+    have hvalue := congrArg (fun L : FiberSpace m s t →L[ℂ] ℂ ↦ L h) hfunctional
     have hproduct : (2 * (Real.pi : ℂ)) ^ (m - 1) *
-        inner ℂ (star σ) (fiberDualCoordinate m s t q) = 0 := by
+        inner ℂ (star σ) (fiberDualCoordinate m s t h) = 0 := by
       simpa [activationFiberFunctional] using hvalue
     exact (mul_eq_zero.mp hproduct).resolve_left hcoefficient
   have hinner (y : L2 ℝ volume) : inner ℂ (star σ) y = 0 := by
@@ -98,7 +102,7 @@ theorem activationNormalization_pos (m : ℕ) [NeZero m] (s t : ℝ)
     0 < activationNormalization m s t σ :=
   fiberNormalization_pos (activationFiberFunctional_ne_zero m s t hσ)
 
-/-- The adjoint synthesis operator is a ridgelet operator with the Riesz-dual fiber. -/
+/-- The adjoint synthesis operator is represented in coordinates by `J_{h_σ}`. -/
 theorem adjoint_networkSynthesis (m : ℕ) [NeZero m] (s t : ℝ)
     (σ : ActivationSpace s t) :
     (networkSynthesis m s t σ)† =
@@ -113,7 +117,7 @@ theorem networkSynthesis_comp_adjoint (m : ℕ) [NeZero m] (s t : ℝ)
         ContinuousLinearMap.id ℂ (TargetSpace m) :=
   fiberSynthesis_comp_adjoint volume (activationFiberFunctional m s t σ)
 
-/-- The normalized adjoint, giving the canonical particular solution. -/
+/-- The normalized Hilbert adjoint `c_σ⁻¹ S*`, giving the Moore--Penrose right inverse. -/
 def normalizedNetworkRightInverse (m : ℕ) [NeZero m] (s t : ℝ)
     (σ : ActivationSpace s t) : TargetSpace m →L[ℂ] ParameterSpace m s t :=
   normalizedRightInverse volume (activationFiberFunctional m s t σ)
@@ -130,7 +134,9 @@ theorem surjective_networkSynthesis (m : ℕ) [NeZero m] (s t : ℝ)
     Function.Surjective (networkSynthesis m s t σ) :=
   (normalizedNetworkRightInverse_rightInverse m s t hσ).surjective
 
-/-- Orthogonal projection onto the visible parameter component. -/
+/-- The canonical orthogonal parameter projection `P = S^\dagger S`.
+
+The name `networkVisibleProjection` is retained for API compatibility. -/
 def networkVisibleProjection (m : ℕ) [NeZero m] (s t : ℝ)
     (σ : ActivationSpace s t) : ParameterSpace m s t →L[ℂ] ParameterSpace m s t :=
   visibleProjection volume (activationFiberFunctional m s t σ)
@@ -156,7 +162,7 @@ theorem range_networkVisibleProjection (m : ℕ) [NeZero m] (s t : ℝ)
     (networkVisibleProjection m s t σ).range = (networkSynthesis m s t σ).kerᗮ :=
   range_visibleProjection volume (activationFiberFunctional_ne_zero m s t hσ)
 
-/-- Fiberwise characterization of the null space in Theorem 3. -/
+/-- Pointwise characterization of the null space in unitary coordinates. -/
 theorem mem_ker_networkSynthesis_iff (m : ℕ) [NeZero m] (s t : ℝ)
     (σ : ActivationSpace s t) (γ : ParameterSpace m s t) :
     γ ∈ LinearMap.ker (networkSynthesis m s t σ).toLinearMap ↔
@@ -184,7 +190,7 @@ theorem normalizedNetworkRightInverse_unique_minimal (m : ℕ) [NeZero m] (s t :
   normalizedRightInverse_unique_minimal volume
     (activationFiberFunctional_ne_zero m s t hσ) f
 
-/-- The ridgelet-series expansion of a parameter distribution in Theorem 3. -/
+/-- The coefficient-vector series expansion of a parameter distribution. -/
 theorem hasSum_ridgeletOperator_fiberCoefficient {ι : Type*}
     (m : ℕ) [NeZero m] (s t : ℝ) (b : HilbertBasis ι ℂ (TargetSpace m))
     (γ : ParameterSpace m s t) :
@@ -192,7 +198,7 @@ theorem hasSum_ridgeletOperator_fiberCoefficient {ι : Type*}
       (fun i ↦ ridgeletOperator m s t (fiberCoefficient volume (b i) γ) (b i)) γ :=
   hasSum_fiberRidgelet_coefficients volume b γ
 
-/-- Every coefficient fiber of a null parameter lies in the activation functional's kernel. -/
+/-- Every coefficient vector of a null parameter lies in the activation functional's kernel. -/
 theorem activationFiberFunctional_fiberCoefficient_eq_zero_of_mem_ker {ι : Type*}
     (m : ℕ) [NeZero m] (s t : ℝ) (σ : ActivationSpace s t)
     (b : HilbertBasis ι ℂ (TargetSpace m)) (γ : ParameterSpace m s t)

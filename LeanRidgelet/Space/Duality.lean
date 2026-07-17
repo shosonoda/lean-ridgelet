@@ -25,20 +25,20 @@ open scoped ComplexConjugate ENNReal InnerProductSpace SchwartzMap
 
 namespace LeanRidgelet
 
-/-- The weighted Bessel coordinate `⟨ω⟩⁻ˢ⟨∂ω⟩ᵗq` occurring in the dual estimate. -/
-def fiberDualCoordinateFn (s t : ℝ) (q : SchwartzMap ℝ ℂ) (ω : ℝ) : ℂ :=
-  japaneseBracketPow (-s) ω * schwartzBesselPotential t q ω
+/-- The weighted Bessel coordinate `⟨ω⟩⁻ˢ⟨∂ω⟩ᵗh` occurring in the dual estimate. -/
+def fiberDualCoordinateFn (s t : ℝ) (h : SchwartzMap ℝ ℂ) (ω : ℝ) : ℂ :=
+  japaneseBracketPow (-s) ω * schwartzBesselPotential t h ω
 
-theorem memLp_fiberDualCoordinateFn (s t : ℝ) (q : SchwartzMap ℝ ℂ) :
-    MemLp (fiberDualCoordinateFn s t q) 2 volume := by
+theorem memLp_fiberDualCoordinateFn (s t : ℝ) (h : SchwartzMap ℝ ℂ) :
+    MemLp (fiberDualCoordinateFn s t h) 2 volume := by
   let g : SchwartzMap ℝ ℂ :=
-    SchwartzMap.smulLeftCLM ℂ (temperedWeight (-s)) (schwartzBesselPotential t q)
+    SchwartzMap.smulLeftCLM ℂ (temperedWeight (-s)) (schwartzBesselPotential t h)
   have hg : MemLp g 2 volume := g.memLp 2 volume
-  have hfun : (g : ℝ → ℂ) = fiberDualCoordinateFn s t q := by
+  have hfun : (g : ℝ → ℂ) = fiberDualCoordinateFn s t h := by
     funext ω
     rw [show g ω =
       SchwartzMap.smulLeftCLM ℂ (temperedWeight (-s))
-        (schwartzBesselPotential t q) ω from rfl]
+        (schwartzBesselPotential t h) ω from rfl]
     rw [SchwartzMap.smulLeftCLM_apply_apply
       (hasTemperateGrowth_temperedWeight (-s))]
     simp [fiberDualCoordinateFn, temperedWeight, smul_eq_mul]
@@ -46,8 +46,8 @@ theorem memLp_fiberDualCoordinateFn (s t : ℝ) (q : SchwartzMap ℝ ℂ) :
   exact hg
 
 /-- The weighted Bessel coordinate of a Schwartz fiber, regarded as an `L²` element. -/
-def fiberDualCoordinateCoreValue (s t : ℝ) (q : SchwartzMap ℝ ℂ) : L2 ℝ volume :=
-  (memLp_fiberDualCoordinateFn s t q).toLp (fiberDualCoordinateFn s t q)
+def fiberDualCoordinateCoreValue (s t : ℝ) (h : SchwartzMap ℝ ℂ) : L2 ℝ volume :=
+  (memLp_fiberDualCoordinateFn s t h).toLp (fiberDualCoordinateFn s t h)
 
 /-- A Schwartz preimage for the weighted Bessel coordinate map. -/
 def fiberDualSchwartzPreimage (s t : ℝ) (f : SchwartzMap ℝ ℂ) : SchwartzMap ℝ ℂ :=
@@ -85,17 +85,17 @@ theorem fiberDualCoordinateCoreValue_fiberDualSchwartzPreimage (s t : ℝ)
   rw [← mul_assoc, ← Complex.ofReal_mul, ← japaneseBracketPow_add]
   simp
 
-theorem fiberDualCoordinateCoreValue_add (s t : ℝ) (q r : SchwartzMap ℝ ℂ) :
-    fiberDualCoordinateCoreValue s t (q + r) =
-      fiberDualCoordinateCoreValue s t q + fiberDualCoordinateCoreValue s t r := by
+theorem fiberDualCoordinateCoreValue_add (s t : ℝ) (h r : SchwartzMap ℝ ℂ) :
+    fiberDualCoordinateCoreValue s t (h + r) =
+      fiberDualCoordinateCoreValue s t h + fiberDualCoordinateCoreValue s t r := by
   apply Lp.ext
   unfold fiberDualCoordinateCoreValue
   grw [MemLp.coeFn_toLp, Lp.coeFn_add, MemLp.coeFn_toLp, MemLp.coeFn_toLp]
   filter_upwards with ω
   simp [fiberDualCoordinateFn, mul_add]
 
-theorem fiberDualCoordinateCoreValue_smul (s t : ℝ) (c : ℂ) (q : SchwartzMap ℝ ℂ) :
-    fiberDualCoordinateCoreValue s t (c • q) = c • fiberDualCoordinateCoreValue s t q := by
+theorem fiberDualCoordinateCoreValue_smul (s t : ℝ) (c : ℂ) (h : SchwartzMap ℝ ℂ) :
+    fiberDualCoordinateCoreValue s t (c • h) = c • fiberDualCoordinateCoreValue s t h := by
   apply Lp.ext
   unfold fiberDualCoordinateCoreValue
   grw [MemLp.coeFn_toLp, Lp.coeFn_smul, MemLp.coeFn_toLp]
@@ -110,19 +110,19 @@ def fiberDualCoordinateCore (m : ℕ) (s t : ℝ) : FiberCore m s t →ₗ[ℂ] 
   map_smul' := fiberDualCoordinateCoreValue_smul s t
 
 theorem norm_fiberDualCoordinateCore_sq (m : ℕ) [NeZero m] (s t : ℝ)
-    (q : FiberCore m s t) :
-    ‖fiberDualCoordinateCore m s t q‖ ^ 2 = fiberSobolevNormSq s t q := by
+    (h : FiberCore m s t) :
+    ‖fiberDualCoordinateCore m s t h‖ ^ 2 = fiberSobolevNormSq s t h := by
   rw [← inner_self_eq_norm_sq (𝕜 := ℂ)]
   rw [L2.inner_def]
   rw [← integral_re (L2.integrable_inner _ _)]
   unfold fiberSobolevNormSq
   apply integral_congr_ae
   have hcoe :
-      (fiberDualCoordinateCore m s t q : ℝ → ℂ) =ᵐ[volume]
-        fiberDualCoordinateFn s t q := by
-    change fiberDualCoordinateCoreValue s t q =ᵐ[volume]
-      fiberDualCoordinateFn s t q
-    exact (memLp_fiberDualCoordinateFn s t q).coeFn_toLp
+      (fiberDualCoordinateCore m s t h : ℝ → ℂ) =ᵐ[volume]
+        fiberDualCoordinateFn s t h := by
+    change fiberDualCoordinateCoreValue s t h =ᵐ[volume]
+      fiberDualCoordinateFn s t h
+    exact (memLp_fiberDualCoordinateFn s t h).coeFn_toLp
   filter_upwards [hcoe] with ω hω
   rw [hω]
   simp only [inner_self_eq_norm_sq]
@@ -134,20 +134,20 @@ theorem norm_fiberDualCoordinateCore_sq (m : ℕ) [NeZero m] (s t : ℝ)
   ring
 
 theorem norm_fiberDualCoordinateCore_le (m : ℕ) [NeZero m] (s t : ℝ)
-    (q : FiberCore m s t) : ‖fiberDualCoordinateCore m s t q‖ ≤ ‖q‖ := by
-  have hcoord := norm_fiberDualCoordinateCore_sq m s t q
-  have hq : ‖q‖ ^ 2 = fiberNormSq m s t q := by
+    (h : FiberCore m s t) : ‖fiberDualCoordinateCore m s t h‖ ≤ ‖h‖ := by
+  have hcoord := norm_fiberDualCoordinateCore_sq m s t h
+  have hq : ‖h‖ ^ 2 = fiberNormSq m s t h := by
     rw [← inner_self_eq_norm_sq (𝕜 := ℂ)]
-    exact fiberInner_self_re m s t q
-  have hbase := fiberBaseNormSq_nonneg m q
+    exact fiberInner_self_re m s t h
+  have hbase := fiberBaseNormSq_nonneg m h
   rw [fiberNormSq] at hq
-  nlinarith [norm_nonneg (fiberDualCoordinateCore m s t q), norm_nonneg q]
+  nlinarith [norm_nonneg (fiberDualCoordinateCore m s t h), norm_nonneg h]
 
 /-- The contractive weighted Bessel coordinate map on the Schwartz fiber core. -/
 def fiberDualCoordinateCoreL (m : ℕ) [NeZero m] (s t : ℝ) :
     FiberCore m s t →L[ℂ] L2 ℝ volume :=
-  LinearMap.mkContinuous (fiberDualCoordinateCore m s t) 1 fun q ↦ by
-    simpa using norm_fiberDualCoordinateCore_le m s t q
+  LinearMap.mkContinuous (fiberDualCoordinateCore m s t) 1 fun h ↦ by
+    simpa using norm_fiberDualCoordinateCore_le m s t h
 
 /-- The weighted Bessel coordinate map, extended to the completed fiber Hilbert space. -/
 def fiberDualCoordinate (m : ℕ) [NeZero m] (s t : ℝ) :
@@ -156,8 +156,8 @@ def fiberDualCoordinate (m : ℕ) [NeZero m] (s t : ℝ) :
     (UniformSpace.Completion.toComplL : FiberCore m s t →L[ℂ] FiberSpace m s t)
 
 @[simp]
-theorem fiberDualCoordinate_coe (m : ℕ) [NeZero m] (s t : ℝ) (q : FiberCore m s t) :
-    fiberDualCoordinate m s t (q : FiberSpace m s t) = fiberDualCoordinateCore m s t q := by
+theorem fiberDualCoordinate_coe (m : ℕ) [NeZero m] (s t : ℝ) (h : FiberCore m s t) :
+    fiberDualCoordinate m s t (h : FiberSpace m s t) = fiberDualCoordinateCore m s t h := by
   apply ContinuousLinearMap.extend_eq
   · exact UniformSpace.Completion.denseRange_coe
   · simpa only [UniformSpace.Completion.coe_toComplL] using
@@ -169,17 +169,17 @@ theorem denseRange_fiberDualCoordinate (m : ℕ) [NeZero m] (s t : ℝ) :
   apply (SchwartzMap.denseRange_toLpCLM (p := 2) ENNReal.ofNat_ne_top).mono
   intro y hy
   rcases hy with ⟨f, rfl⟩
-  let q : FiberCore m s t := fiberDualSchwartzPreimage s t f
-  refine ⟨(q : FiberSpace m s t), ?_⟩
+  let h : FiberCore m s t := fiberDualSchwartzPreimage s t f
+  refine ⟨(h : FiberSpace m s t), ?_⟩
   rw [fiberDualCoordinate_coe]
   exact fiberDualCoordinateCoreValue_fiberDualSchwartzPreimage s t f
 
 theorem norm_fiberDualCoordinate_le (m : ℕ) [NeZero m] (s t : ℝ)
-    (q : FiberSpace m s t) : ‖fiberDualCoordinate m s t q‖ ≤ ‖q‖ := by
-  refine (denseRange_fiberCore_coe m s t).induction_on q ?_ ?_
+    (h : FiberSpace m s t) : ‖fiberDualCoordinate m s t h‖ ≤ ‖h‖ := by
+  refine (denseRange_fiberCore_coe m s t).induction_on h ?_ ?_
   · exact isClosed_le (by fun_prop) (by fun_prop)
-  · intro q
-    simpa using norm_fiberDualCoordinateCore_le m s t q
+  · intro h
+    simpa using norm_fiberDualCoordinateCore_le m s t h
 
 theorem norm_star_L2 {α : Type*} [MeasurableSpace α] (μ : Measure α) (f : L2 α μ) :
     ‖star f‖ = ‖f‖ := by
@@ -190,7 +190,7 @@ theorem norm_star_L2 {α : Type*} [MeasurableSpace α] (μ : Measure α) (f : L2
       eLpNorm_congr_ae (Lp.coeFn_star f)
     _ = eLpNorm f 2 μ := eLpNorm_star
 
-/-- Equation (8): the activation-induced functional on the fiber Hilbert space. -/
+/-- The activation-induced functional `L_σ` on the coefficient Hilbert space. -/
 def activationFiberFunctional (m : ℕ) [NeZero m] (s t : ℝ) (σ : ActivationSpace s t) :
     FiberSpace m s t →L[ℂ] ℂ :=
   ((2 * Real.pi : ℂ) ^ (m - 1)) •
@@ -198,10 +198,10 @@ def activationFiberFunctional (m : ℕ) [NeZero m] (s t : ℝ) (σ : ActivationS
 
 @[simp]
 theorem activationFiberFunctional_coe (m : ℕ) [NeZero m] (s t : ℝ)
-    (σ : ActivationSpace s t) (q : FiberCore m s t) :
-    activationFiberFunctional m s t σ (q : FiberSpace m s t) =
+    (σ : ActivationSpace s t) (h : FiberCore m s t) :
+    activationFiberFunctional m s t σ (h : FiberSpace m s t) =
       (2 * Real.pi : ℂ) ^ (m - 1) *
-        inner ℂ (star σ) (fiberDualCoordinateCoreValue s t q) := by
+        inner ℂ (star σ) (fiberDualCoordinateCoreValue s t h) := by
   simp [activationFiberFunctional, fiberDualCoordinateCore]
 
 theorem activationFiberFunctional_add (m : ℕ) [NeZero m] (s t : ℝ)
@@ -216,7 +216,7 @@ theorem activationFiberFunctional_add (m : ℕ) [NeZero m] (s t : ℝ)
     change star ((σ + τ) ω) = (star σ) ω + (star τ) ω
     rw [hst, hσ, hτ]
     simp
-  ext q
+  ext h
   simp [activationFiberFunctional, hstar]
 
 theorem activationFiberFunctional_smul (m : ℕ) [NeZero m] (s t : ℝ)
@@ -230,34 +230,34 @@ theorem activationFiberFunctional_smul (m : ℕ) [NeZero m] (s t : ℝ)
     change star ((c • σ) ω) = conj c * (star σ) ω
     rw [hcs, hσ]
     simp
-  ext q
+  ext h
   simp [activationFiberFunctional, hstar]
   ring
 
-/-- Equation (9), the operator-norm form of the activation--fiber dual estimate. -/
+/-- The operator-norm form of the activation--coefficient dual estimate. -/
 theorem norm_activationFiberFunctional_le (m : ℕ) [NeZero m] (s t : ℝ)
     (σ : ActivationSpace s t) :
     ‖activationFiberFunctional m s t σ‖ ≤
       (2 * Real.pi) ^ (m - 1) * ‖σ‖ := by
   apply ContinuousLinearMap.opNorm_le_bound
   · positivity
-  · intro q
+  · intro h
     calc
-      ‖activationFiberFunctional m s t σ q‖ =
+      ‖activationFiberFunctional m s t σ h‖ =
           (2 * Real.pi) ^ (m - 1) *
-            ‖inner ℂ (star σ) (fiberDualCoordinate m s t q)‖ := by
+            ‖inner ℂ (star σ) (fiberDualCoordinate m s t h)‖ := by
         simp [activationFiberFunctional, Real.norm_eq_abs, abs_of_pos Real.pi_pos]
       _ ≤ (2 * Real.pi) ^ (m - 1) *
-          (‖star σ‖ * ‖fiberDualCoordinate m s t q‖) := by
+          (‖star σ‖ * ‖fiberDualCoordinate m s t h‖) := by
         gcongr
         exact norm_inner_le_norm _ _
       _ = (2 * Real.pi) ^ (m - 1) *
-          (‖σ‖ * ‖fiberDualCoordinate m s t q‖) := by
+          (‖σ‖ * ‖fiberDualCoordinate m s t h‖) := by
         rw [norm_star_L2]
-      _ ≤ (2 * Real.pi) ^ (m - 1) * (‖σ‖ * ‖q‖) := by
+      _ ≤ (2 * Real.pi) ^ (m - 1) * (‖σ‖ * ‖h‖) := by
         gcongr
-        exact norm_fiberDualCoordinate_le m s t q
-      _ = (2 * Real.pi) ^ (m - 1) * ‖σ‖ * ‖q‖ := by ring
+        exact norm_fiberDualCoordinate_le m s t h
+      _ = (2 * Real.pi) ^ (m - 1) * ‖σ‖ * ‖h‖ := by ring
 
 /-- The continuous linear map `A_{s,t} → H_{s,t}*` induced by the Fourier pairing. -/
 def activationFiberDualMap (m : ℕ) [NeZero m] (s t : ℝ) :

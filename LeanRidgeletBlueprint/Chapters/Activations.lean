@@ -54,6 +54,6 @@ including finite-part, principal-value, and Dirac distributions.
 :::
 
 :::theorem "standard_activation_riesz_resolvents"
-For each standard activation, the Riesz fiber satisfies the one-dimensional weak resolvent equation
+For each standard activation, the Riesz representer satisfies the one-dimensional weak resolvent equation
 from the manuscript, from which an explicit adjoint ridgelet function can be derived.
 :::

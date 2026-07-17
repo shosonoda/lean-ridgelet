@@ -11,9 +11,9 @@ from pathlib import Path
 
 
 CHAPTERS = (
-    ("overview", "Overview of the L2 main results"),
+    ("overview", "L2 implementation map before result reordering"),
     ("foundations", "Fourier conventions and Hilbert spaces"),
-    ("fourier-dilation", "Fourier--dilation coordinates"),
+    ("fourier-dilation", "Unitary coordinates and their Fourier construction"),
     ("operators", "Synthesis, ridgelets, and reconstruction"),
     ("general-solution", "Null space and the general solution"),
     ("activations", "Standard activation functions"),

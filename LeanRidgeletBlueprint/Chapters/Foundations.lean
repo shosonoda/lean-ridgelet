@@ -21,13 +21,15 @@ file := "foundations"
 %%%
 title := "Ghosts in Neural Networks"
 kind := .pdf
-pdf := "00data/ghost20260715.pdf"
+pdf := "00data/ghost20260718.pdf"
 %%%
 :::
 
-This chapter reorganizes the notation from `head.tex` and the Hilbert-space framework from
-`05journal/body.tex` according to the Lean dependency order. Inner products are linear in the
-first argument.
+This chapter reorganizes the notation from `head.tex` and the Hilbert-space framework from the
+active `05journal/02theory02.tex` according to the Lean dependency order. The manuscript inner
+product is linear in the first argument; Mathlib's is linear in the second, so Lean identities use
+the reversed argument order. In particular, manuscript $`L[h]=\langle h,h_L\rangle` is represented
+in Lean by $`\langle h_L,h\rangle=L[h]`.
 
 :::definition "paper_fourier_convention" (lean := "LeanRidgelet.Fourier.paperFourierIntegralInner")
 Let $`V` be a finite-dimensional real inner-product space. Define the paper-normalized Fourier
@@ -62,7 +64,7 @@ isometric equivalence. Its realization in tempered distributions is injective.
 
 :::definition "fiber_space" (lean := "LeanRidgelet.fiberNormSq, LeanRidgelet.FiberSpace")
 Let $`m>0`. On the Schwartz core, set
-$$`\|q\|_{\mathcal H_{s,t}}^2=C_m\int_{\mathbb R}|q(\omega)|^2|\omega|^m\,d\omega+\int_{\mathbb R}|(\langle\partial_\omega\rangle^t[q])(\omega)|^2\langle\omega\rangle^{-2s}\,d\omega`.
+$$`\|h\|_{\mathcal H_{s,t}}^2=C_m\int_{\mathbb R}|h(\omega)|^2|\omega|^m\,d\omega+\int_{\mathbb R}|(\langle\partial_\omega\rangle^t[h])(\omega)|^2\langle\omega\rangle^{-2s}\,d\omega`.
 The first term retains the dilation Jacobian, while the weighted Bessel term controls the
 activation pairing. The fiber space $`\mathcal H_{s,t}` is the Hilbert completion of this core.
 :::
@@ -73,8 +75,8 @@ the completed fiber space.
 :::
 
 :::definition "activation_fiber_functional" (lean := "LeanRidgelet.activationFiberFunctional")
-Each $`\sigma\in\mathcal A_{s,t}` induces a continuous linear functional on every fiber:
-$$`L_\sigma[q]=C_m\int_{\mathbb R}q(\omega)\sigma^\sharp(\omega)\,d\omega`.
+Each $`\sigma\in\mathcal A_{s,t}` induces a continuous linear functional on the coefficient space:
+$$`L_\sigma[h]=C_m\int_{\mathbb R}h(\omega)\sigma^\sharp(\omega)\,d\omega`.
 For distributional activations, this formula denotes the dual action mediated by the weighted
 Bessel coordinates.
 :::
@@ -85,8 +87,10 @@ map from activations to the fiber dual.
 :::
 
 :::definition "parameter_space" (lean := "LeanRidgelet.ParameterSpace, LeanRidgelet.parameterCoordinateEquiv")
-Define the parameter Hilbert space $`\mathcal G_{s,t}` through Fourier--dilation coordinates so
+Define the parameter Hilbert space $`\mathcal G_{s,t}` through the unitary coordinates $`T` so
 that
 $$`\mathcal G_{s,t}\simeq L^2(\mathbb R^m;\mathcal H_{s,t})`.
-The Lean development takes this Bochner $`L^2` space as its coordinate model.
+The concrete construction of $`T` uses the full Fourier transform and a weighted dilation. The
+Lean development currently takes the resulting Bochner $`L^2` space as its transported coordinate
+model.
 :::

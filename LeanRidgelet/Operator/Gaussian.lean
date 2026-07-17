@@ -30,15 +30,15 @@ theorem surjective_gaussianSynthesis (m : ℕ) [NeZero m] :
     Function.Surjective (gaussianSynthesis m) :=
   surjective_networkSynthesis m 0 0 gaussianActivation_ne_zero
 
-/-- The Riesz-dual Gaussian fiber. -/
+/-- The Gaussian Riesz representer `h_σ`. -/
 def gaussianRieszRepresenter (m : ℕ) [NeZero m] : FiberSpace m 0 0 :=
   activationRieszRepresenter m 0 0 gaussianActivation
 
 @[simp]
-theorem inner_gaussianRieszRepresenter (m : ℕ) [NeZero m] (q : FiberSpace m 0 0) :
-    inner ℂ (gaussianRieszRepresenter m) q =
-      activationFiberFunctional m 0 0 gaussianActivation q :=
-  inner_activationRieszRepresenter m 0 0 gaussianActivation q
+theorem inner_gaussianRieszRepresenter (m : ℕ) [NeZero m] (h : FiberSpace m 0 0) :
+    inner ℂ (gaussianRieszRepresenter m) h =
+      activationFiberFunctional m 0 0 gaussianActivation h :=
+  inner_activationRieszRepresenter m 0 0 gaussianActivation h
 
 /-- The positive Gaussian reconstruction constant. -/
 def gaussianNormalization (m : ℕ) [NeZero m] : ℝ :=

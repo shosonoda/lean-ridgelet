@@ -110,10 +110,10 @@ def MemPaperSobolev (s : ℝ) (σ : TemperedDistribution ℝ ℂ) : Prop :=
 def MemActivationSpace (s t : ℝ) (σ : TemperedDistribution ℝ ℂ) : Prop :=
   MemPaperSobolev s (temperedWeightMultiplier (-t) σ)
 
-/-- The Hilbert coordinate model of the activation space `A_{s,t}` from equation (6). -/
+/-- The Hilbert coordinate model of the activation space `A_{s,t}`. -/
 abbrev ActivationSpace (_s _t : ℝ) := L2 ℝ volume
 
-/-- Proposition 1, equation (7), in the transported `L²` coordinate model. -/
+/-- The activation-space isometry in the transported `L²` coordinate model. -/
 def activationCoordinateEquiv (s t : ℝ) : ActivationSpace s t ≃ₗᵢ[ℂ] L2 ℝ volume :=
   LinearIsometryEquiv.refl ℂ (L2 ℝ volume)
 
@@ -153,7 +153,7 @@ theorem memActivationSpace_activationDistribution (s t : ℝ) (σ : ActivationSp
     MemActivationSpace s t (activationDistribution s t σ) := by
   exact ⟨σ, paperBesselPotential_temperedWeightMultiplier_activationDistribution s t σ⟩
 
-/-- Equation (7) gives unique `L²` coordinates for realized activations. -/
+/-- The activation-space isometry gives unique `L²` coordinates for realized activations. -/
 theorem activationDistribution_injective (s t : ℝ) :
     Function.Injective (activationDistribution s t) := by
   intro σ τ hστ

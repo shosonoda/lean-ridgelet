@@ -10,9 +10,11 @@ public import Mathlib.Analysis.InnerProductSpace.l2Space
 public import Mathlib.MeasureTheory.Function.SimpleFuncDenseLp
 
 /-!
-# Adjoint, null space, and general solution
+# Moore--Penrose inverse, null space, and general solution
 
-The definitions here are the abstract forms of equations (25)--(32) in the L2 manuscript.
+The definitions here establish the coordinate-model case `T = I` of the abstract solution theory.
+The manuscript's parameter-space statements are obtained by transporting these results through a
+unitary coordinate transform `T`.
 -/
 
 @[expose] public section
@@ -27,11 +29,16 @@ namespace LeanRidgelet
 variable {α H : Type*} [MeasurableSpace α] (μ : Measure α)
 variable [NormedAddCommGroup H] [InnerProductSpace ℂ H] [CompleteSpace H]
 
-/-- The normalized adjoint `S† / c_L`. -/
+/-- The normalized Hilbert adjoint `c_L⁻¹ S*`, which is the manuscript's Moore--Penrose
+inverse `S^\dagger` when `L ≠ 0`.
+
+Lean's postfix `†` denotes the Hilbert adjoint, not the normalized inverse. -/
 def normalizedRightInverse (L : H →L[ℂ] ℂ) : L2 α μ →L[ℂ] BochnerL2 α H μ :=
   ((fiberNormalization L : ℂ)⁻¹) • (fiberSynthesis μ L)†
 
-/-- Projection onto the visible component `(ker S)ᗮ`. -/
+/-- The canonical orthogonal projection `P = S^\dagger S` in the coordinate model.
+
+The historical name `visibleProjection` is retained for API compatibility. -/
 def visibleProjection (L : H →L[ℂ] ℂ) :
     BochnerL2 α H μ →L[ℂ] BochnerL2 α H μ :=
   normalizedRightInverse μ L ∘L fiberSynthesis μ L
@@ -58,7 +65,8 @@ theorem normalizedRightInverse_rightInverse {L : H →L[ℂ] ℂ} (hL : L ≠ 0)
   simpa only [smul_apply, ContinuousLinearMap.id_apply] using
     inv_smul_smul₀ hc f
 
-/-- The visible projection associated with a nonzero fiber functional is idempotent. -/
+/-- The canonical parameter projection associated with a nonzero coefficient functional is
+idempotent. -/
 theorem isIdempotentElem_visibleProjection {L : H →L[ℂ] ℂ} (hL : L ≠ 0) :
     IsIdempotentElem (visibleProjection μ L) := by
   change visibleProjection μ L ∘L visibleProjection μ L = visibleProjection μ L
@@ -69,20 +77,21 @@ theorem isIdempotentElem_visibleProjection {L : H →L[ℂ] ℂ} (hL : L ≠ 0) 
     normalizedRightInverse μ L (fiberSynthesis μ L γ)
   rw [normalizedRightInverse_rightInverse μ hL]
 
-/-- The adjoint of the visible projection is itself. -/
+/-- The Hilbert adjoint of the canonical parameter projection is itself. -/
 theorem adjoint_visibleProjection {L : H →L[ℂ] ℂ} :
     (visibleProjection μ L)† = visibleProjection μ L := by
   rw [visibleProjection, normalizedRightInverse, ContinuousLinearMap.adjoint_comp,
     map_smulₛₗ, ContinuousLinearMap.adjoint_adjoint]
   simp
 
-/-- The visible projection is self-adjoint, also when the fiber functional is zero. -/
+/-- The canonical parameter projection is self-adjoint, also when the coefficient functional is
+zero. -/
 theorem isSelfAdjoint_visibleProjection {L : H →L[ℂ] ℂ} :
     IsSelfAdjoint (visibleProjection μ L) := by
   rw [ContinuousLinearMap.isSelfAdjoint_iff']
   exact adjoint_visibleProjection μ
 
-/-- The invisible component is exactly the kernel of the visible projection. -/
+/-- The kernel of the canonical parameter projection is exactly the synthesis kernel. -/
 theorem ker_visibleProjection {L : H →L[ℂ] ℂ} (hL : L ≠ 0) :
     (visibleProjection μ L).ker = (fiberSynthesis μ L).ker := by
   ext γ
@@ -101,7 +110,8 @@ theorem ker_visibleProjection {L : H →L[ℂ] ℂ} (hL : L ≠ 0) :
     change normalizedRightInverse μ L (fiberSynthesis μ L γ) = 0
     rw [hγ, map_zero]
 
-/-- The range of the visible projection is the orthogonal complement of the synthesis kernel. -/
+/-- The range of the canonical parameter projection is the orthogonal complement of the synthesis
+kernel. -/
 theorem range_visibleProjection {L : H →L[ℂ] ℂ} (hL : L ≠ 0) :
     (visibleProjection μ L).range = (fiberSynthesis μ L).kerᗮ := by
   let P := visibleProjection μ L
@@ -119,7 +129,7 @@ theorem range_visibleProjection {L : H →L[ℂ] ℂ} (hL : L ≠ 0) :
     _ = (fiberSynthesis μ L).kerᗮ := by rw [ker_visibleProjection μ hL]
 
 omit [CompleteSpace H] in
-/-- Pointwise characterization of the null space, corresponding to equation (28). -/
+/-- Pointwise characterization of the coordinate-side null space. -/
 theorem mem_ker_fiberSynthesis_iff (L : H →L[ℂ] ℂ) (γ : BochnerL2 α H μ) :
     γ ∈ LinearMap.ker (fiberSynthesis μ L).toLinearMap ↔ ∀ᵐ x ∂μ, L (γ x) = 0 := by
   change fiberSynthesis μ L γ = 0 ↔ _
@@ -181,7 +191,7 @@ section Series
 variable {ι : Type*}
 
 omit [CompleteSpace H] in
-/-- The product defining a fiber coefficient is Bochner integrable by Hölder's inequality. -/
+/-- The product defining a coefficient vector is Bochner integrable by Hölder's inequality. -/
 theorem integrable_fiberCoefficient (e : L2 α μ) (γ : BochnerL2 α H μ) :
     Integrable (fun x ↦ conj (e x) • γ x) μ := by
   have he : MemLp (fun x ↦ conj (e x)) 2 μ := by
@@ -189,37 +199,38 @@ theorem integrable_fiberCoefficient (e : L2 α μ) (γ : BochnerL2 α H μ) :
       RCLike.conjLIE.isometry.lipschitz.comp_memLp (by simp) (Lp.memLp e)
   exact memLp_one_iff_integrable.mp ((Lp.memLp γ).smul he)
 
-/-- The `H`-valued coefficient of `γ` along a scalar `L²` vector `e`. -/
+/-- The `H`-valued coefficient vector `h_i[γ]` of `γ` along a scalar `L²` vector `e`. -/
 def fiberCoefficient (e : L2 α μ) (γ : BochnerL2 α H μ) : H :=
   ∫ x, conj (e x) • γ x ∂μ
 
-/-- Simple tensors with a fixed scalar factor, as a continuous linear map in the fiber. -/
+/-- Simple tensors with a fixed scalar factor, as a continuous linear map in the coefficient
+vector. -/
 def fiberEmbedding (e : L2 α μ) : H →L[ℂ] BochnerL2 α H μ :=
   (ContinuousLinearMap.apply ℂ (BochnerL2 α H μ) e).comp
     (((ContinuousLinearMap.lsmul ℂ ℂ).flip : H →L[ℂ] ℂ →L[ℂ] H).compLpL₂ 2 μ)
 
 omit [CompleteSpace H] in
-theorem fiberEmbedding_apply (e : L2 α μ) (q : H) :
-    fiberEmbedding μ e q = fiberRidgelet μ q e := by
+theorem fiberEmbedding_apply (e : L2 α μ) (h : H) :
+    fiberEmbedding μ e h = fiberRidgelet μ h e := by
   rfl
 
-/-- The fiber coefficient map is the adjoint of simple-tensor embedding. -/
+/-- The coefficient-vector map is the adjoint of simple-tensor embedding. -/
 theorem fiberCoefficient_eq_adjoint_fiberEmbedding (e : L2 α μ)
     (γ : BochnerL2 α H μ) :
     fiberCoefficient μ e γ = ((fiberEmbedding μ e)†) γ := by
   apply ext_inner_left ℂ
-  intro q
+  intro h
   rw [ContinuousLinearMap.adjoint_inner_right, fiberCoefficient,
     ← integral_inner (integrable_fiberCoefficient μ e γ), L2.inner_def]
   apply integral_congr_ae
-  have hE : fiberEmbedding μ e q =ᵐ[μ] fun x => e x • q := by
+  have hE : fiberEmbedding μ e h =ᵐ[μ] fun x => e x • h := by
     rw [fiberEmbedding_apply]
-    exact fiberRidgelet_apply_ae μ q e
+    exact fiberRidgelet_apply_ae μ h e
   filter_upwards [hE] with x hx
   rw [hx, inner_smul_right, inner_smul_left]
 
-theorem adjoint_fiberEmbedding_comp_apply (e f : L2 α μ) (q : H) :
-    ((fiberEmbedding μ e)†) (fiberEmbedding μ f q) = ⟪e, f⟫_ℂ • q := by
+theorem adjoint_fiberEmbedding_comp_apply (e f : L2 α μ) (h : H) :
+    ((fiberEmbedding μ e)†) (fiberEmbedding μ f h) = ⟪e, f⟫_ℂ • h := by
   apply ext_inner_left ℂ
   intro r
   rw [ContinuousLinearMap.adjoint_inner_right, L2.inner_def, L2.inner_def,
@@ -227,19 +238,20 @@ theorem adjoint_fiberEmbedding_comp_apply (e f : L2 α μ) (q : H) :
   have he : fiberEmbedding μ e r =ᵐ[μ] fun x => e x • r := by
     rw [fiberEmbedding_apply]
     exact fiberRidgelet_apply_ae μ r e
-  have hf : fiberEmbedding μ f q =ᵐ[μ] fun x => f x • q := by
+  have hf : fiberEmbedding μ f h =ᵐ[μ] fun x => f x • h := by
     rw [fiberEmbedding_apply]
-    exact fiberRidgelet_apply_ae μ q f
+    exact fiberRidgelet_apply_ae μ h f
   calc
-    (∫ x, ⟪(fiberEmbedding μ e r) x, (fiberEmbedding μ f q) x⟫_ℂ ∂μ) =
-        ∫ x, ⟪e x, f x⟫_ℂ * ⟪r, q⟫_ℂ ∂μ := by
+    (∫ x, ⟪(fiberEmbedding μ e r) x, (fiberEmbedding μ f h) x⟫_ℂ ∂μ) =
+        ∫ x, ⟪e x, f x⟫_ℂ * ⟪r, h⟫_ℂ ∂μ := by
       apply integral_congr_ae
       filter_upwards [he, hf] with x hxe hxf
       rw [hxe, hxf, inner_smul_left, inner_smul_right, RCLike.inner_apply']
       ring
-    _ = (∫ x, ⟪e x, f x⟫_ℂ ∂μ) * ⟪r, q⟫_ℂ := integral_mul_const _ _
+    _ = (∫ x, ⟪e x, f x⟫_ℂ ∂μ) * ⟪r, h⟫_ℂ := integral_mul_const _ _
 
-/-- The orthogonal projection onto simple tensors with scalar factor `e`. -/
+/-- The rank-one positive operator onto simple tensors with scalar factor `e`.
+It is an orthogonal projection when `e` has norm one. -/
 def fiberProjection (e : L2 α μ) :
     BochnerL2 α H μ →L[ℂ] BochnerL2 α H μ :=
   fiberEmbedding μ e ∘L (fiberEmbedding μ e)†
@@ -254,6 +266,17 @@ theorem isSelfAdjoint_fiberProjection (e : L2 α μ) :
     IsSelfAdjoint (fiberProjection (H := H) μ e) := by
   rw [ContinuousLinearMap.isSelfAdjoint_iff', fiberProjection,
     ContinuousLinearMap.adjoint_comp, ContinuousLinearMap.adjoint_adjoint]
+
+/-- The rank-one operator `fiberProjection e` is idempotent when `e` is normalized. -/
+theorem fiberProjection_mul_self (e : L2 α μ) (he : ‖e‖ = 1) :
+    fiberProjection (H := H) μ e * fiberProjection (H := H) μ e =
+      fiberProjection (H := H) μ e := by
+  apply ContinuousLinearMap.ext
+  intro γ
+  change (fiberEmbedding μ e)
+      (((fiberEmbedding μ e)†) (fiberEmbedding μ e (((fiberEmbedding μ e)†) γ))) = _
+  rw [adjoint_fiberEmbedding_comp_apply, inner_self_eq_norm_sq_to_K, he]
+  simp [fiberProjection]
 
 theorem fiberProjection_basis_mul [DecidableEq ι]
     (b : HilbertBasis ι ℂ (L2 α μ)) (i j : ι) :
@@ -300,22 +323,22 @@ theorem norm_fiberPartialSum_apply_le (b : HilbertBasis ι ℂ (L2 α μ))
     _ = ‖γ‖ := one_mul _
 
 omit [CompleteSpace H] in
-theorem fiberEmbedding_smul (e : L2 α μ) (c : ℂ) (q : H) :
-    fiberEmbedding μ e (c • q) = fiberRidgelet μ q (c • e) := by
+theorem fiberEmbedding_smul (e : L2 α μ) (c : ℂ) (h : H) :
+    fiberEmbedding μ e (c • h) = fiberRidgelet μ h (c • e) := by
   apply Lp.ext
-  have hleft : fiberEmbedding μ e (c • q) =ᵐ[μ] fun x => e x • (c • q) := by
+  have hleft : fiberEmbedding μ e (c • h) =ᵐ[μ] fun x => e x • (c • h) := by
     rw [fiberEmbedding_apply]
-    exact fiberRidgelet_apply_ae μ (c • q) e
+    exact fiberRidgelet_apply_ae μ (c • h) e
   filter_upwards [hleft,
-    fiberRidgelet_apply_ae μ q (c • e), Lp.coeFn_smul c e] with x hleft hright he
+    fiberRidgelet_apply_ae μ h (c • e), Lp.coeFn_smul c e] with x hleft hright he
   rw [hleft, hright, he]
   simp [smul_smul, mul_comm]
 
 theorem hasSum_fiberProjection_fiberEmbedding
-    (b : HilbertBasis ι ℂ (L2 α μ)) (f : L2 α μ) (q : H) :
-    HasSum (fun i => fiberProjection μ (b i) (fiberEmbedding μ f q))
-      (fiberEmbedding μ f q) := by
-  convert (fiberRidgelet μ q).hasSum (b.hasSum_repr f) using 1
+    (b : HilbertBasis ι ℂ (L2 α μ)) (f : L2 α μ) (h : H) :
+    HasSum (fun i => fiberProjection μ (b i) (fiberEmbedding μ f h))
+      (fiberEmbedding μ f h) := by
+  convert (fiberRidgelet μ h).hasSum (b.hasSum_repr f) using 1
   · ext i
     rw [fiberProjection, ContinuousLinearMap.comp_apply,
       adjoint_fiberEmbedding_comp_apply, HilbertBasis.repr_apply_apply,
@@ -324,15 +347,15 @@ theorem hasSum_fiberProjection_fiberEmbedding
 
 omit [CompleteSpace H] in
 theorem indicatorConstLp_eq_fiberEmbedding {s : Set α} (hs : MeasurableSet s)
-    (hμs : μ s ≠ ⊤) (q : H) :
-    indicatorConstLp 2 hs hμs q =
-      fiberEmbedding μ (indicatorConstLp 2 hs hμs (1 : ℂ)) q := by
+    (hμs : μ s ≠ ⊤) (h : H) :
+    indicatorConstLp 2 hs hμs h =
+      fiberEmbedding μ (indicatorConstLp 2 hs hμs (1 : ℂ)) h := by
   apply Lp.ext
-  have hE : fiberEmbedding μ (indicatorConstLp 2 hs hμs (1 : ℂ)) q =ᵐ[μ]
-      fun x => indicatorConstLp 2 hs hμs (1 : ℂ) x • q := by
+  have hE : fiberEmbedding μ (indicatorConstLp 2 hs hμs (1 : ℂ)) h =ᵐ[μ]
+      fun x => indicatorConstLp 2 hs hμs (1 : ℂ) x • h := by
     rw [fiberEmbedding_apply]
-    exact fiberRidgelet_apply_ae μ q _
-  filter_upwards [indicatorConstLp_coeFn (μ := μ) (s := s) (c := q),
+    exact fiberRidgelet_apply_ae μ h _
+  filter_upwards [indicatorConstLp_coeFn (μ := μ) (s := s) (c := h),
     indicatorConstLp_coeFn (μ := μ) (s := s) (c := (1 : ℂ)), hE] with x hq hscalar hE
   rw [hq, hE, hscalar]
   by_cases hx : x ∈ s <;> simp [hx]
@@ -391,10 +414,10 @@ theorem hasSum_fiberRidgelet_coefficients (b : HilbertBasis ι ℂ (L2 α μ))
   have hprojection : HasSum (fun i => fiberProjection μ (b i) γ) γ := by
     induction γ using Lp.induction (p := (2 : ENNReal))
       (hp_ne_top := ENNReal.ofNat_ne_top) with
-    | @indicatorConst q s hs hμs =>
+    | @indicatorConst h s hs hμs =>
         rw [Lp.simpleFunc.coe_indicatorConst,
           indicatorConstLp_eq_fiberEmbedding (H := H) μ hs hμs.ne]
-        exact hasSum_fiberProjection_fiberEmbedding μ b _ q
+        exact hasSum_fiberProjection_fiberEmbedding μ b _ h
     | @add f g hf hg _ hf_sum hg_sum =>
         simpa only [map_add, Pi.add_apply] using hf_sum.add hg_sum
     | isClosed =>
@@ -403,15 +426,15 @@ theorem hasSum_fiberRidgelet_coefficients (b : HilbertBasis ι ℂ (L2 α μ))
 
 /-- Fiber coefficients are the unique coefficients in the scalar-basis ridgelet series. -/
 theorem eq_fiberCoefficient_of_hasSum_fiberRidgelet
-    (b : HilbertBasis ι ℂ (L2 α μ)) (q : ι → H) (γ : BochnerL2 α H μ)
-    (hq : HasSum (fun i => fiberRidgelet μ (q i) (b i)) γ) (i : ι) :
-    q i = fiberCoefficient μ (b i) γ := by
+    (b : HilbertBasis ι ℂ (L2 α μ)) (h : ι → H) (γ : BochnerL2 α H μ)
+    (hq : HasSum (fun i => fiberRidgelet μ (h i) (b i)) γ) (i : ι) :
+    h i = fiberCoefficient μ (b i) γ := by
   classical
   have hmap := ((fiberEmbedding μ (b i))†).hasSum hq
   rw [← fiberCoefficient_eq_adjoint_fiberEmbedding] at hmap
   have hterms :
-      (fun j => ((fiberEmbedding μ (b i))†) (fiberRidgelet μ (q j) (b j))) =
-        fun j => if i = j then q i else 0 := by
+      (fun j => ((fiberEmbedding μ (b i))†) (fiberRidgelet μ (h j) (b j))) =
+        fun j => if i = j then h i else 0 := by
     funext j
     rw [← fiberEmbedding_apply, adjoint_fiberEmbedding_comp_apply,
       (orthonormal_iff_ite.mp b.orthonormal i j)]
@@ -420,8 +443,8 @@ theorem eq_fiberCoefficient_of_hasSum_fiberRidgelet
       simp
     · simp
   rw [hterms] at hmap
-  have hsingle : HasSum (fun j => if i = j then q i else 0) (q i) := by
-    simpa only [eq_comm] using hasSum_ite_eq i (q i)
+  have hsingle : HasSum (fun j => if i = j then h i else 0) (h i) := by
+    simpa only [eq_comm] using hasSum_ite_eq i (h i)
   exact hsingle.unique hmap
 
 /-- Coefficients of a null element lie in the kernel of the fiber functional. -/

@@ -33,17 +33,17 @@ theorem surjective_tanhSynthesis (m : ℕ) [NeZero m] (t : ℝ)
     Function.Surjective (tanhSynthesis m t ht) :=
   surjective_networkSynthesis m 0 t (tanhActivation_ne_zero t ht)
 
-/-- The Riesz-dual hyperbolic-tangent fiber. -/
+/-- The hyperbolic-tangent Riesz representer `h_σ`. -/
 def tanhRieszRepresenter (m : ℕ) [NeZero m] (t : ℝ) (ht : (1 : ℝ) / 2 < t) :
     FiberSpace m 0 t :=
   activationRieszRepresenter m 0 t (tanhActivation t ht)
 
 @[simp]
 theorem inner_tanhRieszRepresenter (m : ℕ) [NeZero m] (t : ℝ)
-    (ht : (1 : ℝ) / 2 < t) (q : FiberSpace m 0 t) :
-    inner ℂ (tanhRieszRepresenter m t ht) q =
-      activationFiberFunctional m 0 t (tanhActivation t ht) q :=
-  inner_activationRieszRepresenter m 0 t (tanhActivation t ht) q
+    (ht : (1 : ℝ) / 2 < t) (h : FiberSpace m 0 t) :
+    inner ℂ (tanhRieszRepresenter m t ht) h =
+      activationFiberFunctional m 0 t (tanhActivation t ht) h :=
+  inner_activationRieszRepresenter m 0 t (tanhActivation t ht) h
 
 theorem adjoint_tanhSynthesis (m : ℕ) [NeZero m] (t : ℝ)
     (ht : (1 : ℝ) / 2 < t) :

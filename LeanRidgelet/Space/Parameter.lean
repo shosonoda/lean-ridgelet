@@ -10,10 +10,11 @@ public import LeanRidgelet.Space.Fiber
 /-!
 # Parameter Hilbert space
 
-This file defines the Fourier--dilation coordinate model of the parameter space from Section 2.3
-of the L2 manuscript. Equation (12) identifies the parameter Hilbert space with the Bochner space
-`L²(ℝᵐ; H_{s,t})`. Its realization as a distribution on parameter space and the nontrivial
-Fourier--dilation transform are deferred to the concrete analytic layer.
+This file defines the transported unitary-coordinate model of the parameter space
+of the L2 manuscript. The unitary transform identifies the parameter Hilbert space with the
+Bochner space `L²(ℝᵐ; H_{s,t})`. Its realization as a distribution on parameter space and the
+nontrivial concrete Fourier construction of the unitary transform is deferred to the analytic
+layer.
 -/
 
 @[expose] public section
@@ -24,11 +25,11 @@ open MeasureTheory
 
 namespace LeanRidgelet
 
-/-- The coordinate model `L²(ℝᵐ; H_{s,t})` of the parameter space in equation (12). -/
+/-- The coordinate model `L²(ℝᵐ; H_{s,t})` of the parameter Hilbert space. -/
 abbrev ParameterSpace (m : ℕ) [NeZero m] (s t : ℝ) :=
   BochnerL2 (InputSpace m) (FiberSpace m s t) volume
 
-/-- Equation (12), with the parameter space defined by transport to its Bochner `L²` model. -/
+/-- The parameter-space unitary, with the source defined by transport to its Bochner `L²` model. -/
 def parameterCoordinateEquiv (m : ℕ) [NeZero m] (s t : ℝ) :
     ParameterSpace m s t ≃ₗᵢ[ℂ] BochnerL2 (InputSpace m) (FiberSpace m s t) volume :=
   LinearIsometryEquiv.refl ℂ _

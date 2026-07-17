@@ -12,15 +12,17 @@ set_option linter.hashCommand false
 set_option linter.style.longLine false
 set_option verso.blueprint.externalCode.strictResolve true
 
-#doc (Manual) "Overview of the L2 main results" =>
+#doc (Manual) "L2 implementation map before result reordering" =>
 %%%
 file := "overview"
 %%%
 
-This chapter lists the numbered results of the L2 manuscript in publication order. A green Lean
-declaration is a thin wrapper around the coordinate-based implementation already present in the
-library. A declaration containing `sorry` records a main result whose proof remains to be
-formalized; these placeholders are explicitly named and checked by the assumption audit.
+These nodes retain the 2026-07-15 numbering as compatibility wrappers while the general-first
+2026-07-18 theorem order is migrated according to `00note/plan.md`. They must not be read as the
+current manuscript's publication order. A green Lean declaration is a thin wrapper around the
+coordinate-based implementation already present in the library. A declaration containing `sorry`
+records a main result whose proof remains to be formalized; these placeholders are explicitly
+named and checked by the assumption audit.
 
 :::proposition "l2_proposition_one" (lean := "LeanRidgelet.l2_proposition_one_activation_hilbert_structure")
 *Proposition 1 (Activation Hilbert structure).* The activation space $`\mathcal A_{s,t}` is a
@@ -38,30 +40,30 @@ integral on its natural domain remains a separate formalization task.
 :::
 
 :::lemma_ "l2_lemma_one" (lean := "LeanRidgelet.l2_lemma_one_ridgelet_fiber_representation") (uses := "l2_theorem_one")
-*Lemma 1 (Fourier and fiber representations).* The manuscript gives the bias-Fourier formulas
-for $`R[f;\rho]` and $`S_\sigma[\gamma]`, and the fiber identity
-$$`T[R[f;\rho]](x,\omega)=f(x)q_\rho(\omega)`.
-The Lean wrapper records the implemented simple-tensor fiber identity. The classical Fourier
+*Lemma 1 (Fourier expressions for $`S` and $`R`).* The manuscript gives the bias-Fourier formulas
+for $`R[f;\rho]` and $`S_\sigma[\gamma]`, and the coordinate identity
+$$`T[R[f;\rho]](x,\omega)=f(x)h_\rho(\omega)`.
+The Lean wrapper records the implemented simple-tensor coordinate identity. The classical Fourier
 formulas remain to be connected to it.
 :::
 
 :::theorem "l2_theorem_two" (lean := "LeanRidgelet.l2_theorem_two_reconstruction") (uses := "l2_lemma_one")
-*Theorem 2 (Reconstruction formula).* For every compatible ridgelet fiber $`q`,
-$$`S_\sigma\circ R_q=L_\sigma[q]I`.
+*Theorem 2 (Reconstruction formula).* For every compatible coefficient vector $`h`,
+$$`S_\sigma\circ R_h=L_\sigma[h]I`.
 In the manuscript notation this is $`S_\sigma[R[f;\rho]]=\langle\!\langle\sigma,\rho\rangle\!\rangle f`.
 :::
 
 :::lemma_ "l2_lemma_two" (lean := "LeanRidgelet.l2_lemma_two_adjoint") (uses := "l2_theorem_two")
-*Lemma 2 (Adjoint).* If $`q_\sigma` is the Riesz fiber and
-$`c_\sigma=\|q_\sigma\|^2`, then
-$$`S_\sigma^*=R_{q_\sigma},\qquad S_\sigma\circ S_\sigma^*=c_\sigma I`.
+*Lemma 2 (Adjoint).* If $`h_\sigma` is the Riesz representer and
+$`c_\sigma=\|h_\sigma\|^2`, then
+$$`S_\sigma^*=R_{h_\sigma},\qquad S_\sigma\circ S_\sigma^*=c_\sigma I`.
 :::
 
 :::theorem "l2_theorem_three" (lean := "LeanRidgelet.l2_theorem_three_null_space_and_general_solution") (uses := "l2_lemma_two")
-*Theorem 3 (Structure of the null space and general solution).* In Fourier--dilation coordinates,
+*Theorem 3 (Structure of the null space and general solution).* In unitary coordinates,
 $$`T[\ker S_\sigma]=L^2(\mathbb R^m;\ker L_\sigma)`.
 Relative to a fixed Hilbert basis, every parameter has a unique ridgelet series. The null
-parameters are exactly those whose coefficient fibers lie in $`\ker L_\sigma`, and every solution
+parameters are exactly those whose coefficient vectors lie in $`\ker L_\sigma`, and every solution
 of $`S_\sigma[\gamma]=f` is $`S_\sigma^\dagger[f]+\gamma_0` with
 $`\gamma_0\in\ker S_\sigma`. The canonical solution $`S_\sigma^\dagger[f]` is the unique
 minimum-norm solution.
