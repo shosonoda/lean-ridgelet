@@ -21,7 +21,7 @@ unitary coordinate transform `T`.
 
 noncomputable section
 
-open scoped InnerProduct ComplexConjugate
+open scoped InnerProduct ComplexConjugate lp
 open MeasureTheory InnerProductSpace
 
 namespace LeanRidgelet
@@ -49,6 +49,17 @@ theorem fiberSynthesis_comp_adjoint (L : H →L[ℂ] ℂ) :
     (fiberNormalization L : ℂ) • ContinuousLinearMap.id ℂ (L2 α μ) := by
   rw [adjoint_fiberSynthesis, fiberSynthesis_comp_fiberRidgelet,
     apply_rieszRepresenter]
+
+/-- The squared norm of the adjoint image is exactly `c_L ‖f‖²`. -/
+theorem norm_adjoint_fiberSynthesis_sq (L : H →L[ℂ] ℂ) (f : L2 α μ) :
+    ‖((fiberSynthesis μ L)†) f‖ ^ 2 = fiberNormalization L * ‖f‖ ^ 2 := by
+  rw [ContinuousLinearMap.apply_norm_sq_eq_inner_adjoint_left,
+    ContinuousLinearMap.adjoint_adjoint, fiberSynthesis_comp_adjoint]
+  simp only [smul_apply, ContinuousLinearMap.id_apply, inner_smul_left,
+    inner_self_eq_norm_sq_to_K]
+  norm_num
+  left
+  rw [← Complex.ofReal_pow, Complex.ofReal_re]
 
 /-- For a nonzero fiber functional, the normalized adjoint is a right inverse of synthesis. -/
 theorem normalizedRightInverse_rightInverse {L : H →L[ℂ] ℂ} (hL : L ≠ 0) :
@@ -151,6 +162,26 @@ theorem solution_iff_kernel_translate {L : H →L[ℂ] ℂ} (hL : L ≠ 0)
     fiberSynthesis μ L (γ - normalizedRightInverse μ L f) = 0
   rw [map_sub, normalizedRightInverse_rightInverse μ hL, sub_eq_zero]
 
+/-- Pythagoras identity for every solution, split into the canonical solution and a null-space
+component. -/
+theorem normalizedRightInverse_pythagorean {L : H →L[ℂ] ℂ} (hL : L ≠ 0)
+    (f : L2 α μ) (γ : BochnerL2 α H μ) (hγ : fiberSynthesis μ L γ = f) :
+    ‖γ‖ ^ 2 = ‖normalizedRightInverse μ L f‖ ^ 2 +
+      ‖γ - normalizedRightInverse μ L f‖ ^ 2 := by
+  let x := normalizedRightInverse μ L f
+  let η := γ - x
+  have hη : fiberSynthesis μ L η = 0 :=
+    (solution_iff_kernel_translate μ hL f γ).mp hγ
+  have horth : ⟪x, η⟫_ℂ = 0 := by
+    change ⟪(fiberNormalization L : ℂ)⁻¹ • ((fiberSynthesis μ L)†) f, η⟫_ℂ = 0
+    rw [inner_smul_left, ContinuousLinearMap.adjoint_inner_left, hη, inner_zero_right,
+      mul_zero]
+  have hdecomp : γ = x + η := by
+    simp [η]
+  rw [hdecomp]
+  simpa [x, η, pow_two] using
+    norm_add_sq_eq_norm_sq_add_norm_sq_of_inner_eq_zero x η horth
+
 /-- The normalized-adjoint solution is the unique minimum-norm solution. -/
 theorem normalizedRightInverse_unique_minimal {L : H →L[ℂ] ℂ} (hL : L ≠ 0)
     (f : L2 α μ) :
@@ -162,18 +193,10 @@ theorem normalizedRightInverse_unique_minimal {L : H →L[ℂ] ℂ} (hL : L ≠ 
   intro γ hγ
   let x := normalizedRightInverse μ L f
   let η := γ - x
-  have hη : fiberSynthesis μ L η = 0 := by
-    exact (solution_iff_kernel_translate μ hL f γ).mp hγ
-  have horth : ⟪x, η⟫_ℂ = 0 := by
-    change ⟪(fiberNormalization L : ℂ)⁻¹ • ((fiberSynthesis μ L)†) f, η⟫_ℂ = 0
-    rw [inner_smul_left, ContinuousLinearMap.adjoint_inner_left, hη, inner_zero_right,
-      mul_zero]
   have hdecomp : γ = x + η := by
     simp [η]
   have hnorm : ‖γ‖ ^ 2 = ‖x‖ ^ 2 + ‖η‖ ^ 2 := by
-    rw [hdecomp]
-    simpa [pow_two] using
-      norm_add_sq_eq_norm_sq_add_norm_sq_of_inner_eq_zero x η horth
+    simpa [x, η] using normalizedRightInverse_pythagorean μ hL f γ hγ
   constructor
   · nlinarith [norm_nonneg γ, norm_nonneg x, sq_nonneg ‖η‖]
   · intro heq
@@ -249,6 +272,37 @@ theorem adjoint_fiberEmbedding_comp_apply (e f : L2 α μ) (h : H) :
       rw [hxe, hxf, inner_smul_left, inner_smul_right, RCLike.inner_apply']
       ring
     _ = (∫ x, ⟪e x, f x⟫_ℂ ∂μ) * ⟪r, h⟫_ℂ := integral_mul_const _ _
+
+/-- Simple-tensor embedding is isometric when its scalar factor has norm one. -/
+def fiberEmbeddingIsometry (e : L2 α μ) (he : ‖e‖ = 1) :
+    H →ₗᵢ[ℂ] BochnerL2 α H μ where
+  toLinearMap := (fiberEmbedding μ e).toLinearMap
+  norm_map' h := by
+    have hsq : ‖fiberEmbedding μ e h‖ ^ 2 = ‖h‖ ^ 2 := by
+      rw [ContinuousLinearMap.apply_norm_sq_eq_inner_adjoint_left]
+      change (⟪((fiberEmbedding μ e)†) (fiberEmbedding μ e h), h⟫_ℂ).re = _
+      rw [adjoint_fiberEmbedding_comp_apply, inner_self_eq_norm_sq_to_K, he]
+      simp only [Complex.coe_algebraMap, Complex.ofReal_one, one_pow, one_smul,
+        inner_self_eq_norm_sq_to_K]
+      rw [← Complex.ofReal_pow, Complex.ofReal_re]
+    exact (sq_eq_sq₀ (norm_nonneg _) (norm_nonneg _)).mp hsq
+
+@[simp]
+theorem fiberEmbeddingIsometry_apply (e : L2 α μ) (he : ‖e‖ = 1) (h : H) :
+    fiberEmbeddingIsometry μ e he h = fiberEmbedding μ e h :=
+  rfl
+
+/-- The simple-tensor copies of `H` indexed by a scalar Hilbert basis are mutually orthogonal. -/
+theorem orthogonalFamily_fiberEmbeddingIsometry
+    (b : HilbertBasis ι ℂ (L2 α μ)) :
+    OrthogonalFamily ℂ (fun _ : ι => H)
+      (fun i => fiberEmbeddingIsometry μ (b i) (b.orthonormal.norm_eq_one i)) := by
+  intro i j hij h k
+  change ⟪fiberEmbedding μ (b i) h, fiberEmbedding μ (b j) k⟫_ℂ = 0
+  rw [← ContinuousLinearMap.adjoint_inner_right,
+    adjoint_fiberEmbedding_comp_apply,
+    b.orthonormal.inner_eq_zero hij]
+  simp
 
 /-- The rank-one positive operator onto simple tensors with scalar factor `e`.
 It is an orthogonal projection when `e` has norm one. -/
@@ -423,6 +477,169 @@ theorem hasSum_fiberRidgelet_coefficients (b : HilbertBasis ι ℂ (L2 α μ))
     | isClosed =>
       exact isClosed_hasSum_fiberProjection μ b
   simpa only [fiberProjection_apply] using hprojection
+
+/-- Parseval identity for the `H`-valued coefficients of the scalar Hilbert-basis expansion. -/
+theorem hasSum_norm_sq_fiberCoefficient (b : HilbertBasis ι ℂ (L2 α μ))
+    (γ : BochnerL2 α H μ) :
+    HasSum (fun i => ‖fiberCoefficient μ (b i) γ‖ ^ 2) (‖γ‖ ^ 2) := by
+  let V : ∀ _ : ι, H →ₗᵢ[ℂ] BochnerL2 α H μ :=
+    fun i => fiberEmbeddingIsometry μ (b i) (b.orthonormal.norm_eq_one i)
+  have hV : OrthogonalFamily ℂ (fun _ : ι => H) V :=
+    orthogonalFamily_fiberEmbeddingIsometry μ b
+  have hseries :
+      HasSum (fun i => V i (fiberCoefficient μ (b i) γ)) γ := by
+    simpa [V, fiberEmbeddingIsometry, fiberEmbedding_apply] using
+      hasSum_fiberRidgelet_coefficients μ b γ
+  rw [HasSum] at hseries ⊢
+  have ht := (continuous_norm.pow 2).continuousAt.tendsto.comp hseries
+  convert ht using 1
+  · funext s
+    simpa [Function.comp_apply] using
+      (hV.norm_sum (fun i => fiberCoefficient μ (b i) γ) s).symm
+  · simp
+
+/-- Parseval identity for the coordinate sequence of an arbitrary Hilbert basis. -/
+theorem hasSum_norm_sq_hilbertBasis_repr {K κ : Type*}
+    [NormedAddCommGroup K] [InnerProductSpace ℂ K]
+    (d : HilbertBasis κ ℂ K) (x : K) :
+    HasSum (fun j => ‖d.repr x j‖ ^ 2) (‖x‖ ^ 2) := by
+  simpa [d.repr.norm_map] using
+    (lp.hasSum_norm (p := (2 : ENNReal)) (by norm_num) (d.repr x))
+
+/-- The `i`th coefficient vector of a null parameter, bundled as an element of `ker L`. -/
+def kernelFiberCoefficient (L : H →L[ℂ] ℂ) (b : HilbertBasis ι ℂ (L2 α μ))
+    (γ : BochnerL2 α H μ) (hγ : γ ∈ (fiberSynthesis μ L).ker) (i : ι) : L.ker :=
+  ⟨fiberCoefficient μ (b i) γ, by
+    change L (fiberCoefficient μ (b i) γ) = 0
+    rw [fiberCoefficient, ← L.integral_comp_comm (integrable_fiberCoefficient μ (b i) γ)]
+    apply integral_eq_zero_of_ae
+    filter_upwards [(mem_ker_fiberSynthesis_iff μ L γ).mp hγ] with x hx
+    simp [hx]⟩
+
+/-- The coefficients obtained by expanding every null fiber coefficient in a Hilbert basis of
+`ker L` are square summable over the product index. -/
+theorem summable_norm_sq_kernelFiberCoefficient_repr {κ : Type*}
+    (L : H →L[ℂ] ℂ) (b : HilbertBasis ι ℂ (L2 α μ)) (d : HilbertBasis κ ℂ L.ker)
+    (γ : BochnerL2 α H μ) (hγ : γ ∈ (fiberSynthesis μ L).ker) :
+    Summable (fun p : ι × κ =>
+      ‖d.repr (kernelFiberCoefficient μ L b γ hγ p.1) p.2‖ ^ 2) := by
+  let a : ι → κ → ℂ := fun i j =>
+    d.repr (kernelFiberCoefficient μ L b γ hγ i) j
+  have hinner (i : ι) : HasSum (fun j => ‖a i j‖ ^ 2)
+      (‖kernelFiberCoefficient μ L b γ hγ i‖ ^ 2) :=
+    hasSum_norm_sq_hilbertBasis_repr d (kernelFiberCoefficient μ L b γ hγ i)
+  have houter : Summable (fun i => ‖kernelFiberCoefficient μ L b γ hγ i‖ ^ 2) := by
+    change Summable (fun i => ‖fiberCoefficient μ (b i) γ‖ ^ 2)
+    exact (hasSum_norm_sq_fiberCoefficient μ b γ).summable
+  have hsigma : Summable (fun p : Σ _ : ι, κ => ‖a p.1 p.2‖ ^ 2) := by
+    refine (summable_sigma_of_nonneg (fun _ => sq_nonneg _)).2 ⟨?_, ?_⟩
+    · exact fun i => (hinner i).summable
+    · have htsum : (fun i => ∑' j, ‖a i j‖ ^ 2) =
+          fun i => ‖kernelFiberCoefficient μ L b γ hγ i‖ ^ 2 := by
+        funext i
+        exact (hinner i).tsum_eq
+      rw [htsum]
+      exact houter
+  apply (Equiv.sigmaEquivProd ι κ).summable_iff.mp
+  simpa [Function.comp_def, a] using hsigma
+
+/-- The flattened null coefficients as an actual element of `ℓ²(I × J)`. -/
+def fiberNullDoubleCoefficients {κ : Type*}
+    (L : H →L[ℂ] ℂ) (b : HilbertBasis ι ℂ (L2 α μ)) (d : HilbertBasis κ ℂ L.ker)
+    (γ : BochnerL2 α H μ) (hγ : γ ∈ (fiberSynthesis μ L).ker) : ℓ²(ι × κ, ℂ) :=
+  ⟨fun p => d.repr (kernelFiberCoefficient μ L b γ hγ p.1) p.2,
+    (memℓp_gen_iff (p := (2 : ENNReal)) (by norm_num)).2 <| by
+      simpa using summable_norm_sq_kernelFiberCoefficient_repr μ L b d γ hγ⟩
+
+@[simp]
+theorem fiberNullDoubleCoefficients_apply {κ : Type*}
+    (L : H →L[ℂ] ℂ) (b : HilbertBasis ι ℂ (L2 α μ)) (d : HilbertBasis κ ℂ L.ker)
+    (γ : BochnerL2 α H μ) (hγ : γ ∈ (fiberSynthesis μ L).ker) (p : ι × κ) :
+    fiberNullDoubleCoefficients μ L b d γ hγ p =
+      d.repr (kernelFiberCoefficient μ L b γ hγ p.1) p.2 :=
+  rfl
+
+set_option maxHeartbeats 500000 in
+-- Constructing the product orthonormal family requires normalizing nested Bochner-space terms.
+/-- The sigma-indexed null-basis series is summable; this is the unconditional convergence input
+for flattening the iterated Hilbert-basis expansion. -/
+theorem summable_fiberRidgelet_kernelBasis_sigma {κ : Type*}
+    (L : H →L[ℂ] ℂ) (b : HilbertBasis ι ℂ (L2 α μ)) (d : HilbertBasis κ ℂ L.ker)
+    (γ : BochnerL2 α H μ) (hγ : γ ∈ (fiberSynthesis μ L).ker) :
+    Summable (fun p : Σ _ : ι, κ =>
+      d.repr (kernelFiberCoefficient μ L b γ hγ p.1) p.2 •
+        fiberEmbeddingIsometry μ (b p.1) (b.orthonormal.norm_eq_one p.1)
+          (L.ker.subtypeₗᵢ (d p.2))) := by
+  classical
+  let a : ι → κ → ℂ := fun i j =>
+    d.repr (kernelFiberCoefficient μ L b γ hγ i) j
+  let w : (Σ _ : ι, κ) → BochnerL2 α H μ := fun p =>
+    fiberEmbedding μ (b p.1) ((d p.2 : L.ker) : H)
+  have hw_norm (p : Σ _ : ι, κ) : ‖w p‖ = 1 := by
+    calc
+      ‖w p‖ = ‖((d p.2 : L.ker) : H)‖ :=
+        (fiberEmbeddingIsometry μ (b p.1) (b.orthonormal.norm_eq_one p.1)).norm_map _
+      _ = ‖d p.2‖ := rfl
+      _ = 1 := d.orthonormal.norm_eq_one p.2
+  have hw_inner (p q : Σ _ : ι, κ) (hpq : p ≠ q) : ⟪w p, w q⟫_ℂ = 0 := by
+    rcases p with ⟨i, j⟩
+    rcases q with ⟨i', j'⟩
+    change ⟪fiberEmbedding μ (b i) ((d j : L.ker) : H),
+      fiberEmbedding μ (b i') ((d j' : L.ker) : H)⟫_ℂ = 0
+    rw [← ContinuousLinearMap.adjoint_inner_right,
+      adjoint_fiberEmbedding_comp_apply]
+    by_cases hi : i = i'
+    · subst i'
+      have hj : j ≠ j' := by
+        intro hj
+        subst j'
+        exact hpq rfl
+      rw [inner_self_eq_norm_sq_to_K, b.orthonormal.norm_eq_one]
+      simpa using d.orthonormal.inner_eq_zero hj
+    · rw [b.orthonormal.inner_eq_zero hi]
+      simp
+  have hbase : Orthonormal ℂ w := ⟨hw_norm, hw_inner⟩
+  have hsquareProd : Summable (fun p : ι × κ => ‖a p.1 p.2‖ ^ 2) := by
+    simpa [a] using summable_norm_sq_kernelFiberCoefficient_repr μ L b d γ hγ
+  have hsquareSigma :=
+    ((Equiv.sigmaEquivProd ι κ).summable_iff
+      (f := fun p : ι × κ => ‖a p.1 p.2‖ ^ 2)).mpr hsquareProd
+  have horth := hbase.orthogonalFamily
+  have hsum := (horth.summable_iff_norm_sq_summable
+    (fun p : Σ _ : ι, κ => a p.1 p.2)).2 hsquareSigma
+  change Summable (fun p : Σ _ : ι, κ =>
+    (LinearIsometry.toSpanSingleton ℂ _ (hbase.1 p)) (a p.1 p.2))
+  exact hsum
+
+/-- Every null coordinate has the unconditional `I × J` expansion associated with Hilbert bases
+of the target space and `ker L`. -/
+theorem hasSum_fiberRidgelet_kernelBasis {κ : Type*}
+    (L : H →L[ℂ] ℂ) (b : HilbertBasis ι ℂ (L2 α μ)) (d : HilbertBasis κ ℂ L.ker)
+    (γ : BochnerL2 α H μ) (hγ : γ ∈ (fiberSynthesis μ L).ker) :
+    HasSum (fun p : ι × κ =>
+      fiberNullDoubleCoefficients μ L b d γ hγ p •
+        fiberRidgelet μ ((d p.2 : L.ker) : H) (b p.1)) γ := by
+  let a : ι → κ → ℂ := fun i j =>
+    d.repr (kernelFiberCoefficient μ L b γ hγ i) j
+  have htotal : Summable (fun p : Σ _ : ι, κ =>
+      a p.1 p.2 • fiberEmbedding μ (b p.1) ((d p.2 : L.ker) : H)) := by
+    simpa only [a, fiberEmbeddingIsometry_apply, Submodule.coe_subtypeₗᵢ,
+      Submodule.coe_subtype] using
+      summable_fiberRidgelet_kernelBasis_sigma μ L b d γ hγ
+  have houter : HasSum (fun i =>
+      fiberEmbedding μ (b i) (fiberCoefficient μ (b i) γ)) γ := by
+    simpa [fiberEmbedding_apply] using hasSum_fiberRidgelet_coefficients μ b γ
+  have hinner (i : ι) : HasSum (fun j =>
+      a i j • fiberEmbedding μ (b i) ((d j : L.ker) : H))
+      (fiberEmbedding μ (b i) (fiberCoefficient μ (b i) γ)) := by
+    have hmap := ((fiberEmbedding μ (b i)).comp L.ker.subtypeL).hasSum
+      (d.hasSum_repr (kernelFiberCoefficient μ L b γ hγ i))
+    simpa [a, kernelFiberCoefficient] using hmap
+  have hsigma : HasSum (fun p : Σ _ : ι, κ =>
+      a p.1 p.2 • fiberEmbedding μ (b p.1) ((d p.2 : L.ker) : H)) γ :=
+    HasSum.sigma_of_hasSum houter hinner htotal
+  apply (Equiv.sigmaEquivProd ι κ).hasSum_iff.mp
+  simpa [Function.comp_def, a, fiberEmbedding_apply] using hsigma
 
 /-- Fiber coefficients are the unique coefficients in the scalar-basis ridgelet series. -/
 theorem eq_fiberCoefficient_of_hasSum_fiberRidgelet

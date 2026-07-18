@@ -34,6 +34,15 @@ def ridgeletOperator (m : ℕ) [NeZero m] (s t : ℝ) (h : FiberSpace m s t) :
     TargetSpace m →L[ℂ] ParameterSpace m s t :=
   fiberRidgelet volume h
 
+/-- The concrete ridgelet operator is the abstract `R_h = T* J_h` specialized to the transported
+coordinate model `T = I`. -/
+theorem ridgeletOperator_eq_unitaryRidgelet (m : ℕ) [NeZero m] (s t : ℝ)
+    (h : FiberSpace m s t) :
+    ridgeletOperator m s t h =
+      unitaryRidgelet volume (parameterCoordinateEquiv m s t) h := by
+  ext f
+  rfl
+
 /-- In unitary coordinates, `J_h[f]` is the simple tensor `x ↦ f(x)h`. -/
 theorem ridgeletOperator_apply_ae (m : ℕ) [NeZero m] (s t : ℝ)
     (h : FiberSpace m s t) (f : TargetSpace m) :

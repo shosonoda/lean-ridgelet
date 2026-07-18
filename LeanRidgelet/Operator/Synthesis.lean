@@ -5,7 +5,7 @@ Authors: Sho Sonoda, OpenAI Codex
 -/
 module
 
-public import LeanRidgelet.Operator.FiberSynthesis
+public import LeanRidgelet.Operator.UnitarySynthesis
 public import LeanRidgelet.Space.Duality
 
 /-!
@@ -38,6 +38,16 @@ def networkSynthesis (m : ℕ) [NeZero m] (s t : ℝ) (σ : ActivationSpace s t)
 theorem networkSynthesis_eq_fiberSynthesis (m : ℕ) [NeZero m] (s t : ℝ)
     (σ : ActivationSpace s t) :
     networkSynthesis m s t σ = fiberSynthesis volume (activationFiberFunctional m s t σ) :=
+  rfl
+
+/-- The concrete synthesis is the specialization of the abstract unitary factorization to the
+transported coordinate model `T = I`. -/
+theorem networkSynthesis_eq_unitarySynthesis (m : ℕ) [NeZero m] (s t : ℝ)
+    (σ : ActivationSpace s t) :
+    networkSynthesis m s t σ =
+      unitarySynthesis volume (parameterCoordinateEquiv m s t)
+        (activationFiberFunctional m s t σ) := by
+  ext γ
   rfl
 
 /-- Pointwise coordinate form `S[γ](x) = L_σ[T[γ](x, ·)]`, with `T = I` in this model. -/

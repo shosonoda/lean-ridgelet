@@ -82,6 +82,11 @@ theorem rieszRepresenter_eq_zero_iff (L : H →L[ℂ] ℂ) :
 def fiberNormalization (L : H →L[ℂ] ℂ) : ℝ :=
   ‖rieszRepresenter L‖ ^ 2
 
+/-- The normalization constant is the squared operator norm of the coefficient functional. -/
+theorem fiberNormalization_eq_norm_sq (L : H →L[ℂ] ℂ) :
+    fiberNormalization L = ‖L‖ ^ 2 := by
+  simp [fiberNormalization, rieszRepresenter]
+
 theorem fiberNormalization_pos {L : H →L[ℂ] ℂ} (hL : L ≠ 0) :
     0 < fiberNormalization L := by
   rw [fiberNormalization, sq_pos_iff]

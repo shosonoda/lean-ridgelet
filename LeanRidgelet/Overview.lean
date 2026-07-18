@@ -8,17 +8,18 @@ module
 public import LeanRidgelet.Operator.Ridgelet
 
 /-!
-# Compatibility wrappers for the previous L2 result order
+# Current abstract results and compatibility wrappers
 
-This file retains wrappers named after the 2026-07-15 result order while the general-first
-2026-07-18 manuscript structure is migrated. Results already available in the coordinate-based
-formalization are exposed through thin wrapper theorems. The remaining results are stated as
-ordinary propositions with named `sorry` proofs, so that Lean and the repository assumption audit
-can track the exact formalization boundary.
+The current Proposition 1 and Theorems 1--2 are implemented directly, without aggregate wrapper
+assumptions, in `LeanRidgelet.Operator.UnitarySynthesis`. They cover synthesis and reconstruction,
+orthogonal solution geometry, arbitrary Hilbert-basis expansion, and Parseval's identity for a
+general unitary parameter space.
 
-The wrappers for Theorem 1 and Lemma 1 expose their currently formalized unitary-coordinate
-content. They are not the final numbering of `ghost20260718.pdf`; the staged replacement is
-recorded in `00note/plan.md`. Agreement with the original classical integrals remains future work.
+This file retains the 2026-07-15-named concrete wrappers for API compatibility. The Blueprint
+places them at their current 2026-07-18 proposition/theorem numbers. The remaining later results
+are stated as ordinary propositions with named `sorry` proofs, so that Lean and the repository
+assumption audit can track the exact formalization boundary. Agreement with the original classical
+integrals remains future work.
 -/
 
 @[expose] public section
