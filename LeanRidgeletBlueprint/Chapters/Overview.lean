@@ -17,8 +17,9 @@ set_option verso.blueprint.externalCode.strictResolve true
 file := "overview"
 %%%
 
-This chapter follows the order and independent Definition/Theorem/Proposition/Lemma/Corollary
-numbering of the manuscript at revision `74dde83` (`total brushup`, 2026-07-18). The paper first
+This chapter follows the publication order and single shared theorem-like counter of the
+manuscript at revision `657dbbb` (section-title and theorem-counter alignment, 2026-07-18). The
+paper first
 derives the separated Fourier expression in the Introduction, isolates its abstract unitary
 operator theory in Section 2, and only then constructs the concrete activation, coefficient, and
 parameter spaces. Later sections treat adjoint ridgelet functions, finite-width consequences,
@@ -36,10 +37,10 @@ and separates one particular direction from homogeneous directions. Lean current
 resulting unitary-coordinate and Hilbert-basis theory. Agreement with every classical integral and
 the direct Fourier parametrization by ridgelet functions remains an analytic task.
 
-*Section 2: Abstract reconstruction and solution geometry*
+*Section 2: Abstract Reconstruction Formula and Solution Geometry*
 
 :::definition "abstract_synthesis_and_reconstruction" (lean := "LeanRidgelet.unitarySynthesis, LeanRidgelet.unitaryRidgelet")
-*Definition 1 (Abstract synthesis and reconstruction operators).* For a unitary
+*Abstract synthesis and reconstruction operators.* For a unitary
 $`T:\mathcal G\to L^2(X,\mu;\mathcal H)` and $`L\in\mathcal H^*`, define
 $$`S:=\widetilde L T,\qquad J_h[f](x):=f(x)h,\qquad R_h:=T^*J_h.`
 These are `unitarySynthesis` and `unitaryRidgelet`; the coordinate-side names
@@ -47,14 +48,14 @@ These are `unitarySynthesis` and `unitaryRidgelet`; the coordinate-side names
 :::
 
 :::theorem "abstract_reconstruction" (lean := "LeanRidgelet.unitarySynthesis_comp_unitaryRidgelet, LeanRidgelet.adjoint_unitarySynthesis, LeanRidgelet.unitarySynthesis_comp_adjoint, LeanRidgelet.norm_adjoint_unitarySynthesis_sq") (uses := "abstract_synthesis_and_reconstruction")
-*Theorem 1 (Reconstruction from a unitary factorization).* If $`h_L` is the Riesz representer of
+*Reconstruction from a unitary factorization.* If $`h_L` is the Riesz representer of
 $`L` and $`c_L=\|h_L\|^2=\|L\|^2`, then
 $$`SR_h=L[h]I,\qquad S^*=R_{h_L},\qquad SS^*=c_LI,\qquad \|S^*[f]\|^2=c_L\|f\|^2.`
 No nonzero assumption on $`L` is needed for these identities.
 :::
 
 :::theorem "abstract_solution_geometry" (lean := "LeanRidgelet.unitaryMoorePenroseInverse, LeanRidgelet.unitaryParameterProjection, LeanRidgelet.unitaryMoorePenroseInverse_rightInverse, LeanRidgelet.isIdempotentElem_unitaryParameterProjection, LeanRidgelet.isSelfAdjoint_unitaryParameterProjection, LeanRidgelet.ker_unitaryParameterProjection, LeanRidgelet.range_unitaryParameterProjection, LeanRidgelet.map_ker_unitarySynthesis, LeanRidgelet.unitarySolution_iff_kernel_translate, LeanRidgelet.unitaryMoorePenroseInverse_pythagorean, LeanRidgelet.unitaryMoorePenroseInverse_unique_minimal") (uses := "abstract_reconstruction")
-*Theorem 2 (Orthogonal geometry of the solution set).* For $`L\ne0`, put
+*Orthogonal geometry of the solution set.* For $`L\ne0`, put
 $`S^\dagger=c_L^{-1}S^*` and $`P=S^\dagger S`. Then $`S^\dagger` is a right inverse, $`P` is the
 canonical orthogonal parameter projection, and
 $$`T[\ker S]=L^2(X,\mu;\ker L),\qquad \operatorname{im}P=(\ker S)^\perp.`
@@ -63,7 +64,7 @@ $`S^\dagger[f]` the unique minimum-norm solution.
 :::
 
 :::theorem "abstract_basis_expansion" (lean := "LeanRidgelet.hasSum_unitaryRidgelet_coefficients, LeanRidgelet.eq_unitaryCoefficient_of_hasSum_unitaryRidgelet, LeanRidgelet.hasSum_norm_sq_unitaryCoefficient, LeanRidgelet.mem_ker_unitarySynthesis_iff_coefficients, LeanRidgelet.unitaryNullDoubleCoefficients, LeanRidgelet.hasSum_unitaryRidgelet_kernelBasis") (uses := "abstract_solution_geometry")
-*Theorem 3 (Hilbert-basis expansion in parameter space).* For any Hilbert basis
+*Hilbert-basis expansion in parameter space.* For any Hilbert basis
 $`\{e_i\}_{i\in I}` of the target space,
 $$`\gamma=\sum_{i\in I}R_{h_i[\gamma]}[e_i],\qquad \sum_{i\in I}\|h_i[\gamma]\|^2=\|\gamma\|^2.`
 The coefficients are unique, and $`\gamma\in\ker S` exactly when every
@@ -71,36 +72,36 @@ $`h_i[\gamma]\in\ker L`. A Hilbert basis $`\{k_j\}_{j\in J}` of $`\ker L` gives 
 unconditionally convergent double expansion with an actual $`\ell^2(I\times J)` coefficient.
 :::
 
-*Section 3: Hilbert spaces and boundedness*
+*Section 3: Neural-Network Specialization: Hilbert Spaces and Boundedness*
 
 :::definition "activation_space" (lean := "LeanRidgelet.ActivationSpace, LeanRidgelet.activationDistribution")
-*Definition 2 (Activation space).* The manuscript defines the weighted Sobolev Hilbert space
+*Activation space.* The manuscript defines the weighted Sobolev Hilbert space
 $`\mathcal A_{s,t}=\langle\cdot\rangle^tH^s(\mathbb R)` through its Fourier--Bessel coordinate.
 Lean realizes this space by its isometric $`L^2(\mathbb R)` coordinate together with the associated
 tempered distribution.
 :::
 
 :::proposition "activation_hilbert_structure" (lean := "LeanRidgelet.l2_proposition_one_activation_hilbert_structure") (uses := "activation_space")
-*Proposition 1 (Activation Hilbert structure).* The weighted Fourier--Bessel coordinate is an
+*Activation Hilbert structure.* The weighted Fourier--Bessel coordinate is an
 isometric isomorphism from $`\mathcal A_{s,t}` onto $`L^2(\mathbb R)`; hence
 $`\mathcal A_{s,t}` is a Hilbert space.
 :::
 
 :::definition "coefficient_space" (lean := "LeanRidgelet.fiberNormSq, LeanRidgelet.FiberSpace")
-*Definition 3 (Coefficient space).* The coefficient Hilbert space $`\mathcal H_{s,t}` is the
+*Coefficient space.* The coefficient Hilbert space $`\mathcal H_{s,t}` is the
 completion of the Schwartz core for the sum of the dilation-Jacobian norm and the weighted
 Bessel-potential norm. In Lean the historical identifier `FiberSpace` denotes this coefficient
 space; an individual $`T[\gamma](x,\cdot)` is a coefficient vector, not a separate fiber.
 :::
 
 :::definition "activation_functional" (lean := "LeanRidgelet.activationFiberFunctional") (uses := "activation_space, coefficient_space")
-*Definition 4 (Activation functional).* The distributional pairing with $`\sigma^\sharp` extends
+*Activation functional.* The distributional pairing with $`\sigma^\sharp` extends
 to a bounded functional $`L_\sigma\in\mathcal H_{s,t}^*`, satisfying
 $`\|L_\sigma\|\le (2\pi)^{m-1}\|\sigma\|_{\mathcal A_{s,t}}`.
 :::
 
 :::definition "pointwise_coordinate_transform" (lean := "LeanRidgelet.fourierDilationTransformCore, LeanRidgelet.fourierDilationTransformFiberCore, LeanRidgelet.fourierDilationTransformCoreL2, LeanRidgelet.parameterSchwartzRealization")
-*Definition 5 (Coordinate transform on Schwartz parameters).* The pointwise formula is
+*Coordinate transform on Schwartz parameters.* The pointwise formula is
 $$`T_{\mathrm{pt}}[\gamma](x,\omega)=(2\pi)^{-m}\!\int\gamma(a,b)e^{i\omega(a\cdot x-b)}\,da\,db.`
 It is compared with the Hilbert transform only on the natural compatibility domain
 $`\mathcal S^T_{s,t}`. Lean keeps the required Bochner `MemLp` evidence as an explicit theorem
@@ -108,14 +109,14 @@ argument instead of placing it in an assumption object.
 :::
 
 :::lemma_ "weighted_dilation_identity" (lean := "LeanRidgelet.integral_fourierDilationCoordinate_mul") (uses := "pointwise_coordinate_transform")
-*Lemma 1 (Weighted dilation identity).* For nonnegative Borel $`g`,
+*Weighted dilation identity.* For nonnegative Borel $`g`,
 $$`\int g(a,\omega)\,da\,d\omega=\int g(-\omega x,\omega)|\omega|^m\,dx\,d\omega.`
 The exceptional slice $`\omega=0` is handled measure-theoretically rather than by claiming a
 globally invertible change of variables.
 :::
 
 :::definition "parameter_space_and_unitary_transform" (lean := "LeanRidgelet.ParameterSpace, LeanRidgelet.parameterCoordinateEquiv, LeanRidgelet.fourierDilationTransform, LeanRidgelet.inverseFourierDilationTransform") (uses := "coefficient_space, pointwise_coordinate_transform, weighted_dilation_identity")
-*Definition 6 (Parameter space and unitary coordinate transform).* The manuscript uses the graph
+*Parameter space and unitary coordinate transform.* The manuscript uses the graph
 domain $`\mathcal G_{s,t}` and its unitary map
 $`T:\mathcal G_{s,t}\to L^2(\mathbb R^m;\mathcal H_{s,t})`. Lean currently defines the source by
 transport from the Bochner coordinate model, so `ParameterSpace` and `parameterCoordinateEquiv`
@@ -124,7 +125,7 @@ separate.
 :::
 
 :::proposition "concrete_unitary_transform" (lean := "LeanRidgelet.fourierDilationTransform, LeanRidgelet.inverseFourierDilationTransform_apply_fourierDilationTransform, LeanRidgelet.fourierDilationTransform_parameterSchwartzRealization_apply_ae, LeanRidgelet.inverseFourierDilationTransformCore") (uses := "parameter_space_and_unitary_transform")
-*Proposition 2 (Concrete unitary coordinate transform).* The graph-domain transform is unitary;
+*Concrete unitary coordinate transform.* The graph-domain transform is unitary;
 its inverse is first given by an integral on the dense algebraic tensor class
 $`\mathcal E_{s,t}` and then extended by Hilbert-space limits. Lean proves the transported unitary
 and natural-domain forward compatibility and defines the inverse core formula. The final equality
@@ -132,23 +133,23 @@ between that inverse integral and the transported inverse is still an analytic b
 :::
 
 :::definition "hilbert_space_synthesis" (lean := "LeanRidgelet.networkSynthesis, LeanRidgelet.networkSynthesis_eq_unitarySynthesis, LeanRidgelet.networkSynthesis_apply_ae") (uses := "activation_functional, concrete_unitary_transform, abstract_synthesis_and_reconstruction")
-*Definition 7 (Hilbert-space synthesis operator).* The completed operator is
+*Hilbert-space synthesis operator.* The completed operator is
 $`S=\widetilde L_\sigma T`, equivalently
 $`S[\gamma](x)=L_\sigma[T[\gamma](x,\cdot)]`. The classical parameter integral is the motivating
 formula and is asserted only on its natural domain.
 :::
 
 :::theorem "bounded_synthesis" (lean := "LeanRidgelet.l2_theorem_one_bounded_synthesis, LeanRidgelet.norm_networkSynthesis_le") (uses := "hilbert_space_synthesis")
-*Theorem 4 (Boundedness of $`S`).* For $`\sigma\in\mathcal A_{s,t}`,
+*Boundedness of $`S`.* For $`\sigma\in\mathcal A_{s,t}`,
 $$`\|S[\gamma]\|_2\le (2\pi)^{m-1}\|\sigma\|_{\mathcal A_{s,t}}\|\gamma\|_{\mathcal G_{s,t}}.`
 The coordinate operator and estimate are formalized. Agreement with the original classical
 integral whenever it exists remains a separate analytic theorem.
 :::
 
-*Section 4: Ridgelet reconstruction from the Fourier expression*
+*Section 4: Neural-Network Specialization: Ridgelet Reconstruction from the Fourier Expression*
 
 :::definition "ridgelet_transform_and_pairing" (lean := "LeanRidgelet.ridgeletOperator, LeanRidgelet.ridgeletOperator_eq_unitaryRidgelet") (uses := "concrete_unitary_transform")
-*Definition 8 (Ridgelet transform and activation pairing).* For a compatible ridgelet function
+*Ridgelet transform and activation pairing.* For a compatible ridgelet function
 $`\rho`, the coefficient vector is $`h_\rho=|\omega|^{-m}\overline{\rho^\sharp}` and the rigorous
 operator is $`R[f;\rho]=T^*[f\otimes h_\rho]`. Lean implements the coefficient-vector operator
 $`R_h`; the function space $`\mathcal B_{s,t}` and the map $`\rho\mapsto h_\rho` are not yet bundled
@@ -156,68 +157,68 @@ as Lean objects.
 :::
 
 :::lemma_ "fourier_expressions" (lean := "LeanRidgelet.l2_lemma_one_ridgelet_fiber_representation, LeanRidgelet.ridgeletOperator_apply_ae") (uses := "ridgelet_transform_and_pairing, bounded_synthesis")
-*Lemma 2 (Fourier expressions for $`S` and $`R`).* The manuscript proves the bias-Fourier formulas
+*Fourier expressions for $`S` and $`R`.* The manuscript proves the bias-Fourier formulas
 and the coordinate identity $`T[R[f;\rho]]=f\otimes h_\rho`. Lean proves the simple-tensor
 coordinate identity. Connecting it to both classical Fourier formulas is still pending.
 :::
 
 :::theorem "concrete_reconstruction" (lean := "LeanRidgelet.l2_theorem_two_reconstruction, LeanRidgelet.networkSynthesis_comp_ridgeletOperator") (uses := "fourier_expressions, abstract_reconstruction")
-*Theorem 5 (Reconstruction formula).* For $`f\in L^2(\mathbb R^m)`, compatible $`\rho`, and
+*Reconstruction formula.* For $`f\in L^2(\mathbb R^m)`, compatible $`\rho`, and
 $`\sigma\in\mathcal A_{s,t}`,
 $$`S[R[f;\rho]]=\langle\!\langle\sigma,\rho\rangle\!\rangle f.`
 The coefficient-vector form $`S\circ R_h=L_\sigma[h]I` is fully formalized; the classical
 $`\rho`-formula depends on the preceding unfinished identification.
 :::
 
-*Section 5: Adjoint, null space, and complete general solution*
+*Section 5: Neural-Network Specialization: Adjoint, Null Space, and Complete General Solution*
 
 :::definition "adjoint_ridgelet_function" (lean := "LeanRidgelet.activationRieszRepresenter, LeanRidgelet.activationNormalization") (uses := "activation_functional, ridgelet_transform_and_pairing")
-*Definition 9 (Adjoint ridgelet function).* The Riesz vector $`h_\sigma` of $`L_\sigma` determines
+*Adjoint ridgelet function.* The Riesz vector $`h_\sigma` of $`L_\sigma` determines
 $`\sigma_*^\sharp=|\omega|^m\overline{h_\sigma}` and
 $`c_\sigma=\|h_\sigma\|^2=\|L_\sigma\|^2`. Lean implements $`h_\sigma` and $`c_\sigma`; the
 distributional ridgelet function $`\sigma_*` itself is not yet constructed.
 :::
 
 :::lemma_ "concrete_adjoint" (lean := "LeanRidgelet.l2_lemma_two_adjoint, LeanRidgelet.adjoint_networkSynthesis, LeanRidgelet.networkSynthesis_comp_adjoint") (uses := "adjoint_ridgelet_function, abstract_reconstruction")
-*Lemma 3 (Concrete adjoint and canonical ridgelet).* In coefficient coordinates,
+*Concrete adjoint and canonical ridgelet.* In coefficient coordinates,
 $$`S^*=R_{h_\sigma},\qquad SS^*=c_\sigma I,\qquad \|S^*[f]\|^2=c_\sigma\|f\|^2.`
 The manuscript writes the first identity as $`S^*[f]=R[f;\sigma_*]`.
 :::
 
 :::definition "canonical_solution_and_projection" (lean := "LeanRidgelet.normalizedNetworkRightInverse, LeanRidgelet.networkVisibleProjection, LeanRidgelet.normalizedNetworkRightInverse_rightInverse, LeanRidgelet.isSelfAdjoint_networkVisibleProjection") (uses := "concrete_adjoint, abstract_solution_geometry")
-*Definition 10 (Canonical solution and parameter projection).* Define
+*Canonical solution and parameter projection.* Define
 $`S^\dagger=c_\sigma^{-1}S^*` and $`P=S^\dagger S`. Lean retains the historical internal names
 `normalizedNetworkRightInverse` and `networkVisibleProjection`, while the documentation uses the
 manuscript terminology.
 :::
 
 :::theorem "concrete_null_space_and_general_solution" (lean := "LeanRidgelet.l2_theorem_three_null_space_and_general_solution, LeanRidgelet.mem_ker_networkSynthesis_iff, LeanRidgelet.hasSum_ridgeletOperator_fiberCoefficient, LeanRidgelet.networkSolution_iff_kernel_translate, LeanRidgelet.normalizedNetworkRightInverse_unique_minimal, LeanRidgelet.hasSum_unitaryRidgelet_kernelBasis") (uses := "canonical_solution_and_projection, abstract_basis_expansion, fourier_expressions")
-*Theorem 6 (Ridgelet characterization of the null space and general solution).* The theorem
+*Ridgelet characterization of the null space and general solution.* The theorem
 identifies $`T[\ker S]=L^2(\mathbb R^m;\ker L_\sigma)`, gives the unique coefficient expansion of
 every null element, and writes every solution as a particular ridgelet solution plus that null
 series. Lean proves the complete coefficient-vector expansion, affine solution set, double
 $`\ell^2` expansion, and minimum-norm statement. Translating every coefficient vector back to a
-classical ridgelet function $`\rho_i` still uses the unfinished analytic map from Definition 8.
+classical ridgelet function $`\rho_i` still uses the unfinished analytic map from Definition 15.
 :::
 
-*Section 6: Adjoint ridgelet functions for standard activations*
+*Section 6: Examples of Adjoint Ridgelet Functions: ReLU, Sigmoidal, and Gaussian Activations*
 
 The manuscript's Example 2 derives one-dimensional weak resolvent formulas for the adjoint
 ridgelet functions of ReLU, tanh, the Gaussian cumulative distribution function, and the Gaussian
 density. Lean currently formalizes membership and distributional realizations for several standard
 activations, but not these explicit Riesz-resolvent formulas.
 
-*Sections 7--9: Finite width, numerics, and parameter perturbations*
+*Section 7: Further Developments: Finite-Width Approximation of Null Elements*
 
 :::definition "measure_valued_synthesis"
-*Definition 11 (Measure-valued synthesis).* For a finite complex Radon measure $`\mu` and localized
+*Measure-valued synthesis.* For a finite complex Radon measure $`\mu` and localized
 data measure $`\nu`, the manuscript defines $`S_\nu[\mu]` as a Bochner integral under a finite
 feature-energy condition. This measure-valued space is deliberately separate from
 $`\mathcal G_{s,t}` and has not yet been formalized.
 :::
 
 :::theorem "normalized_finite_width_approximation" (lean := "LeanRidgelet.l2_theorem_five_normalized_finite_width_approximation") (uses := "measure_valued_synthesis")
-*Theorem 7 (Normalized finite-width approximation of a null measure).* A normalized nonzero null
+*Normalized finite-width approximation of a null measure.* A normalized nonzero null
 measure admits width-$`N` atomic approximations with output error at most
 $`E_\nu(\mu_0)^{1/2}N^{-1/2}`, exact mean-square rate $`E_\nu(\mu_0)/N`, and almost-sure weak-star
 and output convergence. The current named Lean placeholder states the Hilbert-valued sampling core;
@@ -225,24 +226,28 @@ the full Radon-measure and convergence theorem remains open.
 :::
 
 :::corollary "discretizable_ridgelet_null_elements" (lean := "LeanRidgelet.l2_corollary_one_discretizable_ridgelet_null_elements") (uses := "normalized_finite_width_approximation, concrete_null_space_and_general_solution")
-*Corollary 1 (Discretizable ridgelet null elements).* Under continuity, polynomial growth, and
+*Discretizable ridgelet null elements.* Under continuity, polynomial growth, and
 compact data support, a nonzero Schwartz ridgelet null element produces a normalized null measure
-to which Theorem 7 applies. The Lean placeholder currently records existence of a nonzero
+to which Theorem 23 applies. The Lean placeholder currently records existence of a nonzero
 coordinate-side null ridgelet candidate, not the full measure construction.
 :::
 
 :::proposition "exact_finite_null_relations" (lean := "LeanRidgelet.l2_proposition_two_exact_finite_null_relations")
-*Proposition 3 (Exact finite null relations).* Odd and even activations give antipodal two-atom
+*Exact finite null relations.* Odd and even activations give antipodal two-atom
 relations, while ReLU admits the stated affine-cancellation family. This algebraic statement is
 tracked by a named Lean placeholder.
 :::
 
-Section 8 is a numerical illustration rather than a formal theorem. It discretizes continuous
+*Section 8: Further Developments: Numerical Illustration in Finite Networks*
+
+This section is a numerical illustration rather than a formal theorem. It discretizes continuous
 ridgelet null elements and distinguishes antipodal cancellation from a genuinely nontrivial null
 relation. No structural result depends on the experiment.
 
+*Section 9: Further Developments: Perturbative Readout of Null-Space Information*
+
 :::theorem "null_space_encoding_and_perturbations" (lean := "LeanRidgelet.l2_theorem_four_encoding_and_perturbative_readout") (uses := "concrete_null_space_and_general_solution, canonical_solution_and_projection")
-*Theorem 8 (Null-space encoding and parameter perturbations).* A square-summable family is encoded
+*Null-space encoding and parameter perturbations.* A square-summable family is encoded
 in orthonormal null coefficient directions. Riesz-dual activations read individual entries, while
 the minimum-norm additive perturbation $`S^\dagger[f_i-f_0]` changes the represented output and
 preserves the stored null component. The current Lean declaration is a named placeholder for this
@@ -250,6 +255,12 @@ construction; its statement covers the encoding and invariant-null-component ide
 the complete uniqueness and exact norm formula still require proof-level refinement.
 :::
 
-Section 10 separates the proved continuous null-space structure, its finite-width traces, and the
-interpretation of null-space information. It introduces no additional numbered mathematical
+*Section 10: Discussion*
+
+This section separates the proved continuous null-space structure, its finite-width traces, and
+the interpretation of null-space information. It introduces no additional numbered mathematical
 result.
+
+*Section 11: Conclusion*
+
+The conclusion summarizes the paper and likewise adds no numbered result.

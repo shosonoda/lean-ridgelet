@@ -49,16 +49,21 @@ STYLE = """
 </style>
 """
 
-OVERVIEW_STYLE = """
-<style id="lean-ridgelet-overview-style">
-/* Verso uses one counter for all theorem-like kinds. The authored first sentence carries the
-   manuscript's independent Proposition/Theorem/Lemma numbering, so suppress that shared count. */
-.bp_wrapper > .bp_heading .bp_label,
-.bp_code_block > summary .bp_label {
-  display: none;
-}
-</style>
-"""
+OVERVIEW_LABEL_PATTERN = re.compile(
+    r'(?P<open><span class="bp_label[^"]*">)1\.(?P<number>\d+)(?P<close></span>)'
+)
+OVERVIEW_REFERENCE_PATTERN = re.compile(
+    r'\b(?P<kind>Definition|Theorem|Proposition|Lemma|Corollary) 1\.(?P<number>\d+)\b'
+)
+OVERVIEW_STATEMENT_LABEL_PATTERN = re.compile(
+    r'<div class="bp_heading bp_kind_'
+    r'(?:definition|theorem|proposition|lemma|corollary)_heading[^"]*".*?'
+    r'<span class="bp_label[^"]*">(?P<number>\d+)</span>',
+    re.DOTALL,
+)
+OLD_OVERVIEW_STYLE_PATTERN = re.compile(
+    r'\s*<style id="lean-ridgelet-overview-style">.*?</style>', re.DOTALL
+)
 
 
 def source_implementation(repo_root: Path, source_match: re.Match[str]) -> str | None:
@@ -102,6 +107,26 @@ def inject_implementations(document: str, repo_root: Path) -> tuple[str, int]:
     return DECL_PATTERN.sub(replace, document), inserted
 
 
+def normalize_overview_numbering(document: str) -> str:
+    """Match the manuscript's global 1--26 theorem counter.
+
+    Verso prefixes statement labels with the Blueprint chapter number, producing `1.1` through
+    `1.26`. The manuscript uses the same shared ordering without the chapter prefix.
+    """
+    document = OLD_OVERVIEW_STYLE_PATTERN.sub("", document)
+    document = OVERVIEW_LABEL_PATTERN.sub(
+        lambda match: match.group("open") + match.group("number") + match.group("close"), document
+    )
+    document = OVERVIEW_REFERENCE_PATTERN.sub(
+        lambda match: match.group("kind") + " " + match.group("number"), document
+    )
+    labels = OVERVIEW_STATEMENT_LABEL_PATTERN.findall(document)
+    expected = [str(number) for number in range(1, 27)]
+    if labels != expected:
+        raise RuntimeError(f"unexpected Overview statement numbering: {labels}")
+    return document
+
+
 def process_chapter(repo_root: Path, output_root: Path, slug: str) -> int:
     index = output_root / "html-multi" / slug / "index.html"
     if not index.is_file():
@@ -110,8 +135,8 @@ def process_chapter(repo_root: Path, output_root: Path, slug: str) -> int:
     document, implementation_count = inject_implementations(document, repo_root)
     if "lean-ridgelet-blueprint-style" not in document:
         document = document.replace("</head>", STYLE + "</head>", 1)
-    if slug == "overview" and "lean-ridgelet-overview-style" not in document:
-        document = document.replace("</head>", OVERVIEW_STYLE + "</head>", 1)
+    if slug == "overview":
+        document = normalize_overview_numbering(document)
     index.write_text(document, encoding="utf-8")
     return implementation_count
 
