@@ -10,16 +10,16 @@ public import LeanRidgelet.Operator.Ridgelet
 /-!
 # Current abstract results and compatibility wrappers
 
-The current Proposition 1 and Theorems 1--2 are implemented directly, without aggregate wrapper
+The current abstract Theorems 1--3 are implemented directly, without aggregate wrapper
 assumptions, in `LeanRidgelet.Operator.UnitarySynthesis`. They cover synthesis and reconstruction,
 orthogonal solution geometry, arbitrary Hilbert-basis expansion, and Parseval's identity for a
 general unitary parameter space.
 
 This file retains the 2026-07-15-named concrete wrappers for API compatibility. The Blueprint
-places them at their current 2026-07-18 proposition/theorem numbers. The remaining later results
-are stated as ordinary propositions with named `sorry` proofs, so that Lean and the repository
-assumption audit can track the exact formalization boundary. Agreement with the original classical
-integrals remains future work.
+places them at their current 2026-07-18 Definition/Theorem/Proposition/Lemma/Corollary positions.
+The remaining later results are stated as ordinary propositions with named `sorry` proofs, so the
+repository assumption audit can track the exact formalization boundary. Agreement with the
+original classical integrals remains future work.
 -/
 
 @[expose] public section
@@ -36,8 +36,8 @@ theorem l2_proposition_one_activation_hilbert_structure (s t : ℝ) :
     Nonempty (ActivationSpace s t ≃ₗᵢ[ℂ] L2 ℝ volume) :=
   ⟨activationCoordinateEquiv s t⟩
 
-/-- Legacy L2 Theorem 1 wrapper: coordinate synthesis is pointwise evaluation and satisfies the
-concrete bound. -/
+/-- Manuscript Theorem 4 (legacy L2 Theorem 1 wrapper): coordinate synthesis is pointwise
+evaluation and satisfies the concrete bound. -/
 theorem l2_theorem_one_bounded_synthesis (m : ℕ) [NeZero m] (s t : ℝ)
     (σ : ActivationSpace s t) (γ : ParameterSpace m s t) :
     (networkSynthesis m s t σ γ =ᵐ[volume]
@@ -46,14 +46,15 @@ theorem l2_theorem_one_bounded_synthesis (m : ℕ) [NeZero m] (s t : ℝ)
       (2 * Real.pi) ^ (m - 1) * ‖σ‖ * ‖γ‖ :=
   ⟨networkSynthesis_apply_ae m s t σ γ, norm_networkSynthesis_apply_le m s t σ γ⟩
 
-/-- Legacy L2 Lemma 1 wrapper: the formalized coordinate representation is a simple tensor. -/
+/-- Manuscript Lemma 2 (legacy L2 Lemma 1 wrapper): the formalized coordinate representation is a
+simple tensor. -/
 theorem l2_lemma_one_ridgelet_fiber_representation (m : ℕ) [NeZero m] (s t : ℝ)
     (h : FiberSpace m s t) (f : TargetSpace m) :
     ridgeletOperator m s t h f =ᵐ[volume] fun x ↦ f x • h :=
   ridgeletOperator_apply_ae m s t h f
 
-/-- Legacy L2 Theorem 2 wrapper: synthesis after a prescribed coefficient is scalar
-reconstruction. -/
+/-- Manuscript Theorem 5 (legacy L2 Theorem 2 wrapper): synthesis after a prescribed
+coefficient is scalar reconstruction. -/
 theorem l2_theorem_two_reconstruction (m : ℕ) [NeZero m] (s t : ℝ)
     (σ : ActivationSpace s t) (h : FiberSpace m s t) :
     networkSynthesis m s t σ ∘L ridgeletOperator m s t h =
@@ -61,8 +62,8 @@ theorem l2_theorem_two_reconstruction (m : ℕ) [NeZero m] (s t : ℝ)
         ContinuousLinearMap.id ℂ (TargetSpace m) :=
   networkSynthesis_comp_ridgeletOperator m s t σ h
 
-/-- Legacy L2 Lemma 2 wrapper: the adjoint uses the Riesz representer and satisfies the scaled
-coisometry identity. -/
+/-- Manuscript Lemma 3 (legacy L2 Lemma 2 wrapper): the adjoint uses the Riesz representer and
+satisfies the scaled coisometry identity. -/
 theorem l2_lemma_two_adjoint (m : ℕ) [NeZero m] (s t : ℝ)
     (σ : ActivationSpace s t) :
     (networkSynthesis m s t σ)† =
@@ -73,8 +74,8 @@ theorem l2_lemma_two_adjoint (m : ℕ) [NeZero m] (s t : ℝ)
   ⟨adjoint_networkSynthesis m s t σ, networkSynthesis_comp_adjoint m s t σ⟩
 
 /--
-Legacy L2 Theorem 3 wrapper: pointwise nullity, the unique basis expansion, the complete
-solution set, and the minimum-norm solution, collected from the coordinate theorems.
+Manuscript Theorem 6 (legacy L2 Theorem 3 wrapper): pointwise nullity, the unique basis expansion,
+the complete solution set, and the minimum-norm solution, collected from the coordinate theorems.
 -/
 theorem l2_theorem_three_null_space_and_general_solution {ι : Type*}
     (m : ℕ) [NeZero m] (s t : ℝ) (b : HilbertBasis ι ℂ (TargetSpace m))
@@ -108,8 +109,9 @@ theorem l2_theorem_three_null_space_and_general_solution {ι : Type*}
     exact eq_fiberCoefficient_of_hasSum_fiberRidgelet volume b h γ hq i
 
 /--
-Legacy L2 Theorem 4: countably many null coefficient vectors admit dual readout activations,
-giving stable encoding and perturbative readout without changing the null component.
+Manuscript Theorem 8 (legacy L2 Theorem 4): countably many null coefficient vectors admit dual
+readout activations, giving stable encoding and perturbative readout without changing the null
+component.
 -/
 theorem l2_theorem_four_encoding_and_perturbative_readout
     (m : ℕ) [NeZero m] (s t : ℝ) {σ : ActivationSpace s t} (hσ : σ ≠ 0) :
@@ -134,8 +136,8 @@ theorem l2_theorem_four_encoding_and_perturbative_readout
   sorry
 
 /--
-Legacy L2 Theorem 5, in its Hilbert-valued sampling form: a centered normalized feature
-distribution has an `N`-term realization with `N⁻¹ᐟ²` output error.
+Manuscript Theorem 7 (legacy L2 Theorem 5), in its Hilbert-valued sampling form: a centered
+normalized feature distribution has an `N`-term realization with `N⁻¹ᐟ²` output error.
 -/
 theorem l2_theorem_five_normalized_finite_width_approximation
     {Θ H : Type*} [MeasurableSpace Θ] [NormedAddCommGroup H]
@@ -151,7 +153,7 @@ theorem l2_theorem_five_normalized_finite_width_approximation
   sorry
 
 /--
-Legacy L2 Corollary 1, at the present coordinate level: a nonzero null ridgelet element exists
+Manuscript Corollary 1, at the present coordinate level: a nonzero null ridgelet element exists
 and is a candidate for the finite-width discretization theorem.
 -/
 theorem l2_corollary_one_discretizable_ridgelet_null_elements
@@ -163,8 +165,8 @@ theorem l2_corollary_one_discretizable_ridgelet_null_elements
         LinearMap.ker (networkSynthesis m s t σ).toLinearMap := by
   sorry
 
-/-- Legacy L2 Proposition 2: parity and ReLU affine cancellation give exact finite null
-relations. -/
+/-- Manuscript Proposition 3 (legacy L2 Proposition 2): parity and ReLU affine cancellation give
+exact finite null relations. -/
 theorem l2_proposition_two_exact_finite_null_relations (m : ℕ) :
     (∀ σ : ℝ → ℂ,
       (∀ z, σ (-z) = -σ z) →

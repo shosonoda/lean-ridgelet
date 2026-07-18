@@ -9,7 +9,7 @@ ridgelet transforms. The current focus is the L2 theory of ridgelet transforms, 
 unitary coordinate transform and its Fourier construction, synthesis and ridgelet operators,
 general solutions, and standard activation functions.
 
-- [Blueprint and API documentation](https://shosonoda.github.io/lean-ridgelet/)
+- [Verso Blueprint](https://shosonoda.github.io/lean-ridgelet/)
 - [L1 theory (arXiv:1505.03654)](https://arxiv.org/abs/1505.03654)
 - [L2 theory (arXiv:2106.04770)](https://arxiv.org/abs/2106.04770)
 - [L2 theory source project](https://github.com/shosonoda/-draft-Ghosts)
@@ -68,22 +68,12 @@ The left sidebar is Verso's generated table of contents and links to all seven c
 Definition panels include the Lean implementation beginning at `:=` when the declaration belongs
 to this project.
 
-Generate the doc-gen4 API documentation with:
-
-```bash
-./scripts/build-docs.sh
-```
-
-The API entry page is `docbuild/.lake/build/doc/index.html`. The first build generates documentation
-for imported Mathlib modules as well as `LeanRidgelet`, so it can take several minutes.
-
 ## Repository layout
 
 - `LeanRidgelet/`: formal definitions and proofs
 - `LeanRidgeletBlueprint/`: Verso Blueprint chapters
 - `audit/`: machine-checked assumption audit
-- `docbuild/`: isolated doc-gen4 Lake project
 - `scripts/`: build and audit commands
 
-Generated build and documentation trees are ignored by Git. GitHub Pages builds them in Actions and
-deploys them as an artifact, keeping hundreds of megabytes of imported API pages out of Git history.
+Generated build and documentation trees are ignored by Git. GitHub Pages builds the Blueprint in
+Actions and deploys it as an artifact.
