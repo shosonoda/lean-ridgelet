@@ -33,8 +33,9 @@ origin — the polynomial part of $`\eta`, i.e. the kernel of the Lizorkin quoti
 $`\mathcal S'(\mathbb R)/\mathcal P\cong\mathcal S_0'(\mathbb R)` — are invisible. The Lizorkin
 spaces as types, the distribution classes on the half-space, the remaining rows of the balancing
 theorem, Dirac-delta activations, the sigmoid examples, and the fractional Laplacian identity
-are deferred nodes without Lean links. Statements whose proofs are pending are connected to
-named declarations with `sorry` proofs tracked by the assumption audit.
+are deferred nodes without Lean links. The linked declarations state the intended function-level
+API while proofs are developed in parallel; this chapter therefore distinguishes formalized
+statements from deferred mathematical scope without reporting proof-completion status.
 
 *Coordinates, transforms, and admissibility*
 
@@ -49,7 +50,7 @@ The truncated dual transform integrates over the annulus $`\varepsilon\le\|\bold
 :::
 
 :::definition "l1_radon_backprojection" (lean := "LeanRidgelet.radonTransform, LeanRidgelet.dualRadonTransform, LeanRidgelet.pvHilbertTransform, LeanRidgelet.backprojectionFilter, LeanRidgelet.reflectedConjConvolution")
-*Radon transform and backprojection filter.* The Radon transform integrates over hyperplanes, $`\mathscr Rf(\boldsymbol{u},p)=\int_{(\mathbb R\boldsymbol{u})^\perp}f(p\boldsymbol{u}+\boldsymbol{y})\,d\boldsymbol{y}`, and the dual Radon transform integrates over the unit sphere with the Haar-induced surface measure. The backprojection filter $`\Lambda^m` is $`\partial_p^m` for even $`m` and $`\mathscr H\partial_p^m` for odd $`m`, with the principal-value Hilbert transform realized as a junk-valued truncation limit; it is the Fourier multiplier $`i^m|\omega|^m`.
+*Radon transform and backprojection filter.* The Radon transform integrates over hyperplanes, $`\mathscr Rf(\boldsymbol{u},p)=\int_{(\mathbb R\boldsymbol{u})^\perp}f(p\boldsymbol{u}+\boldsymbol{y})\,d\boldsymbol{y}`, and the dual Radon transform integrates over the unit sphere with the Haar-induced surface measure. The backprojection filter $`\Lambda^m` is $`\partial_p^m` for even $`m` and $`\mathscr H\partial_p^m` for odd $`m`. Lean defines the principal-value transform through the filter limit of truncated integrals; convergence is supplied by the hypotheses of the results that use it. The intended Fourier multiplier is $`i^m|\omega|^m`.
 :::
 
 :::definition "l1_weak_ridgelet" (lean := "LeanRidgelet.weakRidgeletTransform") (uses := "l1_radon_backprojection")
@@ -119,7 +120,7 @@ in the truncation limit, at almost every point and at every continuity point of 
 :::
 
 :::theorem "l1_reconstruction_radon" (lean := "LeanRidgelet.l1_reconstruction_formula_radon") (uses := "l1_reconstruction, l1_radon_backprojection")
-*Reconstruction via the Radon transform (`thm:formula.radon`).* Under the normalized real-domain admissibility condition $`\Lambda^mu=\overline{\widetilde\psi}*\eta`, $`\int\widehat u=-1`, the reconstruction operator is the filtered backprojection: $`\mathscr R^\dagger_\eta\mathscr R_\psi f=\mathscr R^\dagger\Lambda^{m-1}\mathscr Rf=2(2\pi)^{m-1}f`. The fractional Laplacian identity `cor:radon.d` is deferred.
+*Reconstruction via the Radon transform (`thm:formula.radon`).* Under the normalized real-domain admissibility condition $`\Lambda^m u=\overline{\widetilde\psi}*\eta`, $`\int\widehat u=-1`, the reconstruction operator is the filtered backprojection: $`\mathscr R^\dagger_\eta\mathscr R_\psi f=\mathscr R^\dagger\Lambda^{m-1}\mathscr Rf=2(2\pi)^{m-1}f`. The fractional Laplacian identity `cor:radon.d` is deferred.
 :::
 
 *Extension to $`L^2` and compatibility*

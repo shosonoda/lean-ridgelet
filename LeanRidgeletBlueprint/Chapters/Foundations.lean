@@ -31,6 +31,12 @@ product is linear in the first argument; Mathlib's is linear in the second, so L
 the reversed argument order. In particular, manuscript $`L[h]=\langle h,h_L\rangle` is represented
 in Lean by $`\langle h_L,h\rangle=L[h]`.
 
+The displayed symbols $`\mathcal A_{s,t}`, $`\mathcal H_{s,t}`, $`\mathcal G_{s,t}`,
+$`L_\sigma`, $`T`, $`f^\sharp`, $`\langle x\rangle^r`, and
+$`\langle\partial\rangle^t` correspond to the scoped Lean notations `𝓐 s t`, `𝓗 m s t`,
+`𝓖 m s t`, `L[σ]`, `𝐓`, `f♯`, `⧼x⧽^r`, and `⧼∂⧽^t`. The linked declarations remain the
+canonical API.
+
 :::definition "paper_fourier_convention" (lean := "LeanRidgelet.Fourier.paperFourierIntegralInner, LeanRidgelet.Fourier.paperFourierDistribution, LeanRidgelet.Fourier.paperFourierInvDistribution")
 Let $`V` be a finite-dimensional real inner-product space. Define the paper-normalized Fourier
 transform by

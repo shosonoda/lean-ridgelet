@@ -17,6 +17,11 @@ set_option verso.blueprint.externalCode.strictResolve true
 file := "operators"
 %%%
 
+In Lean statements, the paper expressions $`S_\sigma[\gamma]`, $`R_h[f]`,
+$`R[f;\rho]`, and $`L_\sigma[h]` can be written `S[σ] γ`, `R[h] f`, `R[f; ρ] p`, and
+`L[σ] h` after `open scoped LeanRidgelet.Paper`. The notation unfolds to the declarations linked
+below.
+
 :::definition "network_synthesis" (lean := "LeanRidgelet.networkSynthesis, LeanRidgelet.networkSynthesis_apply_fourierDilation_ae, LeanRidgelet.networkSynthesis_parameterSchwartzRealization_apply_ae, LeanRidgelet.networkSynthesis_parameterSchwartzRealization_fourierPairing_ae")
 For an activation $`\sigma\in\mathcal A_{s,t}`, the manuscript factorization is
 $$`S_\sigma=\widetilde L_\sigma T,\qquad S_\sigma[\gamma](x)=L_\sigma[T[\gamma](x,\cdot)]`.
@@ -89,8 +94,9 @@ $`L_\sigma[h]=\langle h,h_\sigma\rangle` in the manuscript convention.
 
 :::definition "activation_normalization" (lean := "LeanRidgelet.activationNormalization")
 The manuscript defines the reconstruction constant by
-$`c_\sigma=\|h_\sigma\|^2=\|L_\sigma\|^2`. The first equality is implemented; the named Lean
-theorem for the operator-norm equality is tracked in M1A.
+$`c_\sigma=\|h_\sigma\|^2=\|L_\sigma\|^2`. Lean identifies the normalization with the squared
+norm of the Riesz representer; the second equality is the standard isometry of the Riesz
+representation.
 :::
 
 :::theorem "activation_normalization_positive" (lean := "LeanRidgelet.activationNormalization_pos")

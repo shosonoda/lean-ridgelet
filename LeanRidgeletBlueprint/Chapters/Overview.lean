@@ -188,11 +188,13 @@ $`\rho`-formula depends on the preceding unfinished identification.
 
 *Section 5: Neural-Network Specialization: Adjoint, Null Space, and Complete General Solution*
 
-:::definition "adjoint_ridgelet_function" (lean := "LeanRidgelet.activationRieszRepresenter, LeanRidgelet.activationNormalization") (uses := "activation_functional, ridgelet_transform_and_pairing")
+:::definition "adjoint_ridgelet_function" (lean := "LeanRidgelet.activationRieszRepresenter, LeanRidgelet.activationNormalization, LeanRidgelet.ridgeletFunction, LeanRidgelet.paperFourierDistribution_ridgeletFunction") (uses := "activation_functional, ridgelet_transform_and_pairing")
 *Adjoint ridgelet function.* The Riesz vector $`h_\sigma` of $`L_\sigma` determines
 $`\sigma_*^\sharp=|\omega|^m\overline{h_\sigma}` and
-$`c_\sigma=\|h_\sigma\|^2=\|L_\sigma\|^2`. Lean implements $`h_\sigma` and $`c_\sigma`; the
-distributional ridgelet function $`\sigma_*` itself is not yet constructed.
+$`c_\sigma=\|h_\sigma\|^2=\|L_\sigma\|^2`. Applying the completed coefficient-vector
+construction `ridgeletFunction` to $`h_\sigma` gives the tempered-distribution realization of
+$`\sigma_*`; its paper-Fourier transform is the required weighted spectrum. A separate bundled
+classical function is available when the coefficient vector lies in the Schwartz core.
 :::
 
 :::lemma_ "concrete_adjoint" (lean := "LeanRidgelet.l2_lemma_two_adjoint, LeanRidgelet.adjoint_networkSynthesis, LeanRidgelet.networkSynthesis_comp_adjoint") (uses := "adjoint_ridgelet_function, abstract_reconstruction")
