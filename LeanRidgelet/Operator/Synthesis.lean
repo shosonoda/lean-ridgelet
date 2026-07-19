@@ -7,6 +7,7 @@ module
 
 public import LeanRidgelet.Operator.UnitarySynthesis
 public import LeanRidgelet.Space.Duality
+public import LeanRidgelet.Transform.FourierDilation
 
 /-!
 # Synthesis in unitary coordinates
@@ -56,6 +57,53 @@ theorem networkSynthesis_apply_ae (m : ℕ) [NeZero m] (s t : ℝ)
     networkSynthesis m s t σ γ =ᵐ[volume]
       fun x ↦ activationFiberFunctional m s t σ (γ x) := by
   exact fiberSynthesis_apply_ae volume (activationFiberFunctional m s t σ) γ
+
+/-- Pointwise manuscript factorization `S[γ](x) = L_σ[T[γ](x, ·)]`.
+
+Although the transported coordinate model makes `T` definitionally the identity, this theorem
+keeps the unitary transform explicit and is therefore the interface used by the concrete Fourier
+construction. -/
+theorem networkSynthesis_apply_fourierDilation_ae (m : ℕ) [NeZero m] (s t : ℝ)
+    (σ : ActivationSpace s t) (γ : ParameterSpace m s t) :
+    networkSynthesis m s t σ γ =ᵐ[volume]
+      fun x ↦ activationFiberFunctional m s t σ
+        (fourierDilationTransform m s t γ x) := by
+  simpa [fourierDilationTransform, parameterCoordinateEquiv_apply] using
+    networkSynthesis_apply_ae m s t σ γ
+
+/-- On the Schwartz compatibility domain, synthesis is represented by the concrete
+Fourier--dilation core.  This is the Hilbert-space formula (29) before expanding the activation
+functional into its weighted Fourier pairing. -/
+theorem networkSynthesis_parameterSchwartzRealization_apply_ae
+    {m : ℕ} [NeZero m] (s t : ℝ) (σ : ActivationSpace s t)
+    (γ : SchwartzMap (InputSpace m × ℝ) ℂ)
+    (hγ : MemLp (fourierDilationTransformFiber s t γ) 2 volume) :
+    networkSynthesis m s t σ (parameterSchwartzRealization s t γ hγ) =ᵐ[volume]
+      fun x ↦ activationFiberFunctional m s t σ
+        (fourierDilationTransformFiber s t γ x) := by
+  filter_upwards
+    [networkSynthesis_apply_fourierDilation_ae m s t σ
+      (parameterSchwartzRealization s t γ hγ),
+    fourierDilationTransform_parameterSchwartzRealization_apply_ae s t γ hγ]
+    with x hS hT
+  rw [hS, hT]
+
+/-- Weighted-Fourier pairing form of synthesis on the Schwartz compatibility domain. -/
+theorem networkSynthesis_parameterSchwartzRealization_fourierPairing_ae
+    {m : ℕ} [NeZero m] (s t : ℝ) (σ : ActivationSpace s t)
+    (γ : SchwartzMap (InputSpace m × ℝ) ℂ)
+    (hγ : MemLp (fourierDilationTransformFiber s t γ) 2 volume) :
+    networkSynthesis m s t σ (parameterSchwartzRealization s t γ hγ) =ᵐ[volume]
+      fun x ↦ (2 * Real.pi : ℂ) ^ (m - 1) *
+        inner ℂ (star σ)
+          (fiberDualCoordinateCoreValue s t
+            (fourierDilationTransformFiberCore s t γ x)) := by
+  filter_upwards
+    [networkSynthesis_parameterSchwartzRealization_apply_ae s t σ γ hγ]
+    with x hx
+  rw [hx]
+  exact activationFiberFunctional_coe m s t σ
+    (fourierDilationTransformFiberCore s t γ x)
 
 /-- The concrete operator-norm estimate for synthesis. -/
 theorem norm_networkSynthesis_le (m : ℕ) [NeZero m] (s t : ℝ)

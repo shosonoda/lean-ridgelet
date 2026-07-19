@@ -18,6 +18,7 @@ CHAPTERS = (
     ("general-solution", "Null space and the general solution"),
     ("activations", "Standard activation functions"),
     ("further-results", "Further results from the source manuscript"),
+    ("overview-l1", "L1 theory: ridgelet transforms with unbounded activations"),
 )
 
 DECL_PATTERN = re.compile(
@@ -185,7 +186,7 @@ def main() -> None:
     if total == 0:
         raise RuntimeError("no Lean definition implementations were inserted")
     verify_navigation(output_root)
-    print("verified standard Verso navigation across all seven chapters")
+    print("verified standard Verso navigation across all eight chapters")
 
 
 if __name__ == "__main__":

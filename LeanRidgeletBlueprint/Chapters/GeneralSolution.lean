@@ -31,7 +31,7 @@ The kernel and range of the canonical parameter projection are
 $$`\ker P=\ker S_\sigma,\qquad\operatorname{ran}P=(\ker S_\sigma)^\perp`.
 :::
 
-:::theorem "pointwise_null_space" (lean := "LeanRidgelet.mem_ker_networkSynthesis_iff")
+:::theorem "pointwise_null_space" (lean := "LeanRidgelet.mem_ker_networkSynthesis_iff, LeanRidgelet.mem_ker_networkSynthesis_iff_fourierDilation")
 A parameter $`\gamma` belongs to the null space if and only if
 $`L_\sigma[T[\gamma](x,\cdot)]=0` for almost every $`x`. In the current transported Lean model
 $`T=I`. Equivalently,

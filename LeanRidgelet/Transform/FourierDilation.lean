@@ -86,7 +86,7 @@ theorem integrable_fourierDilationTransformCore_integrand {m : ℕ}
     unfold fourierDilationKernel
     rw [Complex.norm_exp]
     simp
-  simpa only [mul_comm] using γ.integrable.bdd_mul hkernel hbound
+  exact γ.integrable.mul_unimodular hkernel hbound
 
 theorem fourierDilationTransformCore_add {m : ℕ}
     (γ η : SchwartzMap (InputSpace m × ℝ) ℂ) (x : InputSpace m) (ω : ℝ) :
@@ -423,6 +423,38 @@ theorem fourierDilationTransformCore_eq_paperFourier {m : ℕ}
   rw [fourierDilationTransformCore,
     paperFourierIntegralInner_parameterFrequency]
 
+/-- The scalar Fourier--dilation core is jointly continuous in the input and dilation
+frequency.  This supplies the scalar measurability part of the later fiber-valued strong
+measurability argument. -/
+theorem continuous_fourierDilationTransformCore {m : ℕ}
+    (γ : SchwartzMap (InputSpace m × ℝ) ℂ) :
+    Continuous (fun z : InputSpace m × ℝ =>
+      fourierDilationTransformCore γ z.1 z.2) := by
+  have heq : (fun z : InputSpace m × ℝ =>
+      fourierDilationTransformCore γ z.1 z.2) =
+      fun z => ((2 * Real.pi : ℂ) ^ m)⁻¹ *
+        (𝓕 (parameterSchwartzL2 γ))
+          ((2 * Real.pi)⁻¹ • parameterFrequency z.1 z.2) := by
+    funext z
+    rw [fourierDilationTransformCore_eq_paperFourier,
+      paperFourierIntegralInner_eq_mathlib]
+    rfl
+  rw [heq]
+  have hfrequency : Continuous (fun z : InputSpace m × ℝ =>
+      parameterFrequency z.1 z.2) := by
+    unfold parameterFrequency fourierDilationCoordinate frequencyDilation
+    fun_prop
+  exact continuous_const.mul <|
+    (𝓕 (parameterSchwartzL2 γ)).continuous.comp <|
+      (continuous_const_smul ((2 * Real.pi)⁻¹)).comp hfrequency
+
+/-- For each fixed frequency, the scalar Fourier--dilation core is continuous in the input. -/
+theorem continuous_fourierDilationTransformCore_left {m : ℕ}
+    (γ : SchwartzMap (InputSpace m × ℝ) ℂ) (ω : ℝ) :
+    Continuous (fun x : InputSpace m => fourierDilationTransformCore γ x ω) := by
+  exact (continuous_fourierDilationTransformCore γ).comp
+    (continuous_id.prodMk continuous_const)
+
 @[simp]
 theorem fourierDilationTransformFiberCore_apply {m : ℕ} [NeZero m] (s t : ℝ)
     (γ : SchwartzMap (InputSpace m × ℝ) ℂ) (x : InputSpace m) (ω : ℝ) :
@@ -671,6 +703,34 @@ theorem memLp_fourierDilationTransformFiber_iff_integrable_sobolev
     refine hsum.congr ?_
     filter_upwards with x
     rw [norm_sq_fourierDilationTransformFiber_eq_base_add_sobolev]
+
+/-- The manuscript compatibility domain `S^T_{s,t}(Θ)` for Schwartz parameter data.
+
+The two clauses keep the analytic responsibilities visible: strong measurability of the
+completion-valued core and integrability of its Sobolev graph term.  This is a set predicate,
+not a structure carrying unproved analytic assumptions. -/
+def fourierDilationCompatibilityDomain {m : ℕ} [NeZero m] (s t : ℝ) :
+    Set (SchwartzMap (InputSpace m × ℝ) ℂ) :=
+  {γ | AEStronglyMeasurable (fourierDilationTransformFiber s t γ) volume ∧
+    Integrable (fun x : InputSpace m =>
+      fiberSobolevNormSq s t (fourierDilationTransformFiberCore s t γ x))}
+
+/-- Membership in the concrete compatibility domain is exactly Bochner `L²` membership of the
+Fourier--dilation core.  The base part is automatically integrable, so only measurability and the
+Sobolev graph term remain in the set definition. -/
+theorem mem_fourierDilationCompatibilityDomain_iff_memLp
+    {m : ℕ} [NeZero m] (s t : ℝ)
+    (γ : SchwartzMap (InputSpace m × ℝ) ℂ) :
+    γ ∈ fourierDilationCompatibilityDomain s t ↔
+      MemLp (fourierDilationTransformFiber s t γ) 2 volume := by
+  constructor
+  · rintro ⟨hmeas, hsobolev⟩
+    exact (memLp_fourierDilationTransformFiber_iff_integrable_sobolev
+      s t γ hmeas).2 hsobolev
+  · intro hmem
+    exact ⟨hmem.aestronglyMeasurable,
+      (memLp_fourierDilationTransformFiber_iff_integrable_sobolev
+        s t γ hmem.aestronglyMeasurable).1 hmem⟩
 
 /-- The kernel in the inverse coordinate formula (13). -/
 def inverseFourierDilationKernel {m : ℕ} (p : InputSpace m × ℝ)

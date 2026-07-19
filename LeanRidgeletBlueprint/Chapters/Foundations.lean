@@ -21,22 +21,23 @@ file := "foundations"
 %%%
 title := "Ghosts in Neural Networks"
 kind := .pdf
-pdf := "00data/ghost20260718.pdf"
+pdf := "00data/ghost20260718submit.pdf"
 %%%
 :::
 
 This chapter reorganizes the notation from `head.tex` and the Hilbert-space framework from the
-active `05journal/02theory02.tex` according to the Lean dependency order. The manuscript inner
+active `05journal/02theory.tex` according to the Lean dependency order. The manuscript inner
 product is linear in the first argument; Mathlib's is linear in the second, so Lean identities use
 the reversed argument order. In particular, manuscript $`L[h]=\langle h,h_L\rangle` is represented
 in Lean by $`\langle h_L,h\rangle=L[h]`.
 
-:::definition "paper_fourier_convention" (lean := "LeanRidgelet.Fourier.paperFourierIntegralInner")
+:::definition "paper_fourier_convention" (lean := "LeanRidgelet.Fourier.paperFourierIntegralInner, LeanRidgelet.Fourier.paperFourierDistribution, LeanRidgelet.Fourier.paperFourierInvDistribution")
 Let $`V` be a finite-dimensional real inner-product space. Define the paper-normalized Fourier
 transform by
 $$`\widehat f(\xi)=\int_V e^{-i\langle x,\xi\rangle}f(x)\,dx`.
 Mathlib's Fourier character uses the $`2\pi` convention, so rescaling the frequency by
-$`\xi/(2\pi)` relates the two conventions.
+$`\xi/(2\pi)` relates the two conventions. Lean also bundles the one-dimensional forward and
+inverse transforms on tempered distributions and proves that they are mutual inverses.
 :::
 
 :::theorem "paper_plancherel" (lean := "LeanRidgelet.Fourier.paper_plancherel_schwartz_inner, LeanRidgelet.Fourier.paper_plancherel_schwartz")
@@ -62,11 +63,15 @@ $`\mathcal A_{s,t}` is a Hilbert space, and its $`L^2(\mathbb R)` coordinate map
 isometric equivalence. Its realization in tempered distributions is injective.
 :::
 
-:::definition "fiber_space" (lean := "LeanRidgelet.fiberNormSq, LeanRidgelet.FiberSpace")
+:::definition "fiber_space" (lean := "LeanRidgelet.fiberNormSq, LeanRidgelet.FiberSpace, LeanRidgelet.fiberDistribution, LeanRidgelet.fiberDistribution_coe, LeanRidgelet.fiberBaseCoordinate, LeanRidgelet.fiberBaseCoordinate_coe")
 Let $`m>0`. On the Schwartz core, set
 $$`\|h\|_{\mathcal H_{s,t}}^2=C_m\int_{\mathbb R}|h(\omega)|^2|\omega|^m\,d\omega+\int_{\mathbb R}|(\langle\partial_\omega\rangle^t[h])(\omega)|^2\langle\omega\rangle^{-2s}\,d\omega`.
 The first term retains the dilation Jacobian, while the weighted Bessel term controls the
 activation pairing. The fiber space $`\mathcal H_{s,t}` is the Hilbert completion of this core.
+Lean also realizes every completed coefficient vector as a tempered distribution by undoing its
+weighted Bessel coordinate; this realization agrees with the original function on the Schwartz
+core. The square-root dilation-Jacobian coordinate extends contractively to the completion as an
+$`L^2` map and supplies the pairing used by the completed ridgelet spectrum.
 :::
 
 :::proposition "fiber_inner_product" (lean := "LeanRidgelet.fiberInner_self_eq_zero, LeanRidgelet.denseRange_fiberCore_coe")
@@ -74,7 +79,7 @@ The preceding sesquilinear form is positive definite, and the Schwartz core embe
 the completed fiber space.
 :::
 
-:::definition "activation_fiber_functional" (lean := "LeanRidgelet.activationFiberFunctional")
+:::definition "activation_fiber_functional" (lean := "LeanRidgelet.activationFiberFunctional, LeanRidgelet.activationSpectrum, LeanRidgelet.activationRealization, LeanRidgelet.activationSpectrum_apply, LeanRidgelet.activationFiberFunctional_eq_spectrum")
 Each $`\sigma\in\mathcal A_{s,t}` induces a continuous linear functional on the coefficient space:
 $$`L_\sigma[h]=C_m\int_{\mathbb R}h(\omega)\sigma^\sharp(\omega)\,d\omega`.
 For distributional activations, this formula denotes the dual action mediated by the weighted

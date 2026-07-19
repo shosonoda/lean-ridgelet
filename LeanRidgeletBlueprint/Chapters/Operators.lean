@@ -17,7 +17,7 @@ set_option verso.blueprint.externalCode.strictResolve true
 file := "operators"
 %%%
 
-:::definition "network_synthesis" (lean := "LeanRidgelet.networkSynthesis")
+:::definition "network_synthesis" (lean := "LeanRidgelet.networkSynthesis, LeanRidgelet.networkSynthesis_apply_fourierDilation_ae, LeanRidgelet.networkSynthesis_parameterSchwartzRealization_apply_ae, LeanRidgelet.networkSynthesis_parameterSchwartzRealization_fourierPairing_ae")
 For an activation $`\sigma\in\mathcal A_{s,t}`, the manuscript factorization is
 $$`S_\sigma=\widetilde L_\sigma T,\qquad S_\sigma[\gamma](x)=L_\sigma[T[\gamma](x,\cdot)]`.
 The current Lean `ParameterSpace` is the transported coordinate model, so $`T=I` there and
@@ -29,30 +29,49 @@ $`S_\sigma:\mathcal G_{s,t}\to L^2(\mathbb R^m)` is a bounded linear operator, a
 norm is controlled by the activation--fiber dual bound.
 :::
 
-:::theorem "classical_synthesis_agreement"
-The classical integral on the Schwartz class,
-$$`\int\gamma(a,b)\sigma(a\cdot x-b)\,da\,db`,
-agrees with the coordinate synthesis $`S_\sigma`. This compatibility statement is not yet proved.
+:::theorem "classical_synthesis_agreement" (lean := "LeanRidgelet.classicalSynthesisIntegral, LeanRidgelet.networkSynthesis_parameterSchwartzRealization_classical_ae, LeanRidgelet.shearedParameterIntegral_eq_paperFourierSchwartz, LeanRidgelet.measurePreserving_preactivationShear")
+The classical integral on the Schwartz compatibility domain,
+$$`\int\gamma(a,b)\sigma_{\mathrm{cl}}(a\cdot x-b)\,da\,db`,
+agrees almost everywhere with the coordinate synthesis $`S_\sigma`, whenever the classical
+integral is defined and the realized activation $`\mathcal F^{-1}[\sigma^\sharp]` acts by
+integration against $`\sigma_{\mathrm{cl}}`. The proof follows the manuscript: 1D Fourier
+inversion in the preactivation identifies the classical section integral
+$`\varphi_x(z)=\int\gamma(a,a\cdot x-z)\,da` with
+$`(2\pi)^{m-1}(T_{\mathrm{pt}}[\gamma](x,\cdot))^\sharp`, and the measure-preserving
+preactivation shear $`(a,z)\mapsto(a,a\cdot x-z)` performs the final change of variables.
 :::
 
-:::definition "ridgelet_operator" (lean := "LeanRidgelet.ridgeletOperator")
+:::definition "ridgelet_operator" (lean := "LeanRidgelet.ridgeletOperator, LeanRidgelet.fiberDistribution, LeanRidgelet.fiberDistribution_coe, LeanRidgelet.fiberBaseCoordinate, LeanRidgelet.ridgeletSpectrum, LeanRidgelet.ridgeletSpectrum_coe, LeanRidgelet.ridgeletFunction, LeanRidgelet.paperFourierDistribution_ridgeletFunction")
 For a fixed $`h\in\mathcal H_{s,t}`, define the coordinate-side tensor embedding by
 $`J_h[f](x)=f(x)h`. On the original parameter space, the corresponding solution operator is
-$`R_h=T^*J_h`.
+$`R_h=T^*J_h`. The completed vector $`h` has a compatible tempered-distribution realization,
+agreeing with its Schwartz representative on the dense core. Lean also constructs, continuously
+and conjugate-linearly for every completed coefficient vector, the ridgelet distribution whose
+paper-Fourier spectrum is $`|\omega|^m\overline h`; on the Schwartz core this agrees with the
+pointwise weighted formula.
 :::
 
-:::lemma_ "ridgelet_simple_tensor" (lean := "LeanRidgelet.ridgeletOperator_apply_ae")
+:::lemma_ "ridgelet_simple_tensor" (lean := "LeanRidgelet.ridgeletOperator_apply_ae, LeanRidgelet.fourierDilationTransform_ridgeletOperator_apply_ae")
 Almost everywhere, the coordinate-side operator is the simple tensor $`x\mapsto f(x)h`.
 :::
 
-:::lemma_ "fourier_expressions" (uses := "classical_synthesis_agreement, ridgelet_simple_tensor")
+:::theorem "classical_ridgelet_agreement" (lean := "LeanRidgelet.classicalRidgeletFunction, LeanRidgelet.classicalRidgeletIntegral, LeanRidgelet.classicalRidgeletIntegral_eq_inverseTensorIntegral, LeanRidgelet.classicalRidgeletIntegral_eq_inverseFourierDilationTransformCore, LeanRidgelet.ridgeletFunctionCore_apply_classical, LeanRidgelet.fourierDilationTransform_ridgeletOperator_toLp_apply_ae") (uses := "ridgelet_simple_tensor")
+For Schwartz data, the classical ridgelet transform
+$`R[f;\rho](a,b)=\int f(x)\overline{\rho(a\cdot x-b)}\,dx`, taken with the classical ridgelet
+function of spectrum $`\rho^\sharp=|\omega|^m\overline h`, equals at every parameter point the
+inverse-coordinate integral formula (13) evaluated on the tensor section
+$`(x,\omega)\mapsto f(x)h(\omega)` that represents $`T[R_h[f]]`. The reconstructed ridgelet
+distribution acts by integration against the same classical ridgelet function.
+:::
+
+:::lemma_ "fourier_expressions" (uses := "classical_synthesis_agreement, classical_ridgelet_agreement, ridgelet_simple_tensor")
 The bias Fourier transform of the classical ridgelet formula
 $`R[f;\rho](a,b)=\int f(x)\overline{\rho(a\cdot x-b)}\,dx` and the Fourier representation of
 synthesis are
 $$`R[f;\rho]^\sharp(a,\omega)=\widehat f(\omega a)\overline{\rho^\sharp(\omega)}`
 and $`\widehat{S_\sigma[\gamma]}(\xi)=L_\sigma[T[\gamma](\xi)]`, respectively.
-The simple-tensor coordinate representation is formalized, but its derivation from the classical
-integral formula is not yet proved.
+The simple-tensor coordinate representation and the classical-integral agreements are
+formalized; the two displayed Fourier formulas themselves are still pending.
 :::
 
 :::theorem "ridgelet_reconstruction" (lean := "LeanRidgelet.networkSynthesis_comp_ridgeletOperator")

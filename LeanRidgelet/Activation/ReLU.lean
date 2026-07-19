@@ -11,7 +11,10 @@ public import LeanRidgelet.Space.Activation
 # Rectified-linear-unit activation
 
 This file realizes the classical rectified linear unit as an activation coordinate in `A_{0,t}`.
-The condition `3 / 2 < t` makes `⟨x⟩⁻ᵗ max x 0` square-integrable.
+The condition `3 / 2 < t` makes `⟨x⟩⁻ᵗ max x 0` square-integrable, and the manuscript isometry
+coordinate of ReLU is its paper Fourier transform: `σ = ⟨∂ω⟩^{-t}[relu♯] = (⟨·⟩⁻ᵗ relu)♯`.
+The pairing-consistent classical realization `activationRealization` then acts by integration
+against the classical ReLU function.
 -/
 
 @[expose] public section
@@ -21,6 +24,8 @@ noncomputable section
 open MeasureTheory
 
 namespace LeanRidgelet
+
+open Fourier
 
 /-- The classical rectified linear unit. -/
 def relu (x : ℝ) : ℝ :=
@@ -79,21 +84,22 @@ theorem memLp_reluWeightedFn (t : ℝ) (ht : (3 : ℝ) / 2 < t) :
         unfold japaneseBracketPow
         rw [show (2 * -t + 2 * 1) / 2 = -(2 * t - 2) / 2 by ring]
 
-/-- The rectified linear unit as an activation coordinate in `A_{0,t}`. -/
-def reluActivation (t : ℝ) (ht : (3 : ℝ) / 2 < t) : ActivationSpace 0 t :=
+/-- The weighted `L²` element `⟨x⟩⁻ᵗ relu x`, the paper inverse-Fourier side of the ReLU
+activation coordinate. -/
+def reluWeightedCoordinate (t : ℝ) (ht : (3 : ℝ) / 2 < t) : L2 ℝ volume :=
   (memLp_reluWeightedFn t ht).toLp (reluWeightedFn t)
 
-theorem reluActivation_coe_ae (t : ℝ) (ht : (3 : ℝ) / 2 < t) :
-    reluActivation t ht =ᵐ[volume] reluWeightedFn t :=
+theorem reluWeightedCoordinate_coe_ae (t : ℝ) (ht : (3 : ℝ) / 2 < t) :
+    reluWeightedCoordinate t ht =ᵐ[volume] reluWeightedFn t :=
   (memLp_reluWeightedFn t ht).coeFn_toLp
 
-theorem reluActivation_ne_zero (t : ℝ) (ht : (3 : ℝ) / 2 < t) :
-    reluActivation t ht ≠ 0 := by
+theorem reluWeightedCoordinate_ne_zero (t : ℝ) (ht : (3 : ℝ) / 2 < t) :
+    reluWeightedCoordinate t ht ≠ 0 := by
   intro hσ
-  have hzero : reluActivation t ht =ᵐ[volume] (0 : ℝ → ℂ) :=
+  have hzero : reluWeightedCoordinate t ht =ᵐ[volume] (0 : ℝ → ℂ) :=
     Lp.eq_zero_iff_ae_eq_zero.mp hσ
   have hae : reluWeightedFn t =ᵐ[volume] (0 : ℝ → ℂ) :=
-    (reluActivation_coe_ae t ht).symm.trans hzero
+    (reluWeightedCoordinate_coe_ae t ht).symm.trans hzero
   have hfun : reluWeightedFn t = 0 :=
     (Continuous.ae_eq_iff_eq volume (continuous_reluWeightedFn t) continuous_zero).mp hae
   have hvalue := congrFun hfun 1
@@ -101,29 +107,45 @@ theorem reluActivation_ne_zero (t : ℝ) (ht : (3 : ℝ) / 2 < t) :
     (japaneseBracketPow_pos (-t) 1).ne'
   exact Complex.ofReal_ne_zero.mpr (mul_ne_zero hweight (by norm_num [relu])) hvalue
 
-/-- The tempered-distribution realization of the rectified linear unit. -/
+/-- The rectified linear unit as an activation coordinate in `A_{0,t}`: the manuscript isometry
+coordinate `⟨∂ω⟩^{-t}[relu♯] = (⟨·⟩⁻ᵗ relu)♯`, i.e. the paper Fourier transform of the
+weighted `L²` element. -/
+def reluActivation (t : ℝ) (ht : (3 : ℝ) / 2 < t) : ActivationSpace 0 t :=
+  paperFourierLp (reluWeightedCoordinate t ht)
+
+theorem reluActivation_ne_zero (t : ℝ) (ht : (3 : ℝ) / 2 < t) :
+    reluActivation t ht ≠ 0 := by
+  intro hσ
+  apply reluWeightedCoordinate_ne_zero t ht
+  apply paperFourierLp_injective
+  rw [map_zero]
+  exact hσ
+
+/-- The pairing-consistent tempered-distribution realization of the rectified linear unit,
+`σ = 𝓕⁻¹_paper[σ♯]`. -/
 def reluTemperedDistribution (t : ℝ) (ht : (3 : ℝ) / 2 < t) :
     TemperedDistribution ℝ ℂ :=
-  activationDistribution 0 t (reluActivation t ht)
+  activationRealization 0 t (reluActivation t ht)
+
+/-- The realized ReLU activation is the weighted distribution `⟨x⟩ᵗ ⟨x⟩⁻ᵗ relu`. -/
+theorem reluTemperedDistribution_eq_weight (t : ℝ) (ht : (3 : ℝ) / 2 < t) :
+    reluTemperedDistribution t ht =
+      temperedWeightMultiplier t
+        (Lp.toTemperedDistributionCLM ℂ volume 2 (reluWeightedCoordinate t ht)) :=
+  activationRealization_zero_paperFourierLp t (reluWeightedCoordinate t ht)
 
 /-- The distribution realization acts by integration against the classical ReLU function. -/
 theorem reluTemperedDistribution_apply (t : ℝ) (ht : (3 : ℝ) / 2 < t)
     (g : SchwartzMap ℝ ℂ) :
     reluTemperedDistribution t ht g =
       ∫ x : ℝ, g x * Complex.ofReal (relu x) := by
-  have hbessel : paperBesselSymbol 0 = fun _ : ℝ ↦ 1 := by
-    funext ξ
-    simp [paperBesselSymbol]
-  unfold reluTemperedDistribution activationDistribution temperedWeightMultiplier
-    paperBesselPotential
-  simp only [neg_zero, ContinuousLinearMap.comp_apply]
-  rw [hbessel, TemperedDistribution.fourierMultiplierCLM_const]
-  simp only [one_smul, ContinuousLinearMap.id_apply,
-    TemperedDistribution.smulLeftCLM_apply_apply,
+  rw [reluTemperedDistribution_eq_weight]
+  unfold temperedWeightMultiplier
+  simp only [TemperedDistribution.smulLeftCLM_apply_apply,
     MeasureTheory.Lp.toTemperedDistributionCLM_apply,
     MeasureTheory.Lp.toTemperedDistribution_apply]
   apply integral_congr_ae
-  filter_upwards [reluActivation_coe_ae t ht] with x hx
+  filter_upwards [reluWeightedCoordinate_coe_ae t ht] with x hx
   rw [SchwartzMap.smulLeftCLM_apply_apply (hasTemperateGrowth_temperedWeight t), hx]
   change temperedWeight t x * g x * reluWeightedFn t x =
     g x * Complex.ofReal (relu x)
@@ -136,9 +158,17 @@ theorem reluTemperedDistribution_apply (t : ℝ) (ht : (3 : ℝ) / 2 < t)
   rw [← mul_assoc, ← japaneseBracketPow_add]
   simp
 
+/-- The realized ReLU activation lies in `A_{0,t} = ⟨·⟩ᵗ H⁰(ℝ)`. -/
 theorem memActivationSpace_reluTemperedDistribution (t : ℝ)
     (ht : (3 : ℝ) / 2 < t) :
-    MemActivationSpace 0 t (reluTemperedDistribution t ht) :=
-  memActivationSpace_activationDistribution 0 t (reluActivation t ht)
+    MemActivationSpace 0 t (reluTemperedDistribution t ht) := by
+  refine ⟨reluWeightedCoordinate t ht, ?_⟩
+  rw [paperBesselPotential_zero_apply, reluTemperedDistribution_eq_weight]
+  unfold temperedWeightMultiplier
+  rw [TemperedDistribution.smulLeftCLM_smulLeftCLM_apply
+    (hasTemperateGrowth_temperedWeight t) (hasTemperateGrowth_temperedWeight (-t))]
+  rw [temperedWeight_mul_neg]
+  change TemperedDistribution.smulLeftCLM ℂ (fun _ : ℝ ↦ (1 : ℂ)) _ = _
+  simp
 
 end LeanRidgelet

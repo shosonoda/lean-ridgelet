@@ -8,6 +8,7 @@ import LeanRidgeletBlueprint.Chapters.Operators
 import LeanRidgeletBlueprint.Chapters.GeneralSolution
 import LeanRidgeletBlueprint.Chapters.Activations
 import LeanRidgeletBlueprint.Chapters.FurtherResults
+import LeanRidgeletBlueprint.Chapters.OverviewL1
 
 open Verso.Doc
 open Verso.Genre
@@ -25,6 +26,7 @@ attribute [local irreducible]
   LeanRidgeletBlueprint.Chapters.GeneralSolution.«the canonical document object name»
   LeanRidgeletBlueprint.Chapters.Activations.«the canonical document object name»
   LeanRidgeletBlueprint.Chapters.FurtherResults.«the canonical document object name»
+  LeanRidgeletBlueprint.Chapters.OverviewL1.«the canonical document object name»
 
 private opaque overviewPart : Part Manual :=
   (%doc LeanRidgeletBlueprint.Chapters.Overview)
@@ -47,10 +49,13 @@ private opaque activationsPart : Part Manual :=
 private opaque furtherResultsPart : Part Manual :=
   (%doc LeanRidgeletBlueprint.Chapters.FurtherResults)
 
+private opaque overviewL1Part : Part Manual :=
+  (%doc LeanRidgeletBlueprint.Chapters.OverviewL1)
+
 /-- The standard Verso document tree used for multi-page Blueprint output. -/
 opaque assembledBlueprint : Part Manual :=
   { (%doc LeanRidgeletBlueprint.Blueprint) with
     subParts := #[overviewPart, foundationsPart, fourierDilationPart, operatorsPart,
-      generalSolutionPart, activationsPart, furtherResultsPart] }
+      generalSolutionPart, activationsPart, furtherResultsPart, overviewL1Part] }
 
 end LeanRidgeletBlueprint

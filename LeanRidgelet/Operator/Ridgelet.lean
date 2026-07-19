@@ -49,6 +49,16 @@ theorem ridgeletOperator_apply_ae (m : ℕ) [NeZero m] (s t : ℝ)
     ridgeletOperator m s t h f =ᵐ[volume] fun x ↦ f x • h :=
   fiberRidgelet_apply_ae volume h f
 
+/-- The concrete form of `T[R_h[f]] = f ⊗ h`, corresponding to equation (34). -/
+theorem fourierDilationTransform_ridgeletOperator_apply_ae
+    (m : ℕ) [NeZero m] (s t : ℝ)
+    (h : FiberSpace m s t) (f : TargetSpace m) :
+    (fourierDilationTransform m s t (ridgeletOperator m s t h f) :
+        InputSpace m → FiberSpace m s t) =ᵐ[volume]
+      fun x ↦ f x • h := by
+  simpa [fourierDilationTransform, parameterCoordinateEquiv_apply] using
+    ridgeletOperator_apply_ae m s t h f
+
 /-- Coordinate reconstruction `\widetilde L_σ J_h = L_σ[h] I`. -/
 theorem networkSynthesis_comp_ridgeletOperator (m : ℕ) [NeZero m] (s t : ℝ)
     (σ : ActivationSpace s t) (h : FiberSpace m s t) :
@@ -177,6 +187,18 @@ theorem mem_ker_networkSynthesis_iff (m : ℕ) [NeZero m] (s t : ℝ)
     γ ∈ LinearMap.ker (networkSynthesis m s t σ).toLinearMap ↔
       ∀ᵐ x ∂volume, activationFiberFunctional m s t σ (γ x) = 0 :=
   mem_ker_fiberSynthesis_iff volume (activationFiberFunctional m s t σ) γ
+
+/-- The null-space characterization with the manuscript unitary coordinate transform explicit. -/
+theorem mem_ker_networkSynthesis_iff_fourierDilation
+    (m : ℕ) [NeZero m] (s t : ℝ)
+    (σ : ActivationSpace s t) (γ : ParameterSpace m s t) :
+    γ ∈ LinearMap.ker (networkSynthesis m s t σ).toLinearMap ↔
+      ∀ᵐ x ∂volume,
+        activationFiberFunctional m s t σ
+          (fourierDilationTransform m s t γ x) = 0 := by
+  rw [networkSynthesis_eq_unitarySynthesis]
+  exact mem_ker_unitarySynthesis_iff volume
+    (fourierDilationTransform m s t) (activationFiberFunctional m s t σ) γ
 
 /-- Every solution is the normalized-adjoint solution plus a null component. -/
 theorem networkSolution_iff_kernel_translate (m : ℕ) [NeZero m] (s t : ℝ)

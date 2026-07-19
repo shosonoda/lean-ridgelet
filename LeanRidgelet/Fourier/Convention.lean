@@ -7,9 +7,10 @@ module
 
 public import LeanRidgelet.Basic
 public import Mathlib.Analysis.Distribution.SchwartzSpace.Basic
+public import Mathlib.Analysis.Distribution.SchwartzSpace.Fourier
 public import Mathlib.Analysis.Fourier.FourierTransform
-public import Mathlib.Analysis.Fourier.LpSpace
 public import Mathlib.MeasureTheory.Integral.Bochner.Basic
+public import Mathlib.MeasureTheory.Measure.Haar.NormedSpace
 
 /-!
 # Fourier convention used in the ridgelet papers
@@ -27,11 +28,31 @@ and Mathlib's unitary Fourier transform should live in this file.
 noncomputable section
 
 open scoped ComplexConjugate FourierTransform RealInnerProductSpace
-open MeasureTheory
+open FourierTransform MeasureTheory
+
+/-- Multiplying an integrable function by an a.e.-bounded-by-one measurable factor preserves
+integrability.  This is the common oscillatory-kernel step of the paper Fourier calculations. -/
+theorem MeasureTheory.Integrable.mul_unimodular {α : Type*} [MeasurableSpace α]
+    {μ : MeasureTheory.Measure α} {f g : α → ℂ}
+    (hf : MeasureTheory.Integrable f μ) (hg : MeasureTheory.AEStronglyMeasurable g μ)
+    (hbound : ∀ᵐ x ∂μ, ‖g x‖ ≤ 1) :
+    MeasureTheory.Integrable (fun x ↦ f x * g x) μ := by
+  simpa only [mul_comm] using hf.bdd_mul hg hbound
 
 namespace LeanRidgelet.Fourier
 
 variable {m : ℕ}
+
+theorem two_mul_pi_ne_zero : (2 * Real.pi : ℝ) ≠ 0 := by positivity
+
+theorem two_mul_pi_complex_ne_zero : (2 * (Real.pi : ℂ)) ≠ 0 := by
+  simp [Real.pi_ne_zero]
+
+theorem conj_two_mul_pi_inv :
+    (starRingEnd ℂ) ((2 * Real.pi : ℂ)⁻¹) = (2 * Real.pi : ℂ)⁻¹ := by
+  rw [map_inv₀]
+  congr 1
+  rw [map_mul, Complex.conj_ofNat, Complex.conj_ofReal]
 
 section FiniteDimensional
 

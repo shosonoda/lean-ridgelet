@@ -32,13 +32,28 @@ namespace LeanRidgelet.Audit
 private def permittedAxioms : NameSet :=
   ((({} : NameSet).insert ``propext).insert ``Quot.sound).insert ``Classical.choice
 
-/-- Named L2 overview statements whose proofs remain to be formalized. -/
+/-- Named L2 and L1 overview statements whose proofs remain to be formalized. -/
 private def permittedSorryDeclarations : NameSet :=
-  (((({} : NameSet).insert
+  ((((((((((((((((((({} : NameSet).insert
     ``LeanRidgelet.l2_theorem_four_encoding_and_perturbative_readout).insert
     ``LeanRidgelet.l2_theorem_five_normalized_finite_width_approximation).insert
     ``LeanRidgelet.l2_corollary_one_discretizable_ridgelet_null_elements).insert
-    ``LeanRidgelet.l2_proposition_two_exact_finite_null_relations
+    ``LeanRidgelet.l2_proposition_two_exact_finite_null_relations).insert
+    ``LeanRidgelet.l1_weakRidgeletTransform_eq_euclidean).insert
+    ``LeanRidgelet.l1_balancing_weakRidgeletTransform_memLp).insert
+    ``LeanRidgelet.l1_ridgeletTransform_bounded_L1_Linfty).insert
+    ``LeanRidgelet.l1_dualRidgeletTransform_pairing).insert
+    ``LeanRidgelet.l1_structure_theorem_admissible_pairs).insert
+    ``LeanRidgelet.l1_construction_of_admissible_pairs).insert
+    ``LeanRidgelet.l1_reconstruction_formula).insert
+    ``LeanRidgelet.l1_reconstruction_formula_radon).insert
+    ``LeanRidgelet.l1_parseval_relation).insert
+    ``LeanRidgelet.l1_plancherel_identity).insert
+    ``LeanRidgelet.l1_ridgeletTransform_L2_extension).insert
+    ``LeanRidgelet.l1_reconstruction_formula_L2).insert
+    ``LeanRidgelet.l1_truncatedPower_hasFourierAwayFromOrigin).insert
+    ``LeanRidgelet.l1_truncatedPower_admissible).insert
+    ``LeanRidgelet.l1_relu_network_universal_approximation
 
 /-- Reviewed proposition-valued fields of project-defined structures and classes.
 
@@ -86,9 +101,26 @@ audit_ridgelet_assumptions
 
 -- Representative public endpoints remain visible in the audit log.
 assert_no_sorry LeanRidgelet.Fourier.paper_plancherel_schwartz_inner
+assert_no_sorry LeanRidgelet.Fourier.paperFourierDistribution_paperFourierInvDistribution
+assert_no_sorry LeanRidgelet.Fourier.paperFourierDistribution_toTemperedDistributionCLM_eq
 assert_no_sorry LeanRidgelet.fourierDilationTransformCore_norm_sq
+assert_no_sorry LeanRidgelet.continuous_fourierDilationTransformCore
+assert_no_sorry LeanRidgelet.fiberDistribution_coe
+assert_no_sorry LeanRidgelet.fiberBaseCoordinate_coe
+assert_no_sorry LeanRidgelet.paperFourierDistribution_ridgeletFunctionCore
+assert_no_sorry LeanRidgelet.ridgeletSpectrum_coe
+assert_no_sorry LeanRidgelet.ridgeletFunction_coe
+assert_no_sorry LeanRidgelet.paperFourierDistribution_ridgeletFunction
+assert_no_sorry LeanRidgelet.unitarySynthesis_comp_unitaryRidgelet
+assert_no_sorry LeanRidgelet.unitaryMoorePenroseInverse_rightInverse
+assert_no_sorry LeanRidgelet.hasSum_unitaryRidgelet_coefficients
+assert_no_sorry LeanRidgelet.hasSum_unitaryRidgelet_kernelBasis
 assert_no_sorry LeanRidgelet.hasSum_fiberRidgelet_coefficients
 assert_no_sorry LeanRidgelet.eq_fiberCoefficient_of_hasSum_fiberRidgelet
+assert_no_sorry LeanRidgelet.mem_fourierDilationCompatibilityDomain_iff_memLp
+assert_no_sorry LeanRidgelet.networkSynthesis_parameterSchwartzRealization_fourierPairing_ae
+assert_no_sorry LeanRidgelet.fourierDilationTransform_ridgeletOperator_apply_ae
+assert_no_sorry LeanRidgelet.mem_ker_networkSynthesis_iff_fourierDilation
 assert_no_sorry LeanRidgelet.normalizedGaussianRightInverse_rightInverse
 assert_no_sorry LeanRidgelet.l2_proposition_one_activation_hilbert_structure
 assert_no_sorry LeanRidgelet.l2_theorem_one_bounded_synthesis
@@ -96,6 +128,9 @@ assert_no_sorry LeanRidgelet.l2_lemma_one_ridgelet_fiber_representation
 assert_no_sorry LeanRidgelet.l2_theorem_two_reconstruction
 assert_no_sorry LeanRidgelet.l2_lemma_two_adjoint
 assert_no_sorry LeanRidgelet.l2_theorem_three_null_space_and_general_solution
+assert_no_sorry LeanRidgelet.l1_ridgelet_pointwise_convergent_L1_bounded
+assert_no_sorry LeanRidgelet.l1_hasFourierAwayFromOrigin_add_polynomial
+assert_no_sorry LeanRidgelet.integral_pow_mul_paperFourier1D_eq_zero
 
 #print axioms LeanRidgelet.Fourier.paper_plancherel_schwartz_inner
 #print axioms LeanRidgelet.fourierDilationTransformCore_norm_sq

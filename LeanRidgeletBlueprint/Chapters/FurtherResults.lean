@@ -17,8 +17,9 @@ set_option verso.blueprint.externalCode.strictResolve true
 file := "further-results"
 %%%
 
-The following results appear in `05journal/body.tex` but lie beyond the current formalization of
-Chapters 2--5. They are recorded as unformalized nodes with their dependencies made explicit.
+The following results appear in the active `05journal/03dev-*.tex` files but lie beyond the current
+formalization of Chapters 2--5. They are recorded as unformalized nodes with their dependencies
+made explicit.
 
 :::theorem "encoding_and_perturbative_readout"
 A countable family of $`L^2` functions can be encoded isometrically into an orthonormal sequence
