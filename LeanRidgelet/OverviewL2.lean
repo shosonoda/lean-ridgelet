@@ -8,7 +8,7 @@ module
 public import LeanRidgelet.Operator.Ridgelet
 
 /-!
-# Current abstract results and compatibility wrappers
+# L2 current abstract results and compatibility wrappers
 
 The current abstract Theorems 2--4 are implemented directly, without aggregate wrapper
 assumptions, in `LeanRidgelet.Operator.UnitarySynthesis`. They cover synthesis and reconstruction,

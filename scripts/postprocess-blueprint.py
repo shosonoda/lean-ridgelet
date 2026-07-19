@@ -11,7 +11,7 @@ from pathlib import Path
 
 
 CHAPTERS = (
-    ("overview", "Current manuscript implementation map"),
+    ("overview", "L2 theory: current manuscript implementation map"),
     ("foundations", "Fourier conventions and Hilbert spaces"),
     ("fourier-dilation", "Unitary coordinates and their Fourier construction"),
     ("operators", "Synthesis, ridgelets, and reconstruction"),

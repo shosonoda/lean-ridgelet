@@ -7,7 +7,7 @@ cd "$repo_root"
 
 if rg -n \
   '^[[:space:]]*(axiom|axioms|sorry|admit)\b|:=[[:space:]]*(by[[:space:]]+)?(sorry|admit)\b' \
-  LeanRidgelet --glob '*.lean' --glob '!Overview.lean' --glob '!OverviewL1.lean'
+  LeanRidgelet --glob '*.lean' --glob '!OverviewL2.lean' --glob '!OverviewL1.lean'
 then
   echo 'assumption audit failed: untracked source-level axiom or proof placeholder found' >&2
   exit 1

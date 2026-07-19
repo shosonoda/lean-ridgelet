@@ -880,7 +880,102 @@ theorem l1_dualRidgeletTransform_pairing (m : ℕ) [NeZero m]
       (fun q : RidgeletParameterSpace m => T q * ((‖q.1‖ : ℝ) : ℂ)⁻¹) volume) :
     ∫ q, euclideanRidgeletTransform m 1 ψ f q * conj (T q) ∂ridgeletParameterMeasure m =
       ∫ x, f x * conj (euclideanDualRidgeletTransform m 1 ψ T x) := by
-  sorry
+  obtain ⟨C, hψC⟩ := hψb
+  set g : RidgeletParameterSpace m → ℂ := fun q => T q * ((‖q.1‖ : ℝ) : ℂ)⁻¹ with hg_def
+  set K : RidgeletParameterSpace m → InputSpace m → ℂ := fun q x =>
+    f x * conj (ψ (inner ℝ q.1 x - q.2)) * conj (g q) with hK_def
+  -- almost every parameter has a nonzero weight component
+  have hae : ∀ᵐ q : RidgeletParameterSpace m ∂volume, q.1 ≠ 0 := by
+    rw [ae_iff]
+    have hset : {q : RidgeletParameterSpace m | ¬ q.1 ≠ 0} =
+        ({0} : Set (InputSpace m)) ×ˢ (Set.univ : Set ℝ) := by
+      ext q
+      simp [Set.mem_prod]
+    rw [hset, Measure.volume_eq_prod, Measure.prod_prod, measure_singleton, zero_mul]
+  -- unfold the weighted parameter measure
+  have hwmeas : Measurable fun q : RidgeletParameterSpace m =>
+      ENNReal.ofReal ((‖q.1‖ ^ 2)⁻¹) :=
+    ENNReal.measurable_ofReal.comp ((measurable_fst.norm.pow_const 2).inv)
+  have hstep1 :
+      ∫ q, euclideanRidgeletTransform m 1 ψ f q * conj (T q) ∂ridgeletParameterMeasure m =
+        ∫ q : RidgeletParameterSpace m,
+          ((‖q.1‖ ^ 2)⁻¹ : ℝ) • (euclideanRidgeletTransform m 1 ψ f q * conj (T q)) := by
+    unfold ridgeletParameterMeasure
+    rw [integral_withDensity_eq_integral_toReal_smul hwmeas
+      (Filter.Eventually.of_forall fun q => ENNReal.ofReal_lt_top)]
+    refine integral_congr_ae (Filter.Eventually.of_forall fun q => ?_)
+    simp only []
+    rw [ENNReal.toReal_ofReal (by positivity)]
+  -- pointwise identity in the parameter variable
+  have hq : ∀ᵐ q : RidgeletParameterSpace m ∂volume,
+      ((‖q.1‖ ^ 2)⁻¹ : ℝ) • (euclideanRidgeletTransform m 1 ψ f q * conj (T q)) =
+        ∫ x, K q x := by
+    filter_upwards [hae] with q hq1
+    have hna : (‖q.1‖ : ℝ) ≠ 0 := norm_ne_zero_iff.mpr hq1
+    simp only [euclideanRidgeletTransform, Real.rpow_one, hK_def]
+    rw [Complex.real_smul, mul_comm ((((‖q.1‖ ^ 2)⁻¹ : ℝ) : ℂ))
+      ((∫ x, f x * conj (ψ (inner ℝ q.1 x - q.2)) * ((‖q.1‖ : ℝ) : ℂ)) * conj (T q)),
+      mul_assoc, ← integral_mul_const]
+    refine integral_congr_ae (Filter.Eventually.of_forall fun x => ?_)
+    simp only [hg_def, map_mul, map_inv₀, Complex.conj_ofReal]
+    have hcne : ((‖q.1‖ : ℝ) : ℂ) ≠ 0 := Complex.ofReal_ne_zero.mpr hna
+    push_cast
+    field_simp
+  -- integrability of the kernel on the product space
+  have hKint : Integrable (Function.uncurry K)
+      ((volume : Measure (RidgeletParameterSpace m)).prod
+        (volume : Measure (InputSpace m))) := by
+    have hdom : Integrable (fun p : RidgeletParameterSpace m × InputSpace m =>
+        ‖g p.1‖ * (C * ‖f p.2‖))
+        ((volume : Measure (RidgeletParameterSpace m)).prod
+          (volume : Measure (InputSpace m))) :=
+      Integrable.mul_prod hT.norm (hf.norm.const_mul C)
+    refine hdom.mono' ?_ (Filter.Eventually.of_forall fun p => ?_)
+    · have h1 : AEStronglyMeasurable
+          (fun p : RidgeletParameterSpace m × InputSpace m => f p.2)
+          ((volume : Measure (RidgeletParameterSpace m)).prod
+            (volume : Measure (InputSpace m))) :=
+        hf.aestronglyMeasurable.comp_quasiMeasurePreserving
+          Measure.quasiMeasurePreserving_snd
+      have h2 : AEStronglyMeasurable
+          (fun p : RidgeletParameterSpace m × InputSpace m => conj (g p.1))
+          ((volume : Measure (RidgeletParameterSpace m)).prod
+            (volume : Measure (InputSpace m))) :=
+        (RCLike.continuous_conj.comp_aestronglyMeasurable
+          (hT.aestronglyMeasurable.comp_quasiMeasurePreserving
+            Measure.quasiMeasurePreserving_fst))
+      have h3 : Continuous
+          (fun p : RidgeletParameterSpace m × InputSpace m =>
+            conj (ψ (inner ℝ p.1.1 p.2 - p.1.2))) := by
+        refine RCLike.continuous_conj.comp (hψc.comp ?_)
+        exact (Continuous.inner (continuous_fst.fst) continuous_snd).sub
+          (continuous_fst.snd)
+      exact (h1.mul h3.aestronglyMeasurable).mul h2
+    · rw [Function.uncurry_apply_pair, hK_def]
+      simp only [norm_mul, RCLike.norm_conj]
+      calc ‖f p.2‖ * ‖ψ (inner ℝ p.1.1 p.2 - p.1.2)‖ * ‖g p.1‖
+          ≤ ‖f p.2‖ * C * ‖g p.1‖ := by
+            have h0 : (0 : ℝ) ≤ ‖g p.1‖ := norm_nonneg _
+            exact mul_le_mul_of_nonneg_right
+              (mul_le_mul_of_nonneg_left (hψC _) (norm_nonneg _)) h0
+        _ = ‖g p.1‖ * (C * ‖f p.2‖) := by ring
+  -- pointwise identity in the input variable
+  have hx : ∀ x : InputSpace m,
+      ∫ q : RidgeletParameterSpace m, K q x =
+        f x * conj (euclideanDualRidgeletTransform m 1 ψ T x) := by
+    intro x
+    simp only [euclideanDualRidgeletTransform, Real.rpow_one, hK_def]
+    rw [← integral_conj, ← integral_const_mul]
+    refine integral_congr_ae (Filter.Eventually.of_forall fun q => ?_)
+    simp only [hg_def, map_mul, map_inv₀, Complex.conj_ofReal]
+    ring
+  calc ∫ q, euclideanRidgeletTransform m 1 ψ f q * conj (T q) ∂ridgeletParameterMeasure m
+      = ∫ q : RidgeletParameterSpace m,
+          ((‖q.1‖ ^ 2)⁻¹ : ℝ) • (euclideanRidgeletTransform m 1 ψ f q * conj (T q)) := hstep1
+    _ = ∫ q : RidgeletParameterSpace m, ∫ x, K q x := integral_congr_ae hq
+    _ = ∫ x, ∫ q : RidgeletParameterSpace m, K q x := integral_integral_swap hKint
+    _ = ∫ x, f x * conj (euclideanDualRidgeletTransform m 1 ψ T x) :=
+        integral_congr_ae (Filter.Eventually.of_forall hx)
 
 /-- Section 5.1: the Fourier data away from the origin, hence the admissibility constant
 `K_{ψ,η}`, is invariant under adding a polynomial to the activation. This is the function-level

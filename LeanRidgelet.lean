@@ -23,7 +23,7 @@ public import LeanRidgelet.Operator.Ridgelet
 public import LeanRidgelet.Operator.Synthesis
 public import LeanRidgelet.Operator.Tanh
 public import LeanRidgelet.Operator.UnitarySynthesis
-public import LeanRidgelet.Overview
+public import LeanRidgelet.OverviewL2
 public import LeanRidgelet.OverviewL1
 public import LeanRidgelet.Space.Activation
 public import LeanRidgelet.Space.ActivationRealization

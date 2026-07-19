@@ -1,7 +1,7 @@
 import VersoManual
 import VersoBlueprint
 import LeanRidgeletBlueprint.Blueprint
-import LeanRidgeletBlueprint.Chapters.Overview
+import LeanRidgeletBlueprint.Chapters.OverviewL2
 import LeanRidgeletBlueprint.Chapters.Foundations
 import LeanRidgeletBlueprint.Chapters.FourierDilation
 import LeanRidgeletBlueprint.Chapters.Operators
@@ -19,7 +19,7 @@ set_option compiler.extract_closed false
 
 attribute [local irreducible]
   LeanRidgeletBlueprint.Blueprint.«the canonical document object name»
-  LeanRidgeletBlueprint.Chapters.Overview.«the canonical document object name»
+  LeanRidgeletBlueprint.Chapters.OverviewL2.«the canonical document object name»
   LeanRidgeletBlueprint.Chapters.Foundations.«the canonical document object name»
   LeanRidgeletBlueprint.Chapters.FourierDilation.«the canonical document object name»
   LeanRidgeletBlueprint.Chapters.Operators.«the canonical document object name»
@@ -28,8 +28,8 @@ attribute [local irreducible]
   LeanRidgeletBlueprint.Chapters.FurtherResults.«the canonical document object name»
   LeanRidgeletBlueprint.Chapters.OverviewL1.«the canonical document object name»
 
-private opaque overviewPart : Part Manual :=
-  (%doc LeanRidgeletBlueprint.Chapters.Overview)
+private opaque overviewL2Part : Part Manual :=
+  (%doc LeanRidgeletBlueprint.Chapters.OverviewL2)
 
 private opaque foundationsPart : Part Manual :=
   (%doc LeanRidgeletBlueprint.Chapters.Foundations)
@@ -55,7 +55,7 @@ private opaque overviewL1Part : Part Manual :=
 /-- The standard Verso document tree used for multi-page Blueprint output. -/
 opaque assembledBlueprint : Part Manual :=
   { (%doc LeanRidgeletBlueprint.Blueprint) with
-    subParts := #[overviewPart, foundationsPart, fourierDilationPart, operatorsPart,
+    subParts := #[overviewL2Part, foundationsPart, fourierDilationPart, operatorsPart,
       generalSolutionPart, activationsPart, furtherResultsPart, overviewL1Part] }
 
 end LeanRidgeletBlueprint
