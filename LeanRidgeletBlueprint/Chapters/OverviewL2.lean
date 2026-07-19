@@ -48,7 +48,6 @@ spaces, let $`T:\mathcal G\simeq L^2(X,\mu;\mathcal H)` be unitary, and let
 $`L:\mathcal H\to\mathbb C` be continuous and linear. Define
 $$`S:=\widetilde L\,T:\mathcal G\to L^2(X,\mu),\qquad
 R_h:=T^*J_h:L^2(X,\mu)\to\mathcal G,\qquad J_h[f](x):=f(x)h.`
-Here `unitarySynthesis T L` is $`S`, and `unitaryRidgelet T h` is $`R_h`.
 :::
 
 :::theorem "abstract_reconstruction" (lean := "LeanRidgelet.unitarySynthesis_comp_unitaryRidgelet, LeanRidgelet.adjoint_unitarySynthesis, LeanRidgelet.unitarySynthesis_comp_adjoint, LeanRidgelet.norm_adjoint_unitarySynthesis_sq") (uses := "abstract_synthesis_and_reconstruction")
@@ -56,9 +55,7 @@ Under Definition 1, let $`h\in\mathcal H`, let $`h_L` be the Riesz vector determ
 $`L[h]=\langle h,h_L\rangle`, and put $`c_L:=\|h_L\|^2=\|L\|^2`. Then
 $$`S\circ R_h=L[h]I,\qquad S^*=R_{h_L},\qquad S\circ S^*=c_LI,
 \qquad \|S^*[f]\|^2=c_L\|f\|^2\quad(f\in L^2(X,\mu)).`
-The four conclusions correspond, in order, to `unitarySynthesis_comp_unitaryRidgelet`,
-`adjoint_unitarySynthesis`, `unitarySynthesis_comp_adjoint`, and
-`norm_adjoint_unitarySynthesis_sq`. No hypothesis $`L\ne0` is required.
+No hypothesis $`L\ne0` is required.
 :::
 
 :::theorem "abstract_solution_geometry" (lean := "LeanRidgelet.unitaryMoorePenroseInverse, LeanRidgelet.unitaryParameterProjection, LeanRidgelet.unitaryMoorePenroseInverse_rightInverse, LeanRidgelet.isIdempotentElem_unitaryParameterProjection, LeanRidgelet.isSelfAdjoint_unitaryParameterProjection, LeanRidgelet.ker_unitaryParameterProjection, LeanRidgelet.range_unitaryParameterProjection, LeanRidgelet.map_ker_unitarySynthesis, LeanRidgelet.unitarySolution_iff_kernel_translate, LeanRidgelet.unitaryMoorePenroseInverse_pythagorean, LeanRidgelet.unitaryMoorePenroseInverse_unique_minimal") (uses := "abstract_reconstruction")
@@ -71,9 +68,7 @@ Moreover, for $`f\in L^2(X,\mu)` and $`\gamma\in\mathcal G`,
 $$`S[\gamma]=f\iff\gamma-S^\dagger[f]\in\ker S,`
 and every such solution satisfies
 $$`\|\gamma\|^2=\|S^\dagger[f]\|^2+\|\gamma-S^\dagger[f]\|^2.`
-Thus $`S^\dagger[f]` is the unique minimum-norm solution. The linked declarations separately
-implement the definitions, right-inverse law, projection laws, kernel/range identities, affine
-solution formula, Pythagoras identity, and uniqueness statement in this displayed order.
+Thus $`S^\dagger[f]` is the unique minimum-norm solution.
 :::
 
 :::theorem "abstract_basis_expansion" (lean := "LeanRidgelet.hasSum_unitaryRidgelet_coefficients, LeanRidgelet.eq_unitaryCoefficient_of_hasSum_unitaryRidgelet, LeanRidgelet.hasSum_norm_sq_unitaryCoefficient, LeanRidgelet.mem_ker_unitarySynthesis_iff_coefficients, LeanRidgelet.unitaryNullDoubleCoefficients, LeanRidgelet.hasSum_unitaryRidgelet_kernelBasis") (uses := "abstract_solution_geometry")
@@ -88,8 +83,6 @@ If $`(k_j)_{j\in J}` is a Hilbert basis of $`\ker L`, every $`\gamma\in\ker S` a
 unconditionally convergent expansion
 $$`\gamma=\sum_{(i,j)\in I\times J}c_{ij}\,R_{k_j}[e_i],
 \qquad(c_{ij})\in\ell^2(I\times J).`
-The linked declarations implement, respectively, existence, uniqueness, Parseval, the null-space
-criterion, the $`\ell^2` coefficient, and the double expansion.
 :::
 
 *Section 3: Neural-Network Specialization: Hilbert Spaces and Boundedness*
@@ -98,8 +91,7 @@ criterion, the $`\ell^2` coefficient, and the double expansion.
 For $`s,t\in\mathbb R`, define the activation space
 $$`\mathcal A_{s,t}:=\langle\cdot\rangle^tH^s(\mathbb R),`
 represented by its Fourier--Bessel coordinate $`u\in L^2(\mathbb R)`. In Lean,
-`ActivationSpace s t` is this coordinate Hilbert space and `activationDistribution s t u` is
-the associated tempered distribution
+the coordinate Hilbert space determines the associated tempered distribution
 $$`\sigma=\langle\cdot\rangle^t\langle\partial\rangle^{-s}[u].`
 :::
 
@@ -116,10 +108,8 @@ $$`\|h\|_{\mathcal H_{s,t}}^2:=C_m\int_{\mathbb R}|h(\omega)|^2|\omega|^m\,d\ome
 +\int_{\mathbb R}|\langle\partial_\omega\rangle^t[h](\omega)|^2
 \langle\omega\rangle^{-2s}\,d\omega.`
 The coefficient space $`\mathcal H_{s,t}` is the Hilbert completion of this normed core.
-`fiberNormSq` is the displayed quadratic form and `FiberSpace m s t` is its completion.
-For every completed $`h\in\mathcal H_{s,t}`, `fiberDistribution m s t h` is a tempered
-distribution; `fiberDistribution_coe` states that this realization equals the original Schwartz
-function on the dense core.
+Every completed $`h\in\mathcal H_{s,t}` has a tempered-distribution realization that equals the
+original Schwartz function on the dense core.
 :::
 
 :::definition "activation_functional" (lean := "LeanRidgelet.activationFiberFunctional, LeanRidgelet.activationSpectrum, LeanRidgelet.activationRealization, LeanRidgelet.activationSpectrum_apply, LeanRidgelet.activationFiberFunctional_eq_spectrum") (uses := "activation_space, coefficient_space")
@@ -129,9 +119,7 @@ $`\sigma_{\mathrm{cl}}:=\mathcal F^{-1}[\sigma^\sharp]`. Then the pairing extend
 a continuous linear functional $`L_\sigma:\mathcal H_{s,t}\to\mathbb C` with
 $$`\|L_\sigma\|\le(2\pi)^{m-1}\|\sigma\|_{\mathcal A_{s,t}},\qquad
 L_\sigma[h]=(2\pi)^{m-1}\sigma^\sharp[h]`
-for every Schwartz-core coefficient $`h`. `activationSpectrum` and `activationRealization`
-define the two realizations; `activationSpectrum_apply` gives the spectrum action; and
-`activationFiberFunctional_eq_spectrum` is the displayed pairing identity.
+for every Schwartz-core coefficient $`h`.
 :::
 
 :::definition "pointwise_coordinate_transform" (lean := "LeanRidgelet.fourierDilationTransformCore, LeanRidgelet.fourierDilationTransformFiberCore, LeanRidgelet.fourierDilationTransformCoreL2, LeanRidgelet.parameterSchwartzRealization")
@@ -139,11 +127,9 @@ Let $`m\ge1`, $`s,t\in\mathbb R`, and $`\gamma\in\mathcal S(\mathbb R^m\times\ma
 Define
 $$`T_{\mathrm{pt}}[\gamma](x,\omega):=(2\pi)^{-m}
 \int_{\mathbb R^m\times\mathbb R}\gamma(a,b)e^{i\omega(a\cdot x-b)}\,da\,db.`
-`fourierDilationTransformCore` is this scalar formula;
-`fourierDilationTransformFiberCore` bundles $`\omega\mapsto T_{\mathrm{pt}}[\gamma](x,\omega)`
-as a coefficient-core vector. If this fiber-valued map belongs to Bochner $`L^2`,
-`fourierDilationTransformCoreL2` and `parameterSchwartzRealization` bundle it into the completed
-coordinate and parameter spaces.
+For each $`x`, the function $`\omega\mapsto T_{\mathrm{pt}}[\gamma](x,\omega)` is bundled as a
+coefficient-core vector. If this fiber-valued map belongs to Bochner $`L^2`, it determines an
+element of the completed coordinate and parameter spaces.
 :::
 
 :::lemma_ "weighted_dilation_identity" (lean := "LeanRidgelet.integral_fourierDilationCoordinate_mul") (uses := "pointwise_coordinate_transform")
@@ -157,9 +143,7 @@ globally invertible change of variables.
 Let $`m\ge1` and $`s,t\in\mathbb R`. Define the parameter Hilbert space and its coordinate map by
 $$`\mathcal G_{s,t}:=L^2(\mathbb R^m;\mathcal H_{s,t}),\qquad
 T:\mathcal G_{s,t}\simeq L^2(\mathbb R^m;\mathcal H_{s,t}).`
-In Lean, `ParameterSpace m s t` is the transported coordinate model,
-`parameterCoordinateEquiv m s t` and `fourierDilationTransform m s t` are $`T`, and
-`inverseFourierDilationTransform m s t` is $`T^{-1}`. The identification of this model with the
+The Lean parameter space is this transported coordinate model. Its identification with the
 manuscript's concrete graph domain is treated separately on the compatibility domain.
 :::
 
@@ -169,12 +153,10 @@ $$`T^{-1}T=I.`
 If $`\gamma\in\mathcal S(\mathbb R^m\times\mathbb R)` satisfies
 $`T_{\mathrm{pt}}[\gamma]\in L^2(\mathbb R^m;\mathcal H_{s,t})`, then
 $$`T[\gamma]=T_{\mathrm{pt}}[\gamma]\quad\text{a.e.}`
-after embedding $`\gamma` by `parameterSchwartzRealization`. The inverse core is
+after embedding $`\gamma` in $`\mathcal G_{s,t}`. The inverse core is
 $$`T^{-1}_{\mathrm{pt}}[u](a,b)=\frac1{2\pi}\int u(x,\omega)
 e^{-i\omega(a\cdot x-b)}|\omega|^m\,dx\,d\omega.`
-The linked declarations give $`T`, $`T^{-1}T=I`, the compatibility domain and its $`L^2`
-criterion, the a.e. forward agreement, and the inverse-core formula, respectively. Equality of
-the last integral with the transported inverse is not yet asserted.
+Equality of the last integral with the transported inverse is not yet asserted.
 :::
 
 :::definition "hilbert_space_synthesis" (lean := "LeanRidgelet.networkSynthesis, LeanRidgelet.networkSynthesis_eq_unitarySynthesis, LeanRidgelet.networkSynthesis_apply_fourierDilation_ae, LeanRidgelet.networkSynthesis_parameterSchwartzRealization_apply_ae, LeanRidgelet.networkSynthesis_parameterSchwartzRealization_fourierPairing_ae") (uses := "activation_functional, concrete_unitary_transform, abstract_synthesis_and_reconstruction")
@@ -182,23 +164,17 @@ Let $`m\ge1`, $`s,t\in\mathbb R`, $`\sigma\in\mathcal A_{s,t}`, and let $`T` and
 $`L_\sigma` be Definitions 11 and 8. Define
 $$`S_\sigma:=\widetilde L_\sigma T:\mathcal G_{s,t}\to L^2(\mathbb R^m),\qquad
 S_\sigma[\gamma](x):=L_\sigma[T[\gamma](x,\cdot)].`
-`networkSynthesis` defines $`S_\sigma`; `networkSynthesis_eq_unitarySynthesis` gives the
-factorization; the three remaining linked declarations give the a.e. coordinate formula and its
-Schwartz-core and Fourier-pairing specializations.
 :::
 
 :::theorem "bounded_synthesis" (lean := "LeanRidgelet.l2_theorem_one_bounded_synthesis, LeanRidgelet.norm_networkSynthesis_le, LeanRidgelet.classicalSynthesisIntegral, LeanRidgelet.networkSynthesis_parameterSchwartzRealization_classical_ae") (uses := "hilbert_space_synthesis")
 Let $`m\ge1`, $`s,t\in\mathbb R`, $`\sigma\in\mathcal A_{s,t}`, and
 $`\gamma\in\mathcal G_{s,t}`. Then
 $$`\|S[\gamma]\|_2\le (2\pi)^{m-1}\|\sigma\|_{\mathcal A_{s,t}}\|\gamma\|_{\mathcal G_{s,t}}.`
-This estimate is the second component of `l2_theorem_one_bounded_synthesis`. In addition, if
-$`\gamma` lies in the Schwartz compatibility domain, the classical integral is absolutely
-defined, and `activationRealization σ` acts by integration against a function
+In addition, if $`\gamma` lies in the Schwartz compatibility domain, the classical integral is
+absolutely defined, and the realized activation acts by integration against a function
 $`\sigma_{\mathrm{cl}}`, then
 $$`S_\sigma[\gamma](x)=\int\gamma(a,b)\sigma_{\mathrm{cl}}(a\cdot x-b)\,da\,db
 \quad\text{for a.e. }x.`
-`classicalSynthesisIntegral` defines the right-hand side and
-`networkSynthesis_parameterSchwartzRealization_classical_ae` proves this equality.
 :::
 
 *Section 4: Neural-Network Specialization: Ridgelet Reconstruction from the Fourier Expression*
@@ -208,12 +184,9 @@ Let $`m\ge1`, $`s,t\in\mathbb R`, $`h\in\mathcal H_{s,t}`, and
 $`f\in L^2(\mathbb R^m)`. Define
 $$`R_h[f]:=T^*[f\otimes h],\qquad \rho_h^\sharp:=|\omega|^m\overline h,
 \qquad \rho_h:=\mathcal F^{-1}[\rho_h^\sharp].`
-`ridgeletOperator` is $`R_h` and `ridgeletOperator_eq_unitaryRidgelet` gives the displayed
-factorization. `fiberBaseCoordinate`, `ridgeletSpectrum`, and `ridgeletFunction` construct the
-completed distributional data; `ridgeletSpectrum_coe` proves the pointwise spectrum formula on
-the Schwartz core; and `paperFourierDistribution_ridgeletFunction` proves
-$`\rho_h^\sharp=\mathcal F[\rho_h]`. For Schwartz $`h`, `classicalRidgeletFunction` is a function
-representing $`\rho_h`, and `classicalRidgeletIntegral` defines
+The spectrum identity holds pointwise on the Schwartz core and distributionally on the
+completion. For Schwartz $`h`, the distribution $`\rho_h` is represented by a function, and its
+classical ridgelet transform is
 $$`R[f;\rho_h](a,b):=\int f(x)\overline{\rho_h(a\cdot x-b)}\,dx.`
 :::
 
@@ -221,14 +194,10 @@ $$`R[f;\rho_h](a,b):=\int f(x)\overline{\rho_h(a\cdot x-b)}\,dx.`
 Let $`m\ge1`, $`s,t\in\mathbb R`, $`h\in\mathcal H_{s,t}`, and
 $`f\in L^2(\mathbb R^m)`. Then
 $$`T[R_h[f]](x)=f(x)h\quad\text{for a.e. }x.`
-This is `fourierDilationTransform_ridgeletOperator_apply_ae`; its compatibility wrapper is
-`l2_lemma_one_ridgelet_fiber_representation`. If $`f` and $`h` are Schwartz and the classical
-ridgelet integral of Definition 15 is integrable, then for every $`(a,b)` it equals
+If $`f` and $`h` are Schwartz and the classical ridgelet integral of Definition 15 is integrable,
+then for every $`(a,b)` it equals
 $$`\frac1{2\pi}\int f(x)h(\omega)e^{-i\omega(a\cdot x-b)}|\omega|^m\,dx\,d\omega.`
-This is `classicalRidgeletIntegral_eq_inverseTensorIntegral`, and
-`classicalRidgeletIntegral_eq_inverseFourierDilationTransformCore` identifies the same expression
-with the inverse-transform core. The separate bias/input Fourier formulas (32)--(33) are not
-asserted by these declarations.
+The separate bias/input Fourier formulas (32)--(33) are not asserted here.
 :::
 
 :::theorem "concrete_reconstruction" (lean := "LeanRidgelet.l2_theorem_two_reconstruction, LeanRidgelet.networkSynthesis_comp_ridgeletOperator") (uses := "fourier_expressions, abstract_reconstruction")
@@ -236,8 +205,7 @@ Let $`m\ge1`, $`s,t\in\mathbb R`, $`\sigma\in\mathcal A_{s,t}`, and
 $`h\in\mathcal H_{s,t}`. Then
 $$`S_\sigma\circ R_h=L_\sigma[h]I,`
 that is, $`S_\sigma[R_h[f]]=L_\sigma[h]f` for every $`f\in L^2(\mathbb R^m)`.
-This is `networkSynthesis_comp_ridgeletOperator`; `l2_theorem_two_reconstruction` is its
-manuscript-numbered compatibility wrapper. If a classical ridgelet function $`\rho` has
+If a classical ridgelet function $`\rho` has
 $`h=|\omega|^{-m}\overline{\rho^\sharp}`, this becomes
 $`S_\sigma[R[f;\rho]]=\langle\!\langle\sigma,\rho\rangle\!\rangle f`; bundling the forward map
 $`\rho\mapsto h` remains outside the current statement.
@@ -248,13 +216,10 @@ $`\rho\mapsto h` remains outside the current statement.
 :::definition "adjoint_ridgelet_function" (lean := "LeanRidgelet.activationRieszRepresenter, LeanRidgelet.activationNormalization, LeanRidgelet.ridgeletFunction, LeanRidgelet.paperFourierDistribution_ridgeletFunction") (uses := "activation_functional, ridgelet_transform_and_pairing")
 Let $`m\ge1`, $`s,t\in\mathbb R`, and $`\sigma\in\mathcal A_{s,t}`. Define the Riesz vector
 $`h_\sigma\in\mathcal H_{s,t}` and normalization $`c_\sigma` by
-$$`L_\sigma[h]=\langle h,h_\sigma\rangle,qquad
+$$`L_\sigma[h]=\langle h,h_\sigma\rangle,\qquad
 c_\sigma:=\|h_\sigma\|^2=\|L_\sigma\|^2.`
 Define the adjoint ridgelet distribution $`\sigma_*:=\rho_{h_\sigma}`; equivalently,
 $$`\sigma_*^\sharp=|\omega|^m\overline{h_\sigma}.`
-`activationRieszRepresenter` and `activationNormalization` define $`h_\sigma` and
-$`c_\sigma`; `ridgeletFunction` constructs $`\sigma_*`; and
-`paperFourierDistribution_ridgeletFunction` proves its spectrum formula.
 :::
 
 :::lemma_ "concrete_adjoint" (lean := "LeanRidgelet.l2_lemma_two_adjoint, LeanRidgelet.adjoint_networkSynthesis, LeanRidgelet.networkSynthesis_comp_adjoint") (uses := "adjoint_ridgelet_function, abstract_reconstruction")
@@ -262,10 +227,8 @@ Under Definition 18, for every $`f\in L^2(\mathbb R^m)`,
 $$`S_\sigma^*=R_{h_\sigma},\qquad
 S_\sigma S_\sigma^*=c_\sigma I,\qquad
 \|S_\sigma^*[f]\|^2=c_\sigma\|f\|^2.`
-The first two identities are `adjoint_networkSynthesis` and `networkSynthesis_comp_adjoint` and
-are bundled by `l2_lemma_two_adjoint`; the norm identity follows from the linked abstract
-reconstruction theorem. With $`\sigma_*` from Definition 18, the manuscript writes the first
-identity as $`S_\sigma^*[f]=R[f;\sigma_*]`.
+With $`\sigma_*` from Definition 18, the first identity is equivalently
+$`S_\sigma^*[f]=R[f;\sigma_*]`.
 :::
 
 :::definition "canonical_solution_and_projection" (lean := "LeanRidgelet.normalizedNetworkRightInverse, LeanRidgelet.networkVisibleProjection, LeanRidgelet.normalizedNetworkRightInverse_rightInverse, LeanRidgelet.isSelfAdjoint_networkVisibleProjection") (uses := "concrete_adjoint, abstract_solution_geometry")
@@ -273,9 +236,6 @@ Let $`\sigma\in\mathcal A_{s,t}` satisfy $`\sigma\ne0`. Define
 $$`S_\sigma^\dagger:=c_\sigma^{-1}S_\sigma^*,\qquad
 P_\sigma:=S_\sigma^\dagger S_\sigma.`
 Then $`S_\sigma S_\sigma^\dagger=I` and $`P_\sigma^*=P_\sigma`.
-`normalizedNetworkRightInverse` and `networkVisibleProjection` define the two operators;
-`normalizedNetworkRightInverse_rightInverse` and `isSelfAdjoint_networkVisibleProjection` prove
-the two displayed properties.
 :::
 
 :::theorem "concrete_null_space_and_general_solution" (lean := "LeanRidgelet.l2_theorem_three_null_space_and_general_solution, LeanRidgelet.mem_ker_networkSynthesis_iff_fourierDilation, LeanRidgelet.hasSum_ridgeletOperator_fiberCoefficient, LeanRidgelet.networkSolution_iff_kernel_translate, LeanRidgelet.normalizedNetworkRightInverse_unique_minimal, LeanRidgelet.hasSum_unitaryRidgelet_kernelBasis") (uses := "canonical_solution_and_projection, abstract_basis_expansion, fourier_expressions")
@@ -288,9 +248,8 @@ and
 $$`\gamma=\sum_iR_{h_i[\gamma]}[e_i]`
 with unique coefficient vectors. For $`f\in L^2(\mathbb R^m)`, all solutions are exactly
 $$`\{\gamma:S_\sigma[\gamma]=f\}=S_\sigma^\dagger[f]+\ker S_\sigma,`
-and $`S_\sigma^\dagger[f]` is the unique minimum-norm solution. The linked concrete declarations
-prove the pointwise criterion, series, affine formula, and minimum statement; the abstract
-`hasSum_unitaryRidgelet_kernelBasis` supplies the double $`\ell^2` null expansion.
+and $`S_\sigma^\dagger[f]` is the unique minimum-norm solution. A Hilbert basis of
+$`\ker L_\sigma` further gives the double $`\ell^2` null expansion of Theorem 4.
 :::
 
 *Section 6: Examples of Adjoint Ridgelet Functions: ReLU, Sigmoidal, and Gaussian Activations*
