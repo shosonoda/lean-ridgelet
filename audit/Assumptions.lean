@@ -34,7 +34,7 @@ private def permittedAxioms : NameSet :=
 
 /-- Named L2 and L1 overview statements whose proofs remain to be formalized. -/
 private def permittedSorryDeclarations : NameSet :=
-  ((((((((((((((((((({} : NameSet).insert
+  (((((((((((((((((({} : NameSet).insert
     ``LeanRidgelet.l2_theorem_four_encoding_and_perturbative_readout).insert
     ``LeanRidgelet.l2_theorem_five_normalized_finite_width_approximation).insert
     ``LeanRidgelet.l2_corollary_one_discretizable_ridgelet_null_elements).insert
@@ -51,7 +51,6 @@ private def permittedSorryDeclarations : NameSet :=
     ``LeanRidgelet.l1_plancherel_identity).insert
     ``LeanRidgelet.l1_ridgeletTransform_L2_extension).insert
     ``LeanRidgelet.l1_reconstruction_formula_L2).insert
-    ``LeanRidgelet.l1_truncatedPower_hasFourierAwayFromOrigin).insert
     ``LeanRidgelet.l1_truncatedPower_admissible).insert
     ``LeanRidgelet.l1_relu_network_universal_approximation
 
@@ -131,6 +130,8 @@ assert_no_sorry LeanRidgelet.l2_theorem_three_null_space_and_general_solution
 assert_no_sorry LeanRidgelet.l1_ridgelet_pointwise_convergent_L1_bounded
 assert_no_sorry LeanRidgelet.l1_hasFourierAwayFromOrigin_add_polynomial
 assert_no_sorry LeanRidgelet.integral_pow_mul_paperFourier1D_eq_zero
+assert_no_sorry LeanRidgelet.l1_truncatedPower_hasFourierAwayFromOrigin
+assert_no_sorry LeanRidgelet.truncatedPowerFourier_pairing
 
 #print axioms LeanRidgelet.Fourier.paper_plancherel_schwartz_inner
 #print axioms LeanRidgelet.fourierDilationTransformCore_norm_sq
