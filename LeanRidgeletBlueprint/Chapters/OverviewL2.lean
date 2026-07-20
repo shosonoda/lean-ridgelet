@@ -12,14 +12,13 @@ set_option linter.hashCommand false
 set_option linter.style.longLine false
 set_option verso.blueprint.externalCode.strictResolve true
 
-#doc (Manual) "L2 theory: current manuscript implementation map" =>
+#doc (Manual) "L2 theory: arXiv:2106.04770v2 implementation map" =>
 %%%
 file := "overview"
 %%%
 
-This chapter follows the publication order and single shared theorem-like counter of the
-submitted manuscript snapshot `ghost20260718submit.pdf` (2026-07-19), corresponding to the active
-LaTeX tree at revision `354ffde`. The paper first
+This chapter follows the publication order and single shared theorem-like counter of
+arXiv:2106.04770v2. The paper first
 derives the separated Fourier expression in the Introduction, isolates its abstract unitary
 operator theory in Section 2, and only then constructs the concrete activation, coefficient, and
 parameter spaces. Later sections treat adjoint ridgelet functions, finite-width consequences,

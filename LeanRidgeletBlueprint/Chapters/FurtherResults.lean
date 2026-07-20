@@ -17,7 +17,7 @@ set_option verso.blueprint.externalCode.strictResolve true
 file := "further-results"
 %%%
 
-The following results appear in the active `05journal/03dev-*.tex` files but lie beyond the current
+The following results appear in the arXiv `src/03dev-*.tex` files but lie beyond the current
 formalization of Chapters 2--5. They are recorded as unformalized nodes with their dependencies
 made explicit.
 

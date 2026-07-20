@@ -17,8 +17,8 @@ set_option verso.blueprint.externalCode.strictResolve true
 file := "fourier-dilation"
 %%%
 
-This chapter corresponds to the unitary coordinate transform in the active
-`05journal/02theory.tex` and its construction and proof in `05journal/supp-proofs.tex`.
+This chapter corresponds to the unitary coordinate transform in the arXiv source
+`src/02theory.tex` and its construction and proof in `src/supp-proofs.tex`.
 “Fourier--dilation” describes the construction; the operator's formal manuscript name is the
 unitary coordinate transform $`T`.
 

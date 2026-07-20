@@ -10,14 +10,17 @@ import re
 from pathlib import Path
 
 
-CHAPTERS = (
-    ("overview", "L2 theory: current manuscript implementation map"),
+PUBLIC_CHAPTERS = (
+    ("overview", "L2 theory: arXiv:2106.04770v2 implementation map"),
     ("foundations", "Fourier conventions and Hilbert spaces"),
     ("fourier-dilation", "Unitary coordinates and their Fourier construction"),
     ("operators", "Synthesis, ridgelets, and reconstruction"),
     ("general-solution", "Null space and the general solution"),
     ("activations", "Standard activation functions"),
     ("further-results", "Further results from the source manuscript"),
+)
+
+DEVELOPMENT_ONLY_CHAPTERS = (
     ("overview-l1", "L1 theory: ridgelet transforms with unbounded activations"),
 )
 
@@ -142,16 +145,16 @@ def process_chapter(repo_root: Path, output_root: Path, slug: str) -> int:
     return implementation_count
 
 
-def verify_navigation(output_root: Path) -> None:
+def verify_navigation(output_root: Path, chapters: tuple[tuple[str, str], ...]) -> None:
     html_root = output_root / "html-multi"
     pages = [html_root / "index.html"] + [
-        html_root / slug / "index.html" for slug, _ in CHAPTERS
+        html_root / slug / "index.html" for slug, _ in chapters
     ]
     for page_number, index in enumerate(pages):
         document = index.read_text(encoding="utf-8")
         if document.count('class="split-toc book"') != 1:
             raise RuntimeError(f"expected exactly one standard Verso table of contents in {index}")
-        for slug, title in CHAPTERS:
+        for slug, title in chapters:
             if f'href="{slug}/' not in document or title not in document:
                 raise RuntimeError(f"missing standard chapter link for {slug} in {index}")
             if not (html_root / slug / "index.html").is_file():
@@ -171,6 +174,11 @@ def main() -> None:
         type=Path,
         help="Blueprint output root (default: _out/blueprint)",
     )
+    parser.add_argument(
+        "--exclude-l1",
+        action="store_true",
+        help="process and verify only the seven public L2 Blueprint chapters",
+    )
     args = parser.parse_args()
 
     repo_root = Path(__file__).resolve().parent.parent
@@ -178,15 +186,19 @@ def main() -> None:
     if not output_root.is_absolute():
         output_root = repo_root / output_root
 
+    chapters = PUBLIC_CHAPTERS
+    if not args.exclude_l1:
+        chapters += DEVELOPMENT_ONLY_CHAPTERS
+
     total = 0
-    for slug, _ in CHAPTERS:
+    for slug, _ in chapters:
         count = process_chapter(repo_root, output_root, slug)
         total += count
         print(f"postprocessed {slug}: {count} Lean definition implementation(s)")
     if total == 0:
         raise RuntimeError("no Lean definition implementations were inserted")
-    verify_navigation(output_root)
-    print("verified standard Verso navigation across all eight chapters")
+    verify_navigation(output_root, chapters)
+    print(f"verified standard Verso navigation across all {len(chapters)} chapters")
 
 
 if __name__ == "__main__":

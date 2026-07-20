@@ -11,7 +11,7 @@ from pathlib import Path
 START = "<!-- BEGIN GENERATED BADGES -->"
 END = "<!-- END GENERATED BADGES -->"
 REPOSITORY = "shosonoda/lean-ridgelet"
-ARXIV_ID = "2106.04770"
+ARXIV_ID = "2106.04770v2"
 
 
 def lean_version(repo_root: Path) -> str:

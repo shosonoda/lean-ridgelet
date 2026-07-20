@@ -17,16 +17,16 @@ set_option verso.blueprint.externalCode.strictResolve true
 file := "foundations"
 %%%
 
-:::source_document "ghosts-l2"
+:::source_document "arxiv-2106.04770v2"
 %%%
 title := "Ghosts in Neural Networks"
 kind := .pdf
-pdf := "00data/ghost20260718submit.pdf"
+pdf := "https://arxiv.org/pdf/2106.04770v2"
 %%%
 :::
 
 This chapter reorganizes the notation from `head.tex` and the Hilbert-space framework from the
-active `05journal/02theory.tex` according to the Lean dependency order. The manuscript inner
+arXiv source `src/02theory.tex` according to the Lean dependency order. The manuscript inner
 product is linear in the first argument; Mathlib's is linear in the second, so Lean identities use
 the reversed argument order. In particular, manuscript $`L[h]=\langle h,h_L\rangle` is represented
 in Lean by $`\langle h_L,h\rangle=L[h]`.
