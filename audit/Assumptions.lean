@@ -32,26 +32,28 @@ namespace LeanRidgelet.Audit
 private def permittedAxioms : NameSet :=
   ((({} : NameSet).insert ``propext).insert ``Quot.sound).insert ``Classical.choice
 
-/-- Named L2 and L1 overview statements whose proofs remain to be formalized. -/
+/-- Named L2 and L1 overview statements whose proofs remain to be formalized.
+
+Built by folding `NameSet.insert` over a flat list so that adding or removing an entry is a
+single-line edit with no parenthesis bookkeeping. -/
 private def permittedSorryDeclarations : NameSet :=
-  ((((((((((((((((({} : NameSet).insert
-    ``LeanRidgelet.l2_theorem_four_encoding_and_perturbative_readout).insert
-    ``LeanRidgelet.l2_theorem_five_normalized_finite_width_approximation).insert
-    ``LeanRidgelet.l2_corollary_one_discretizable_ridgelet_null_elements).insert
-    ``LeanRidgelet.l2_proposition_two_exact_finite_null_relations).insert
-    ``LeanRidgelet.l1_weakRidgeletTransform_eq_euclidean).insert
-    ``LeanRidgelet.l1_balancing_weakRidgeletTransform_memLp).insert
-    ``LeanRidgelet.l1_ridgeletTransform_bounded_L1_Linfty).insert
-    ``LeanRidgelet.l1_structure_theorem_admissible_pairs).insert
-    ``LeanRidgelet.l1_construction_of_admissible_pairs).insert
-    ``LeanRidgelet.l1_reconstruction_formula).insert
-    ``LeanRidgelet.l1_reconstruction_formula_radon).insert
-    ``LeanRidgelet.l1_parseval_relation).insert
-    ``LeanRidgelet.l1_plancherel_identity).insert
-    ``LeanRidgelet.l1_ridgeletTransform_L2_extension).insert
-    ``LeanRidgelet.l1_reconstruction_formula_L2).insert
-    ``LeanRidgelet.l1_truncatedPower_admissible).insert
-    ``LeanRidgelet.l1_relu_network_universal_approximation
+  List.foldl NameSet.insert ∅
+    [``LeanRidgelet.l2_theorem_four_encoding_and_perturbative_readout,
+     ``LeanRidgelet.l2_theorem_five_normalized_finite_width_approximation,
+     ``LeanRidgelet.l2_corollary_one_discretizable_ridgelet_null_elements,
+     ``LeanRidgelet.l2_proposition_two_exact_finite_null_relations,
+     ``LeanRidgelet.l1_balancing_weakRidgeletTransform_memLp,
+     ``LeanRidgelet.l1_ridgeletTransform_bounded_L1_Linfty,
+     ``LeanRidgelet.l1_structure_theorem_admissible_pairs,
+     ``LeanRidgelet.l1_construction_of_admissible_pairs,
+     ``LeanRidgelet.l1_reconstruction_formula,
+     ``LeanRidgelet.l1_reconstruction_formula_radon,
+     ``LeanRidgelet.l1_parseval_relation,
+     ``LeanRidgelet.l1_plancherel_identity,
+     ``LeanRidgelet.l1_ridgeletTransform_L2_extension,
+     ``LeanRidgelet.l1_reconstruction_formula_L2,
+     ``LeanRidgelet.l1_truncatedPower_admissible,
+     ``LeanRidgelet.l1_relu_network_universal_approximation]
 
 /-- Reviewed proposition-valued fields of project-defined structures and classes.
 
@@ -132,6 +134,7 @@ assert_no_sorry LeanRidgelet.integral_pow_mul_paperFourier1D_eq_zero
 assert_no_sorry LeanRidgelet.l1_truncatedPower_hasFourierAwayFromOrigin
 assert_no_sorry LeanRidgelet.truncatedPowerFourier_pairing
 assert_no_sorry LeanRidgelet.l1_dualRidgeletTransform_pairing
+assert_no_sorry LeanRidgelet.l1_weakRidgeletTransform_eq_euclidean
 
 #print axioms LeanRidgelet.Fourier.paper_plancherel_schwartz_inner
 #print axioms LeanRidgelet.fourierDilationTransformCore_norm_sq

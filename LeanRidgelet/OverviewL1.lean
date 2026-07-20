@@ -17,6 +17,9 @@ public import Mathlib.Analysis.Distribution.TemperateGrowth
 public import Mathlib.Analysis.Fourier.FourierTransformDeriv
 public import Mathlib.Analysis.Fourier.Inversion
 public import Mathlib.Analysis.Fourier.RiemannLebesgueLemma
+public import Mathlib.Analysis.InnerProductSpace.ProdL2
+public import Mathlib.Analysis.Normed.Module.Span
+public import Mathlib.MeasureTheory.Group.Integral
 public import Mathlib.Analysis.SpecialFunctions.ImproperIntegrals
 public import Mathlib.MeasureTheory.Constructions.HaarToSphere
 public import Mathlib.MeasureTheory.Measure.Haar.InnerProductSpace
@@ -835,7 +838,120 @@ theorem l1_weakRidgeletTransform_eq_euclidean (m : ℕ) [NeZero m]
     {u : InputSpace m} (hu : ‖u‖ = 1) {α β : ℝ} (hα : 0 < α) :
     weakRidgeletTransform m ψ f u α β =
       euclideanRidgeletTransform m 1 ψ f (α⁻¹ • u, β / α) := by
-  sorry
+  obtain ⟨C, hψC⟩ := hψb
+  have hα' : α ≠ 0 := ne_of_gt hα
+  -- the Euclidean integrand with the constants factored out
+  set g : InputSpace m → ℂ := fun x =>
+    f x * conj (ψ ((inner ℝ u x - β) / α)) with hg_def
+  set F : ℝ → ℂ := fun p =>
+    radonTransform m f u p * conj (ψ ((p - β) / α)) with hF_def
+  have hgint : Integrable g volume := by
+    refine hf.mul_bdd (c := C) ?_ (Filter.Eventually.of_forall fun x => ?_)
+    · exact (RCLike.continuous_conj.comp
+        (hψc.comp (by fun_prop))).aestronglyMeasurable
+    · rw [RCLike.norm_conj]
+      exact hψC _
+  -- the measure-preserving orthogonal splitting `(p, y) ↦ p • u + y`
+  let j : ℝ ≃ₗᵢ[ℝ] ↥(ℝ ∙ u) := LinearIsometryEquiv.toSpanUnitSingleton u hu
+  let Ψ : WithLp 2 (ℝ × ↥((ℝ ∙ u)ᗮ)) ≃ₗᵢ[ℝ] InputSpace m :=
+    (LinearIsometryEquiv.withLpProdCongr 2 j
+      (LinearIsometryEquiv.refl ℝ ↥((ℝ ∙ u)ᗮ))).trans
+      (ℝ ∙ u).orthogonalDecomposition.symm
+  let M : (ℝ × ↥((ℝ ∙ u)ᗮ)) ≃ᵐ InputSpace m :=
+    (MeasurableEquiv.toLp 2 (ℝ × ↥((ℝ ∙ u)ᗮ))).trans Ψ.toMeasurableEquiv
+  have hM : ∀ py : ℝ × ↥((ℝ ∙ u)ᗮ), M py = py.1 • u + (py.2 : InputSpace m) := by
+    intro py
+    change Ψ (WithLp.toLp 2 py) = _
+    simp [Ψ, j, LinearIsometryEquiv.withLpProdCongr]
+  have hmp : MeasurePreserving (⇑M)
+      (volume : Measure (ℝ × ↥((ℝ ∙ u)ᗮ))) (volume : Measure (InputSpace m)) :=
+    (Ψ.measurePreserving).comp (WithLp.volume_preserving_toLp ℝ ↥((ℝ ∙ u)ᗮ))
+  -- the inner integral over the orthogonal complement
+  have hip : ∀ (p : ℝ) (y : ↥((ℝ ∙ u)ᗮ)),
+      inner ℝ u ((p • u + (y : InputSpace m)) : InputSpace m) = p := by
+    intro p y
+    have hy : inner ℝ u (y : InputSpace m) = 0 :=
+      ((Submodule.mem_orthogonal (ℝ ∙ u) (y : InputSpace m)).mp y.2) u
+        (Submodule.mem_span_singleton_self u)
+    rw [inner_add_right, real_inner_smul_right, hy, real_inner_self_eq_norm_sq, hu]
+    simp
+  have hinner : ∀ p : ℝ, (∫ y : ↥((ℝ ∙ u)ᗮ), g (p • u + (y : InputSpace m))) = F p := by
+    intro p
+    have hcongr : ∀ y : ↥((ℝ ∙ u)ᗮ), g (p • u + (y : InputSpace m)) =
+          f (p • u + (y : InputSpace m)) * conj (ψ ((p - β) / α)) := by
+      intro y
+      simp only [hg_def, hip p y]
+    calc (∫ y : ↥((ℝ ∙ u)ᗮ), g (p • u + (y : InputSpace m)))
+        = ∫ y : ↥((ℝ ∙ u)ᗮ),
+            f (p • u + (y : InputSpace m)) * conj (ψ ((p - β) / α)) :=
+          integral_congr_ae (Filter.Eventually.of_forall hcongr)
+      _ = (∫ y : ↥((ℝ ∙ u)ᗮ), f (p • u + (y : InputSpace m))) * conj (ψ ((p - β) / α)) :=
+          integral_mul_const _ _
+      _ = F p := rfl
+  -- Fubini through the splitting
+  have hFg : ∫ p : ℝ, F p = ∫ x, g x := by
+    have hcomp : ∫ x, g x = ∫ py : ℝ × ↥((ℝ ∙ u)ᗮ), g (M py) :=
+      (hmp.integral_comp M.measurableEmbedding g).symm
+    have hint : Integrable (fun py : ℝ × ↥((ℝ ∙ u)ᗮ) => g (M py)) volume := by
+      have := (hmp.integrable_comp_emb M.measurableEmbedding (g := g)).mpr hgint
+      exact this
+    rw [hcomp]
+    rw [Measure.volume_eq_prod] at hint ⊢
+    rw [MeasureTheory.integral_prod _ hint]
+    refine (integral_congr_ae (Filter.Eventually.of_forall fun p => ?_)).symm
+    rw [← hinner p]
+    refine integral_congr_ae (Filter.Eventually.of_forall fun y => ?_)
+    change g (M (p, y)) = g (p • u + (y : InputSpace m))
+    rw [hM (p, y)]
+  -- affine change of variables in the radial variable
+  have hsub : ∫ z : ℝ, F (α * z + β) = (α⁻¹ : ℝ) • ∫ p : ℝ, F p := by
+    calc ∫ z : ℝ, F (α * z + β)
+        = ∫ z : ℝ, (fun w : ℝ => F (w + β)) (α • z) := by
+          refine integral_congr_ae (Filter.Eventually.of_forall fun z => ?_)
+          simp [smul_eq_mul]
+      _ = |(α ^ Module.finrank ℝ ℝ)⁻¹| • ∫ w : ℝ, F (w + β) :=
+          Measure.integral_comp_smul volume (fun w : ℝ => F (w + β)) α
+      _ = (α⁻¹ : ℝ) • ∫ p : ℝ, F p := by
+          rw [integral_add_right_eq_self (μ := volume) F β]
+          congr 1
+          rw [Module.finrank_self, pow_one, abs_inv, abs_of_pos hα]
+  -- the Euclidean side with the constants factored out
+  have hrhs : euclideanRidgeletTransform m 1 ψ f (α⁻¹ • u, β / α) =
+      (α⁻¹ : ℝ) • ∫ x, g x := by
+    have hna : (((‖(α⁻¹ • u : InputSpace m)‖ ^ (1 : ℝ)) : ℝ) : ℂ) = ((α⁻¹ : ℝ) : ℂ) := by
+      rw [Real.rpow_one, norm_smul, hu, mul_one, Real.norm_eq_abs,
+        abs_of_pos (inv_pos.mpr hα)]
+    have hpt : ∀ x : InputSpace m,
+        f x * conj (ψ (inner ℝ ((α⁻¹ • u : InputSpace m)) x - β / α)) *
+            (((‖(α⁻¹ • u : InputSpace m)‖ ^ (1 : ℝ)) : ℝ) : ℂ) = ((α⁻¹ : ℝ) : ℂ) * g x := by
+      intro x
+      have harg : inner ℝ ((α⁻¹ • u : InputSpace m)) x - β / α =
+          (inner ℝ u x - β) / α := by
+        rw [real_inner_smul_left]
+        field_simp
+      rw [hna, hg_def, harg]
+      ring
+    calc euclideanRidgeletTransform m 1 ψ f (α⁻¹ • u, β / α)
+        = ∫ x, f x * conj (ψ (inner ℝ ((α⁻¹ • u : InputSpace m)) x - β / α)) *
+            (((‖(α⁻¹ • u : InputSpace m)‖ ^ (1 : ℝ)) : ℝ) : ℂ) := rfl
+      _ = ∫ x, ((α⁻¹ : ℝ) : ℂ) * g x :=
+          integral_congr_ae (Filter.Eventually.of_forall hpt)
+      _ = ((α⁻¹ : ℝ) : ℂ) * ∫ x, g x := integral_const_mul _ _
+      _ = (α⁻¹ : ℝ) • ∫ x, g x := by rw [Complex.real_smul]
+  -- assemble
+  have hweak : ∀ z : ℝ,
+      radonTransform m f u (α * z + β) * conj (ψ z) = F (α * z + β) := by
+    intro z
+    have hz : (α * z + β - β) / α = z := by field_simp; ring
+    rw [hF_def]
+    simp only [hz]
+  calc weakRidgeletTransform m ψ f u α β
+      = ∫ z : ℝ, F (α * z + β) := by
+        unfold weakRidgeletTransform
+        exact integral_congr_ae (Filter.Eventually.of_forall hweak)
+    _ = (α⁻¹ : ℝ) • ∫ p : ℝ, F p := hsub
+    _ = (α⁻¹ : ℝ) • ∫ x, g x := by rw [hFg]
+    _ = euclideanRidgeletTransform m 1 ψ f (α⁻¹ • u, β / α) := hrhs.symm
 
 /-- Balancing theorem `thm:existence`, `L¹ × (L^p ∩ C⁰)` row, range statement: for `f ∈ L¹(ℝ^m)`
 and a continuous `ψ ∈ L^p(ℝ)`, the weak ridgelet transform belongs to `L^p` in the shift `β`,
