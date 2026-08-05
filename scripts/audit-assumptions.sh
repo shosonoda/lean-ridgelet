@@ -5,9 +5,21 @@ set -euo pipefail
 repo_root="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 cd "$repo_root"
 
+# Source-level guard. Files listed here are the only ones allowed to contain a placeholder;
+# which named declarations may use it is decided by `permittedSorryDeclarations` in
+# `audit/Assumptions.lean`, checked below. Keep the two lists in sync.
+sorry_files=(
+  '!OverviewL2.lean'
+)
+
+globs=('--glob' '*.lean')
+for f in "${sorry_files[@]}"; do
+  globs+=('--glob' "$f")
+done
+
 if rg -n \
   '^[[:space:]]*(axiom|axioms|sorry|admit)\b|:=[[:space:]]*(by[[:space:]]+)?(sorry|admit)\b' \
-  LeanRidgelet --glob '*.lean' --glob '!OverviewL2.lean' --glob '!OverviewL1.lean'
+  LeanRidgelet "${globs[@]}"
 then
   echo 'assumption audit failed: untracked source-level axiom or proof placeholder found' >&2
   exit 1

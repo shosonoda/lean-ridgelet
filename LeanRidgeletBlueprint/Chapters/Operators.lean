@@ -17,9 +17,9 @@ set_option verso.blueprint.externalCode.strictResolve true
 file := "operators"
 %%%
 
-In Lean statements, the paper expressions $`S_\sigma[\gamma]`, $`R_h[f]`,
+In Lean statements, the manuscript expressions $`S_\sigma[\gamma]`, $`R_h[f]`,
 $`R[f;\rho]`, and $`L_\sigma[h]` can be written `S[σ] γ`, `R[h] f`, `R[f; ρ] p`, and
-`L[σ] h` after `open scoped LeanRidgelet.Paper`. The notation unfolds to the declarations linked
+`L[σ] h` after `open scoped LeanRidgelet.Notation`. The notation unfolds to the declarations linked
 below.
 
 :::definition "network_synthesis" (lean := "LeanRidgelet.networkSynthesis, LeanRidgelet.networkSynthesis_apply_fourierDilation_ae, LeanRidgelet.networkSynthesis_parameterSchwartzRealization_apply_ae, LeanRidgelet.networkSynthesis_parameterSchwartzRealization_fourierPairing_ae")
@@ -34,7 +34,7 @@ $`S_\sigma:\mathcal G_{s,t}\to L^2(\mathbb R^m)` is a bounded linear operator, a
 norm is controlled by the activation--fiber dual bound.
 :::
 
-:::theorem "classical_synthesis_agreement" (lean := "LeanRidgelet.classicalSynthesisIntegral, LeanRidgelet.networkSynthesis_parameterSchwartzRealization_classical_ae, LeanRidgelet.shearedParameterIntegral_eq_paperFourierSchwartz, LeanRidgelet.measurePreserving_preactivationShear")
+:::theorem "classical_synthesis_agreement" (lean := "LeanRidgelet.classicalSynthesisIntegral, LeanRidgelet.networkSynthesis_parameterSchwartzRealization_classical_ae, LeanRidgelet.shearedParameterIntegral_eq_angularFourierSchwartz, LeanRidgelet.measurePreserving_preactivationShear")
 The classical integral on the Schwartz compatibility domain,
 $$`\int\gamma(a,b)\sigma_{\mathrm{cl}}(a\cdot x-b)\,da\,db`,
 agrees almost everywhere with the coordinate synthesis $`S_\sigma`, whenever the classical
@@ -46,13 +46,13 @@ $`(2\pi)^{m-1}(T_{\mathrm{pt}}[\gamma](x,\cdot))^\sharp`, and the measure-preser
 preactivation shear $`(a,z)\mapsto(a,a\cdot x-z)` performs the final change of variables.
 :::
 
-:::definition "ridgelet_operator" (lean := "LeanRidgelet.ridgeletOperator, LeanRidgelet.fiberDistribution, LeanRidgelet.fiberDistribution_coe, LeanRidgelet.fiberBaseCoordinate, LeanRidgelet.ridgeletSpectrum, LeanRidgelet.ridgeletSpectrum_coe, LeanRidgelet.ridgeletFunction, LeanRidgelet.paperFourierDistribution_ridgeletFunction")
+:::definition "ridgelet_operator" (lean := "LeanRidgelet.ridgeletOperator, LeanRidgelet.fiberDistribution, LeanRidgelet.fiberDistribution_coe, LeanRidgelet.fiberBaseCoordinate, LeanRidgelet.ridgeletSpectrum, LeanRidgelet.ridgeletSpectrum_coe, LeanRidgelet.ridgeletFunction, LeanRidgelet.angularFourierDistribution_ridgeletFunction")
 For a fixed $`h\in\mathcal H_{s,t}`, define the coordinate-side tensor embedding by
 $`J_h[f](x)=f(x)h`. On the original parameter space, the corresponding solution operator is
 $`R_h=T^*J_h`. The completed vector $`h` has a compatible tempered-distribution realization,
 agreeing with its Schwartz representative on the dense core. Lean also constructs, continuously
 and conjugate-linearly for every completed coefficient vector, the ridgelet distribution whose
-paper-Fourier spectrum is $`|\omega|^m\overline h`; on the Schwartz core this agrees with the
+angular-Fourier spectrum is $`|\omega|^m\overline h`; on the Schwartz core this agrees with the
 pointwise weighted formula.
 :::
 

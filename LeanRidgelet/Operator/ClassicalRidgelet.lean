@@ -34,7 +34,7 @@ namespace LeanRidgelet
 
 open LeanRidgelet.Fourier
 
-/-- The classical ridgelet function `ρ = 𝓕⁻¹_paper[ρ♯]` of a Schwartz coefficient vector,
+/-- The classical ridgelet function `ρ = 𝓕⁻¹_ang[ρ♯]` of a Schwartz coefficient vector,
 with manuscript spectrum `ρ♯(ω) = |ω|^m conj h(ω)`. -/
 def classicalRidgeletFunction (m : ℕ) (h : SchwartzMap ℝ ℂ) (z : ℝ) : ℂ :=
   (2 * Real.pi : ℂ)⁻¹ *
@@ -184,13 +184,13 @@ theorem classicalRidgeletIntegral_eq_inverseFourierDilationTransformCore {m : �
   filter_upwards with z
   rw [hu z]
 
-/-- The repository ridgelet distribution `ρ = 𝓕⁻¹_paper[ρ♯]` acts on test functions by
+/-- The repository ridgelet distribution `ρ = 𝓕⁻¹_ang[ρ♯]` acts on test functions by
 integration against the classical ridgelet function.  This identifies
 `classicalRidgeletFunction` as the pointwise realization of `ridgeletFunctionCore`. -/
 theorem ridgeletFunctionCore_apply_classical (m : ℕ) (h φ : SchwartzMap ℝ ℂ) :
     ridgeletFunctionCore m h φ =
       ∫ z : ℝ, φ z * classicalRidgeletFunction m h z := by
-  unfold ridgeletFunctionCore paperFourierInvDistribution
+  unfold ridgeletFunctionCore angularFourierInvDistribution
   simp only [ContinuousLinearMap.comp_apply, FourierTransform.fourierInvCLM_apply]
   rw [TemperedDistribution.fourierInv_apply, temperedDistributionDilation_apply]
   unfold ridgeletSpectrumCore

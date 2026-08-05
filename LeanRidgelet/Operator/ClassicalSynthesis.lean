@@ -78,7 +78,7 @@ theorem classicalSynthesisIntegral_eq_sheared {m : ℕ}
 /--
 **Agreement with the classical synthesis integral** (manuscript Theorem 14, `thm:bdd.S`,
 classical part).  Let `σ` be an activation coordinate whose realized classical activation
-`σ = 𝓕⁻¹_paper[σ♯]` acts on test functions by integration against `σcl`, and let `γ` be a
+`σ = 𝓕⁻¹_ang[σ♯]` acts on test functions by integration against `σcl`, and let `γ` be a
 Schwartz parameter distribution in the compatibility domain.  If the classical integral is
 defined at every input, then the Hilbert-space synthesis operator is represented almost
 everywhere by the classical network integral `∫ γ(a,b) σcl(⟨a,x⟩-b) da db`.
@@ -104,13 +104,13 @@ theorem networkSynthesis_parameterSchwartzRealization_classical_ae
   rw [hσcl]
   calc
     (2 * Real.pi : ℂ) ^ (m - 1) *
-        ∫ z : ℝ, paperFourierSchwartz
+        ∫ z : ℝ, angularFourierSchwartz
           (FiberCore.toSchwartz (fourierDilationTransformFiberCore s t γ x)) z * σcl z =
         ∫ z : ℝ, shearedParameterIntegral γ x z * σcl z := by
       rw [← integral_const_mul]
       apply integral_congr_ae
       filter_upwards with z
-      rw [← mul_assoc, ← shearedParameterIntegral_eq_paperFourierSchwartz s t γ x z]
+      rw [← mul_assoc, ← shearedParameterIntegral_eq_angularFourierSchwartz s t γ x z]
     _ = classicalSynthesisIntegral γ σcl x :=
       (classicalSynthesisIntegral_eq_sheared γ σcl x (hint x)).symm
 

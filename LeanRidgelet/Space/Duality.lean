@@ -6,7 +6,7 @@ Authors: Sho Sonoda, OpenAI Codex
 module
 
 public import LeanRidgelet.Space.Parameter
-public import LeanRidgelet.Fourier.PaperDistribution
+public import LeanRidgelet.Fourier.AngularDistribution
 public import Mathlib.Analysis.Normed.Operator.Extend
 
 /-!
@@ -84,9 +84,9 @@ theorem fiberDualCoordinateCoreValue_fiberDualSchwartzPreimage (s t : ℝ)
         SchwartzMap.smulLeftCLM ℂ (temperedWeight s) f := by
     unfold fiberDualSchwartzPreimage schwartzBesselPotential
     rw [SchwartzMap.fourierMultiplierCLM_fourierMultiplierCLM_apply
-      (hasTemperateGrowth_paperBesselSymbol t) (hasTemperateGrowth_paperBesselSymbol (-t))]
-    have hsymbol : paperBesselSymbol t * paperBesselSymbol (-t) = 1 := by
-      simpa only [mul_comm] using paperBesselSymbol_neg_mul t
+      (hasTemperateGrowth_angularBesselSymbol t) (hasTemperateGrowth_angularBesselSymbol (-t))]
+    have hsymbol : angularBesselSymbol t * angularBesselSymbol (-t) = 1 := by
+      simpa only [mul_comm] using angularBesselSymbol_neg_mul t
     rw [hsymbol]
     change SchwartzMap.fourierMultiplierCLM ℂ (fun _ : ℝ ↦ 1)
       (SchwartzMap.smulLeftCLM ℂ (temperedWeight s) f) = _

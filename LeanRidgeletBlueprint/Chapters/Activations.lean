@@ -24,14 +24,14 @@ nonzero activation in $`\mathcal A_{0,0}`.
 
 :::proposition "tanh_activation" (lean := "LeanRidgelet.memLp_tanhWeightedFn, LeanRidgelet.tanhActivation, LeanRidgelet.tanhActivation_ne_zero, LeanRidgelet.tanhTemperedDistribution_apply, LeanRidgelet.memActivationSpace_tanhTemperedDistribution")
 If $`t>1/2`, then $`\langle x\rangle^{-t}\tanh x\in L^2(\mathbb R)`.  The nonzero activation
-coordinate of $`\tanh` in $`\mathcal A_{0,t}` is the paper Fourier transform
+coordinate of $`\tanh` in $`\mathcal A_{0,t}` is the angular Fourier transform
 $`(\langle\cdot\rangle^{-t}\tanh)^\sharp = \langle\partial_\omega\rangle^{-t}[\tanh^\sharp]`,
 and its pairing-consistent classical realization acts by integration against $`\tanh`.
 :::
 
 :::proposition "relu_activation" (lean := "LeanRidgelet.memLp_reluWeightedFn, LeanRidgelet.reluActivation, LeanRidgelet.reluActivation_ne_zero, LeanRidgelet.reluTemperedDistribution_apply, LeanRidgelet.memActivationSpace_reluTemperedDistribution")
 If $`t>3/2`, then $`\langle x\rangle^{-t}x_+\in L^2(\mathbb R)`.  The nonzero activation
-coordinate of ReLU in $`\mathcal A_{0,t}` is the paper Fourier transform
+coordinate of ReLU in $`\mathcal A_{0,t}` is the angular Fourier transform
 $`(\langle\cdot\rangle^{-t}x_+)^\sharp = \langle\partial_\omega\rangle^{-t}[(x_+)^\sharp]`,
 and its pairing-consistent classical realization acts by integration against ReLU.
 :::

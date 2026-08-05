@@ -5,9 +5,12 @@
 <!-- END GENERATED BADGES -->
 
 Lean formalization of integral representations of depth-2 fully-connected neural networks and
-ridgelet transforms. The current focus is the L2 theory of ridgelet transforms, including the
-unitary coordinate transform and its Fourier construction, synthesis and ridgelet operators,
-general solutions, and standard activation functions.
+ridgelet transforms. It covers the L2 theory — the unitary coordinate transform and its Fourier
+construction, synthesis and ridgelet operators, general solutions, and standard activation
+functions — and the L1 theory, whose main results are formalized in full: the balancing theorem,
+the reconstruction formula in the Fourier and in the Radon domain, the structure theorem for
+admissible pairs, Parseval's relation and the `L²` extension, and universality of ReLU
+networks.
 
 - [Verso Blueprint](https://shosonoda.github.io/lean-ridgelet/)
 - [L1 theory (arXiv:1505.03654)](https://arxiv.org/abs/1505.03654)
@@ -58,11 +61,13 @@ python3 -m http.server 8000 --directory _out/blueprint
 ```
 
 Then open <http://localhost:8000/html-multi/>. Verso's standard multi-page renderer splits the
-document into seven chapters whose nodes connect the informal statements to their Lean
+document into ten chapters whose nodes connect the informal statements to their Lean
 declarations. A direct chapter URL is, for example,
 <http://localhost:8000/html-multi/foundations/>. Stop the server with `Ctrl-C`. Serving over HTTP
 ensures that Blueprint preview data and browser modules are loaded correctly.
-The left sidebar is Verso's generated table of contents and links to all seven chapter pages.
+The left sidebar is Verso's generated table of contents and links to all ten chapter pages:
+seven for the L2 theory, two for the L1 theory, and one for the general-purpose results that are
+candidates for upstreaming to Mathlib.
 
 Definition panels include the Lean implementation beginning at `:=` when the declaration belongs
 to this project.

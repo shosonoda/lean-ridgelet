@@ -26,7 +26,7 @@ namespace LeanRidgelet
 
 /-- The Bessel potential `⟨∂⟩^t` acting on a Schwartz function. -/
 def schwartzBesselPotential (t : ℝ) : SchwartzMap ℝ ℂ →L[ℂ] SchwartzMap ℝ ℂ :=
-  SchwartzMap.fourierMultiplierCLM ℂ (paperBesselSymbol t)
+  SchwartzMap.fourierMultiplierCLM ℂ (angularBesselSymbol t)
 
 /-- The first, dilation-Jacobian term of the fiber norm in Section 2.2. -/
 def fiberBaseNormSq (m : ℕ) (h : SchwartzMap ℝ ℂ) : ℝ :=
@@ -254,7 +254,7 @@ theorem fiberInner_self_eq_zero (m : ℕ) (hm : 0 < m) (s t : ℝ) (h : Schwartz
   rw [← fiberInner_self_re, hq]
   rfl
 
-/-- A type synonym for the Schwartz fiber core equipped with the paper's inner product. -/
+/-- A type synonym for the Schwartz fiber core equipped with the manuscript's inner product. -/
 def FiberCore (_m : ℕ) (_s _t : ℝ) := SchwartzMap ℝ ℂ
 
 namespace FiberCore

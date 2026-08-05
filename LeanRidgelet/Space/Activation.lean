@@ -6,7 +6,7 @@ Authors: Sho Sonoda, OpenAI Codex
 module
 
 public import LeanRidgelet.Basic
-public import LeanRidgelet.Fourier.PaperLp
+public import LeanRidgelet.Fourier.AngularLp
 public import Mathlib.Analysis.Distribution.FourierMultiplier
 public import Mathlib.Analysis.Distribution.TemperateGrowth
 public import Mathlib.Analysis.Fourier.LpSpace
@@ -100,39 +100,40 @@ theorem temperedWeightMultiplier_toTemperedDistributionCLM
   simp [smul_eq_mul]
   ring
 
-/-- The Bessel symbol in Mathlib frequency coordinates for the paper's Fourier convention. -/
-def paperBesselSymbol (r : ℝ) (ξ : ℝ) : ℂ :=
+/-- The Bessel symbol in Mathlib frequency coordinates for the angular-frequency Fourier
+convention. -/
+def angularBesselSymbol (r : ℝ) (ξ : ℝ) : ℂ :=
   Complex.ofReal (japaneseBracketPow r ((2 * Real.pi) * ξ))
 
 @[simp]
-theorem paperBesselSymbol_neg_mul (r : ℝ) :
-    paperBesselSymbol (-r) * paperBesselSymbol r = 1 := by
+theorem angularBesselSymbol_neg_mul (r : ℝ) :
+    angularBesselSymbol (-r) * angularBesselSymbol r = 1 := by
   funext ξ
-  simp only [Pi.mul_apply, Pi.one_apply, paperBesselSymbol, ← Complex.ofReal_mul]
+  simp only [Pi.mul_apply, Pi.one_apply, angularBesselSymbol, ← Complex.ofReal_mul]
   rw [← japaneseBracketPow_add]
   simp
 
 @[fun_prop]
-theorem hasTemperateGrowth_paperBesselSymbol (r : ℝ) :
-    Function.HasTemperateGrowth (paperBesselSymbol r) := by
-  unfold paperBesselSymbol japaneseBracketPow
+theorem hasTemperateGrowth_angularBesselSymbol (r : ℝ) :
+    Function.HasTemperateGrowth (angularBesselSymbol r) := by
+  unfold angularBesselSymbol japaneseBracketPow
   exact (Function.Complex.hasTemperateGrowth_ofReal).comp <|
     (Function.hasTemperateGrowth_one_add_norm_sq_rpow ℝ (r / 2)).comp (by fun_prop)
 
-/-- The Bessel potential for the paper convention `exp (-i x · ξ)`.
+/-- The Bessel potential for the angular-frequency convention `exp (-i x · ξ)`.
 
 Mathlib uses a `2π` Fourier character, hence the rescaled symbol `⟨2πξ⟩^r`. -/
-def paperBesselPotential (r : ℝ) :
+def angularBesselPotential (r : ℝ) :
     TemperedDistribution ℝ ℂ →L[ℂ] TemperedDistribution ℝ ℂ :=
-  TemperedDistribution.fourierMultiplierCLM ℂ (paperBesselSymbol r)
+  TemperedDistribution.fourierMultiplierCLM ℂ (angularBesselSymbol r)
 
-/-- Membership in the paper-normalized Sobolev space `H^s(ℝ)`. -/
-def MemPaperSobolev (s : ℝ) (σ : TemperedDistribution ℝ ℂ) : Prop :=
-  ∃ f : L2 ℝ volume, paperBesselPotential s σ = f
+/-- Membership in the angular-frequency Sobolev space `H^s(ℝ)`. -/
+def MemAngularSobolev (s : ℝ) (σ : TemperedDistribution ℝ ℂ) : Prop :=
+  ∃ f : L2 ℝ volume, angularBesselPotential s σ = f
 
 /-- Membership in the real-domain description `⟨·⟩^t H^s(ℝ)` of the activation space. -/
 def MemActivationSpace (s t : ℝ) (σ : TemperedDistribution ℝ ℂ) : Prop :=
-  MemPaperSobolev s (temperedWeightMultiplier (-t) σ)
+  MemAngularSobolev s (temperedWeightMultiplier (-t) σ)
 
 /-- The Hilbert coordinate model of the activation space `A_{s,t}`. -/
 abbrev ActivationSpace (_s _t : ℝ) := L2 ℝ volume
@@ -145,16 +146,16 @@ def activationCoordinateEquiv (s t : ℝ) : ActivationSpace s t ≃ₗᵢ[ℂ] L
 def activationDistribution (s t : ℝ) :
     ActivationSpace s t →L[ℂ] TemperedDistribution ℝ ℂ :=
   temperedWeightMultiplier t ∘L
-    paperBesselPotential (-s) ∘L
+    angularBesselPotential (-s) ∘L
       Lp.toTemperedDistributionCLM ℂ volume 2
 
 /-- Applying the inverse weights recovers the original `L²` coordinate as a distribution. -/
-theorem paperBesselPotential_temperedWeightMultiplier_activationDistribution
+theorem angularBesselPotential_temperedWeightMultiplier_activationDistribution
     (s t : ℝ) (σ : ActivationSpace s t) :
-    paperBesselPotential s
+    angularBesselPotential s
         (temperedWeightMultiplier (-t) (activationDistribution s t σ)) =
       Lp.toTemperedDistributionCLM ℂ volume 2 σ := by
-  unfold activationDistribution paperBesselPotential temperedWeightMultiplier
+  unfold activationDistribution angularBesselPotential temperedWeightMultiplier
   simp only [ContinuousLinearMap.comp_apply]
   rw [TemperedDistribution.smulLeftCLM_smulLeftCLM_apply
     (hasTemperateGrowth_temperedWeight t) (hasTemperateGrowth_temperedWeight (-t))]
@@ -165,8 +166,8 @@ theorem paperBesselPotential_temperedWeightMultiplier_activationDistribution
     simp
   rw [hone]
   rw [TemperedDistribution.fourierMultiplierCLM_fourierMultiplierCLM_apply
-    (hasTemperateGrowth_paperBesselSymbol (-s)) (hasTemperateGrowth_paperBesselSymbol s)]
-  rw [paperBesselSymbol_neg_mul]
+    (hasTemperateGrowth_angularBesselSymbol (-s)) (hasTemperateGrowth_angularBesselSymbol s)]
+  rw [angularBesselSymbol_neg_mul]
   change TemperedDistribution.fourierMultiplierCLM ℂ (fun _ : ℝ ↦ 1)
     (Lp.toTemperedDistributionCLM ℂ volume 2 σ) = _
   rw [TemperedDistribution.fourierMultiplierCLM_const]
@@ -175,7 +176,7 @@ theorem paperBesselPotential_temperedWeightMultiplier_activationDistribution
 /-- The concrete realization of every activation coordinate belongs to `A_{s,t}`. -/
 theorem memActivationSpace_activationDistribution (s t : ℝ) (σ : ActivationSpace s t) :
     MemActivationSpace s t (activationDistribution s t σ) := by
-  exact ⟨σ, paperBesselPotential_temperedWeightMultiplier_activationDistribution s t σ⟩
+  exact ⟨σ, angularBesselPotential_temperedWeightMultiplier_activationDistribution s t σ⟩
 
 /-- Multiplication by the trivial weight `⟨x⟩⁰` is the identity. -/
 theorem temperedWeightMultiplier_zero_apply (u : TemperedDistribution ℝ ℂ) :
@@ -188,43 +189,43 @@ theorem temperedWeightMultiplier_zero_apply (u : TemperedDistribution ℝ ℂ) :
   change TemperedDistribution.smulLeftCLM ℂ (fun _ : ℝ ↦ (1 : ℂ)) u = u
   simp
 
-/-- The order-zero paper Bessel potential is the identity. -/
-theorem paperBesselPotential_zero_apply (u : TemperedDistribution ℝ ℂ) :
-    paperBesselPotential 0 u = u := by
-  have hone : paperBesselSymbol 0 = fun _ : ℝ ↦ (1 : ℂ) := by
+/-- The order-zero angular Bessel potential is the identity. -/
+theorem angularBesselPotential_zero_apply (u : TemperedDistribution ℝ ℂ) :
+    angularBesselPotential 0 u = u := by
+  have hone : angularBesselSymbol 0 = fun _ : ℝ ↦ (1 : ℂ) := by
     funext ξ
-    simp [paperBesselSymbol]
-  unfold paperBesselPotential
+    simp [angularBesselSymbol]
+  unfold angularBesselPotential
   rw [hone]
   change TemperedDistribution.fourierMultiplierCLM ℂ (fun _ : ℝ ↦ (1 : ℂ)) u = u
   rw [TemperedDistribution.fourierMultiplierCLM_const]
   simp
 
-/-- The paper Bessel symbol is even. -/
-theorem paperBesselSymbol_neg (r : ℝ) (ξ : ℝ) :
-    paperBesselSymbol r (-ξ) = paperBesselSymbol r ξ := by
-  unfold paperBesselSymbol japaneseBracketPow
+/-- The angular Bessel symbol is even. -/
+theorem angularBesselSymbol_neg (r : ℝ) (ξ : ℝ) :
+    angularBesselSymbol r (-ξ) = angularBesselSymbol r ξ := by
+  unfold angularBesselSymbol japaneseBracketPow
   rw [show (2 * Real.pi) * -ξ = -((2 * Real.pi) * ξ) by ring, norm_neg]
 
-/-- The paper Fourier transform intertwines the Bessel multiplier with the Japanese-bracket
+/-- The angular Fourier transform intertwines the Bessel multiplier with the Japanese-bracket
 weight on Schwartz functions: `(⟨∂ω⟩^r φ)♯ = ⟨ω⟩^r φ♯`. -/
-theorem paperFourierSchwartz_fourierMultiplier (r : ℝ) (φ : SchwartzMap ℝ ℂ) :
-    paperFourierSchwartz (SchwartzMap.fourierMultiplierCLM ℂ (paperBesselSymbol r) φ) =
-      SchwartzMap.smulLeftCLM ℂ (temperedWeight r) (paperFourierSchwartz φ) := by
-  have hFmult : 𝓕 (SchwartzMap.fourierMultiplierCLM ℂ (paperBesselSymbol r) φ) =
-      SchwartzMap.smulLeftCLM ℂ (paperBesselSymbol r) (𝓕 φ) := by
+theorem angularFourierSchwartz_fourierMultiplier (r : ℝ) (φ : SchwartzMap ℝ ℂ) :
+    angularFourierSchwartz (SchwartzMap.fourierMultiplierCLM ℂ (angularBesselSymbol r) φ) =
+      SchwartzMap.smulLeftCLM ℂ (temperedWeight r) (angularFourierSchwartz φ) := by
+  have hFmult : 𝓕 (SchwartzMap.fourierMultiplierCLM ℂ (angularBesselSymbol r) φ) =
+      SchwartzMap.smulLeftCLM ℂ (angularBesselSymbol r) (𝓕 φ) := by
     rw [SchwartzMap.fourierMultiplierCLM_apply]
     exact FourierTransform.fourier_fourierInv_eq _
   ext ω
-  unfold paperFourierSchwartz
+  unfold angularFourierSchwartz
   rw [SchwartzMap.compCLMOfContinuousLinearEquiv_apply]
-  change 𝓕 (SchwartzMap.fourierMultiplierCLM ℂ (paperBesselSymbol r) φ)
+  change 𝓕 (SchwartzMap.fourierMultiplierCLM ℂ (angularBesselSymbol r) φ)
       ((realDilationCLE (2 * Real.pi)⁻¹ (inv_ne_zero two_mul_pi_ne_zero)) ω) = _
   rw [hFmult, realDilationCLE_apply,
-    SchwartzMap.smulLeftCLM_apply_apply (hasTemperateGrowth_paperBesselSymbol r),
+    SchwartzMap.smulLeftCLM_apply_apply (hasTemperateGrowth_angularBesselSymbol r),
     SchwartzMap.smulLeftCLM_apply_apply (hasTemperateGrowth_temperedWeight r)]
-  have harg : paperBesselSymbol r ((2 * Real.pi)⁻¹ * ω) = temperedWeight r ω := by
-    unfold paperBesselSymbol temperedWeight
+  have harg : angularBesselSymbol r ((2 * Real.pi)⁻¹ * ω) = temperedWeight r ω := by
+    unfold angularBesselSymbol temperedWeight
     congr 1
     rw [show 2 * Real.pi * ((2 * Real.pi)⁻¹ * ω) =
         (2 * Real.pi * (2 * Real.pi)⁻¹) * ω by ring,
@@ -232,19 +233,19 @@ theorem paperFourierSchwartz_fourierMultiplier (r : ℝ) (φ : SchwartzMap ℝ �
   rw [harg]
   rfl
 
-/-- The paper Fourier transform intertwines the Bessel potential with the Japanese-bracket
+/-- The angular Fourier transform intertwines the Bessel potential with the Japanese-bracket
 weight on tempered distributions: `⟨∂ω⟩^r[𝓕_p u] = 𝓕_p[⟨x⟩^r u]`. -/
-theorem paperBesselPotential_paperFourierDistribution (r : ℝ)
+theorem angularBesselPotential_angularFourierDistribution (r : ℝ)
     (u : TemperedDistribution ℝ ℂ) :
-    paperBesselPotential r (paperFourierDistribution u) =
-      paperFourierDistribution (temperedWeightMultiplier r u) := by
+    angularBesselPotential r (angularFourierDistribution u) =
+      angularFourierDistribution (temperedWeightMultiplier r u) := by
   ext φ
-  unfold paperBesselPotential
+  unfold angularBesselPotential
   rw [TemperedDistribution.fourierMultiplierCLM_apply_apply,
-    fourier_smulLeft_fourierInv_of_even (hasTemperateGrowth_paperBesselSymbol r)
-      (paperBesselSymbol_neg r) φ,
-    paperFourierDistribution_apply, paperFourierDistribution_apply,
-    paperFourierSchwartz_fourierMultiplier]
+    fourier_smulLeft_fourierInv_of_even (hasTemperateGrowth_angularBesselSymbol r)
+      (angularBesselSymbol_neg r) φ,
+    angularFourierDistribution_apply, angularFourierDistribution_apply,
+    angularFourierSchwartz_fourierMultiplier]
   unfold temperedWeightMultiplier
   rw [TemperedDistribution.smulLeftCLM_apply_apply]
 
@@ -252,44 +253,44 @@ theorem paperBesselPotential_paperFourierDistribution (r : ℝ)
 `L²` activation coordinate `σ = ⟨ω⟩^s ⟨∂ω⟩^{-t}[σ♯]`. -/
 def activationSpectrum (s t : ℝ) :
     ActivationSpace s t →L[ℂ] TemperedDistribution ℝ ℂ :=
-  paperBesselPotential t ∘L
+  angularBesselPotential t ∘L
     temperedWeightMultiplier (-s) ∘L
       Lp.toTemperedDistributionCLM ℂ volume 2
 
-/-- The classical activation `σ = 𝓕⁻¹_paper[σ♯]`, realized as a tempered distribution from the
+/-- The classical activation `σ = 𝓕⁻¹_ang[σ♯]`, realized as a tempered distribution from the
 activation coordinate.  This is the activation whose network the synthesis operator actually
 computes; compare `activationDistribution`, which realizes the same coordinate through the
 real-domain weighted Sobolev isometry instead. -/
 def activationRealization (s t : ℝ) :
     ActivationSpace s t →L[ℂ] TemperedDistribution ℝ ℂ :=
-  paperFourierInvDistribution ∘L activationSpectrum s t
+  angularFourierInvDistribution ∘L activationSpectrum s t
 
-/-- The paper Fourier transform of the realized activation is its spectrum. -/
-theorem paperFourierDistribution_activationRealization (s t : ℝ)
+/-- The angular Fourier transform of the realized activation is its spectrum. -/
+theorem angularFourierDistribution_activationRealization (s t : ℝ)
     (σ : ActivationSpace s t) :
-    paperFourierDistribution (activationRealization s t σ) = activationSpectrum s t σ :=
-  paperFourierDistribution_paperFourierInvDistribution _
+    angularFourierDistribution (activationRealization s t σ) = activationSpectrum s t σ :=
+  angularFourierDistribution_angularFourierInvDistribution _
 
-/-- On `A_{0,t}`, the spectrum of a paper-Fourier-transformed `L²` coordinate is the paper
-Fourier transform of its weighted distribution. -/
-theorem activationSpectrum_zero_paperFourierLp (t : ℝ) (σ0 : L2 ℝ volume) :
-    activationSpectrum 0 t (paperFourierLp σ0) =
-      paperFourierDistribution
+/-- On `A_{0,t}`, the spectrum of an angular-Fourier-transformed `L²` coordinate is the
+angular Fourier transform of its weighted distribution. -/
+theorem activationSpectrum_zero_angularFourierLp (t : ℝ) (σ0 : L2 ℝ volume) :
+    activationSpectrum 0 t (angularFourierLp σ0) =
+      angularFourierDistribution
         (temperedWeightMultiplier t (Lp.toTemperedDistributionCLM ℂ volume 2 σ0)) := by
   unfold activationSpectrum
   simp only [ContinuousLinearMap.comp_apply, neg_zero]
-  rw [temperedWeightMultiplier_zero_apply, toTemperedDistribution_paperFourierLp,
-    paperBesselPotential_paperFourierDistribution]
+  rw [temperedWeightMultiplier_zero_apply, toTemperedDistribution_angularFourierLp,
+    angularBesselPotential_angularFourierDistribution]
 
-/-- On `A_{0,t}`, the realized classical activation of a paper-Fourier-transformed `L²`
+/-- On `A_{0,t}`, the realized classical activation of a angular-Fourier-transformed `L²`
 coordinate is the weighted distribution `⟨x⟩^t σ₀`.  This is the interface used to realize
 concrete activations such as `tanh` and ReLU. -/
-theorem activationRealization_zero_paperFourierLp (t : ℝ) (σ0 : L2 ℝ volume) :
-    activationRealization 0 t (paperFourierLp σ0) =
+theorem activationRealization_zero_angularFourierLp (t : ℝ) (σ0 : L2 ℝ volume) :
+    activationRealization 0 t (angularFourierLp σ0) =
       temperedWeightMultiplier t (Lp.toTemperedDistributionCLM ℂ volume 2 σ0) := by
   unfold activationRealization
-  rw [ContinuousLinearMap.comp_apply, activationSpectrum_zero_paperFourierLp,
-    paperFourierInvDistribution_paperFourierDistribution]
+  rw [ContinuousLinearMap.comp_apply, activationSpectrum_zero_angularFourierLp,
+    angularFourierInvDistribution_angularFourierDistribution]
 
 /-- The activation-space isometry gives unique `L²` coordinates for realized activations. -/
 theorem activationDistribution_injective (s t : ℝ) :
@@ -297,8 +298,8 @@ theorem activationDistribution_injective (s t : ℝ) :
   intro σ τ hστ
   have hdist : Lp.toTemperedDistributionCLM ℂ volume 2 σ =
       Lp.toTemperedDistributionCLM ℂ volume 2 τ := by
-    rw [← paperBesselPotential_temperedWeightMultiplier_activationDistribution s t σ,
-      ← paperBesselPotential_temperedWeightMultiplier_activationDistribution s t τ, hστ]
+    rw [← angularBesselPotential_temperedWeightMultiplier_activationDistribution s t σ,
+      ← angularBesselPotential_temperedWeightMultiplier_activationDistribution s t τ, hστ]
   apply LinearMap.ker_eq_bot.mp
     (Lp.ker_toTemperedDistributionCLM_eq_bot (F := ℂ) (μ := volume))
   exact hdist

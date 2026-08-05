@@ -10,7 +10,7 @@ import re
 from pathlib import Path
 
 
-PUBLIC_CHAPTERS = (
+CHAPTERS = (
     ("overview", "L2 theory: arXiv:2106.04770v2 implementation map"),
     ("foundations", "Fourier conventions and Hilbert spaces"),
     ("fourier-dilation", "Unitary coordinates and their Fourier construction"),
@@ -18,10 +18,9 @@ PUBLIC_CHAPTERS = (
     ("general-solution", "Null space and the general solution"),
     ("activations", "Standard activation functions"),
     ("further-results", "Further results from the source manuscript"),
-)
-
-DEVELOPMENT_ONLY_CHAPTERS = (
-    ("overview-l1", "L1 theory: ridgelet transforms with unbounded activations"),
+    ("overview-l1", "L1 theory: arXiv:1505.03654v2 implementation map"),
+    ("l1-theory", "L1 theory: formalization details"),
+    ("to-mathlib", "Mathlib upstream candidates"),
 )
 
 DECL_PATTERN = re.compile(
@@ -174,11 +173,6 @@ def main() -> None:
         type=Path,
         help="Blueprint output root (default: _out/blueprint)",
     )
-    parser.add_argument(
-        "--exclude-l1",
-        action="store_true",
-        help="process and verify only the seven public L2 Blueprint chapters",
-    )
     args = parser.parse_args()
 
     repo_root = Path(__file__).resolve().parent.parent
@@ -186,9 +180,7 @@ def main() -> None:
     if not output_root.is_absolute():
         output_root = repo_root / output_root
 
-    chapters = PUBLIC_CHAPTERS
-    if not args.exclude_l1:
-        chapters += DEVELOPMENT_ONLY_CHAPTERS
+    chapters = CHAPTERS
 
     total = 0
     for slug, _ in chapters:

@@ -33,7 +33,7 @@ Bessel coordinate.  This is the distributional realization needed before constru
 manuscript ridgelet function `ρ` from its coefficient vector `hρ`. -/
 def fiberDistribution (m : ℕ) [NeZero m] (s t : ℝ) :
     FiberSpace m s t →L[ℂ] TemperedDistribution ℝ ℂ :=
-  paperBesselPotential (-t) ∘L
+  angularBesselPotential (-t) ∘L
     temperedWeightMultiplier s ∘L
       Lp.toTemperedDistributionCLM ℂ volume 2 ∘L
         fiberDualCoordinate m s t
@@ -48,7 +48,7 @@ theorem fiberDistribution_coe (m : ℕ) [NeZero m] (s t : ℝ) (h : FiberCore m 
   rw [show fiberDualCoordinateCore m s t h =
       (fiberDualSchwartzCoordinate s t (FiberCore.toSchwartz h)).toLp 2 volume by
     exact fiberDualCoordinateCoreValue_eq_toLp s t (FiberCore.toSchwartz h)]
-  change paperBesselPotential (-t)
+  change angularBesselPotential (-t)
       (temperedWeightMultiplier s
         (((fiberDualSchwartzCoordinate s t (FiberCore.toSchwartz h)).toLp 2 volume :
           L2 ℝ volume) : TemperedDistribution ℝ ℂ)) = _
@@ -59,19 +59,19 @@ theorem fiberDistribution_coe (m : ℕ) [NeZero m] (s t : ℝ) (h : FiberCore m 
     (hasTemperateGrowth_temperedWeight s)
     (hasTemperateGrowth_temperedWeight (-s))]
   rw [temperedWeight_mul_neg]
-  change paperBesselPotential (-t)
+  change angularBesselPotential (-t)
       (SchwartzMap.toTemperedDistributionCLM ℝ ℂ volume
         (SchwartzMap.smulLeftCLM ℂ (fun _ : ℝ ↦ (1 : ℂ))
           (schwartzBesselPotential t (FiberCore.toSchwartz h)))) = _
   rw [SchwartzMap.smulLeftCLM_const]
   simp only [one_smul, ContinuousLinearMap.id_apply]
-  unfold paperBesselPotential schwartzBesselPotential
+  unfold angularBesselPotential schwartzBesselPotential
   rw [TemperedDistribution.fourierMultiplierCLM_toTemperedDistributionCLM_eq
-    (hasTemperateGrowth_paperBesselSymbol (-t))]
+    (hasTemperateGrowth_angularBesselSymbol (-t))]
   rw [SchwartzMap.fourierMultiplierCLM_fourierMultiplierCLM_apply
-    (hasTemperateGrowth_paperBesselSymbol (-t))
-    (hasTemperateGrowth_paperBesselSymbol t)]
-  rw [paperBesselSymbol_neg_mul]
+    (hasTemperateGrowth_angularBesselSymbol (-t))
+    (hasTemperateGrowth_angularBesselSymbol t)]
+  rw [angularBesselSymbol_neg_mul]
   change SchwartzMap.toTemperedDistributionCLM ℝ ℂ volume
       (SchwartzMap.fourierMultiplierCLM ℂ (fun _ : ℝ ↦ 1)
         (FiberCore.toSchwartz h)) = _
@@ -125,14 +125,14 @@ theorem ridgeletSpectrumCore_apply (m : ℕ) (h φ : SchwartzMap ℝ ℂ) :
 inverse Fourier transform. -/
 def ridgeletFunctionCore (m : ℕ) (h : SchwartzMap ℝ ℂ) :
     TemperedDistribution ℝ ℂ :=
-  paperFourierInvDistribution (ridgeletSpectrumCore m h)
+  angularFourierInvDistribution (ridgeletSpectrumCore m h)
 
 /-- The reconstructed core ridgelet function has manuscript spectrum
 `ρ♯ = |ω|ᵐ conj h`. -/
-theorem paperFourierDistribution_ridgeletFunctionCore
+theorem angularFourierDistribution_ridgeletFunctionCore
     (m : ℕ) (h : SchwartzMap ℝ ℂ) :
-    paperFourierDistribution (ridgeletFunctionCore m h) = ridgeletSpectrumCore m h :=
-  paperFourierDistribution_paperFourierInvDistribution _
+    angularFourierDistribution (ridgeletFunctionCore m h) = ridgeletSpectrumCore m h :=
+  angularFourierDistribution_angularFourierInvDistribution _
 
 /-! ### Reconstruction from a completed coefficient vector -/
 
@@ -206,25 +206,25 @@ theorem ridgeletSpectrum_coe (m : ℕ) [NeZero m] (s t : ℝ)
 manuscript inverse Fourier transform to `ρ♯`. -/
 def ridgeletFunction (m : ℕ) [NeZero m] (s t : ℝ) :
     FiberSpace m s t →SL[starRingEnd ℂ] TemperedDistribution ℝ ℂ where
-  toFun h := paperFourierInvDistribution (ridgeletSpectrum m s t h)
+  toFun h := angularFourierInvDistribution (ridgeletSpectrum m s t h)
   map_add' h r := by simp
   map_smul' c h := by simp
-  cont := paperFourierInvDistribution.continuous.comp (ridgeletSpectrum m s t).continuous
+  cont := angularFourierInvDistribution.continuous.comp (ridgeletSpectrum m s t).continuous
 
 /-- Reconstruction from a completed coefficient vector agrees with the Schwartz-core formula. -/
 theorem ridgeletFunction_coe (m : ℕ) [NeZero m] (s t : ℝ)
     (h : FiberCore m s t) :
     ridgeletFunction m s t (h : FiberSpace m s t) =
       ridgeletFunctionCore m (FiberCore.toSchwartz h) := by
-  change paperFourierInvDistribution
+  change angularFourierInvDistribution
       (ridgeletSpectrum m s t (h : FiberSpace m s t)) =
-    paperFourierInvDistribution (ridgeletSpectrumCore m (FiberCore.toSchwartz h))
+    angularFourierInvDistribution (ridgeletSpectrumCore m (FiberCore.toSchwartz h))
   rw [ridgeletSpectrum_coe]
 
 /-- The reconstructed completed ridgelet function has spectrum `ρ♯`. -/
-theorem paperFourierDistribution_ridgeletFunction
+theorem angularFourierDistribution_ridgeletFunction
     (m : ℕ) [NeZero m] (s t : ℝ) (h : FiberSpace m s t) :
-    paperFourierDistribution (ridgeletFunction m s t h) = ridgeletSpectrum m s t h :=
-  paperFourierDistribution_paperFourierInvDistribution _
+    angularFourierDistribution (ridgeletFunction m s t h) = ridgeletSpectrum m s t h :=
+  angularFourierDistribution_angularFourierInvDistribution _
 
 end LeanRidgelet

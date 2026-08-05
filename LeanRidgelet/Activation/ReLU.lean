@@ -12,7 +12,7 @@ public import LeanRidgelet.Space.Activation
 
 This file realizes the classical rectified linear unit as an activation coordinate in `A_{0,t}`.
 The condition `3 / 2 < t` makes `⟨x⟩⁻ᵗ max x 0` square-integrable, and the manuscript isometry
-coordinate of ReLU is its paper Fourier transform: `σ = ⟨∂ω⟩^{-t}[relu♯] = (⟨·⟩⁻ᵗ relu)♯`.
+coordinate of ReLU is its angular Fourier transform: `σ = ⟨∂ω⟩^{-t}[relu♯] = (⟨·⟩⁻ᵗ relu)♯`.
 The pairing-consistent classical realization `activationRealization` then acts by integration
 against the classical ReLU function.
 -/
@@ -84,7 +84,7 @@ theorem memLp_reluWeightedFn (t : ℝ) (ht : (3 : ℝ) / 2 < t) :
         unfold japaneseBracketPow
         rw [show (2 * -t + 2 * 1) / 2 = -(2 * t - 2) / 2 by ring]
 
-/-- The weighted `L²` element `⟨x⟩⁻ᵗ relu x`, the paper inverse-Fourier side of the ReLU
+/-- The weighted `L²` element `⟨x⟩⁻ᵗ relu x`, the angular inverse-Fourier side of the ReLU
 activation coordinate. -/
 def reluWeightedCoordinate (t : ℝ) (ht : (3 : ℝ) / 2 < t) : L2 ℝ volume :=
   (memLp_reluWeightedFn t ht).toLp (reluWeightedFn t)
@@ -108,21 +108,21 @@ theorem reluWeightedCoordinate_ne_zero (t : ℝ) (ht : (3 : ℝ) / 2 < t) :
   exact Complex.ofReal_ne_zero.mpr (mul_ne_zero hweight (by norm_num [relu])) hvalue
 
 /-- The rectified linear unit as an activation coordinate in `A_{0,t}`: the manuscript isometry
-coordinate `⟨∂ω⟩^{-t}[relu♯] = (⟨·⟩⁻ᵗ relu)♯`, i.e. the paper Fourier transform of the
+coordinate `⟨∂ω⟩^{-t}[relu♯] = (⟨·⟩⁻ᵗ relu)♯`, i.e. the angular Fourier transform of the
 weighted `L²` element. -/
 def reluActivation (t : ℝ) (ht : (3 : ℝ) / 2 < t) : ActivationSpace 0 t :=
-  paperFourierLp (reluWeightedCoordinate t ht)
+  angularFourierLp (reluWeightedCoordinate t ht)
 
 theorem reluActivation_ne_zero (t : ℝ) (ht : (3 : ℝ) / 2 < t) :
     reluActivation t ht ≠ 0 := by
   intro hσ
   apply reluWeightedCoordinate_ne_zero t ht
-  apply paperFourierLp_injective
+  apply angularFourierLp_injective
   rw [map_zero]
   exact hσ
 
 /-- The pairing-consistent tempered-distribution realization of the rectified linear unit,
-`σ = 𝓕⁻¹_paper[σ♯]`. -/
+`σ = 𝓕⁻¹_ang[σ♯]`. -/
 def reluTemperedDistribution (t : ℝ) (ht : (3 : ℝ) / 2 < t) :
     TemperedDistribution ℝ ℂ :=
   activationRealization 0 t (reluActivation t ht)
@@ -132,7 +132,7 @@ theorem reluTemperedDistribution_eq_weight (t : ℝ) (ht : (3 : ℝ) / 2 < t) :
     reluTemperedDistribution t ht =
       temperedWeightMultiplier t
         (Lp.toTemperedDistributionCLM ℂ volume 2 (reluWeightedCoordinate t ht)) :=
-  activationRealization_zero_paperFourierLp t (reluWeightedCoordinate t ht)
+  activationRealization_zero_angularFourierLp t (reluWeightedCoordinate t ht)
 
 /-- The distribution realization acts by integration against the classical ReLU function. -/
 theorem reluTemperedDistribution_apply (t : ℝ) (ht : (3 : ℝ) / 2 < t)
@@ -163,7 +163,7 @@ theorem memActivationSpace_reluTemperedDistribution (t : ℝ)
     (ht : (3 : ℝ) / 2 < t) :
     MemActivationSpace 0 t (reluTemperedDistribution t ht) := by
   refine ⟨reluWeightedCoordinate t ht, ?_⟩
-  rw [paperBesselPotential_zero_apply, reluTemperedDistribution_eq_weight]
+  rw [angularBesselPotential_zero_apply, reluTemperedDistribution_eq_weight]
   unfold temperedWeightMultiplier
   rw [TemperedDistribution.smulLeftCLM_smulLeftCLM_apply
     (hasTemperateGrowth_temperedWeight t) (hasTemperateGrowth_temperedWeight (-t))]

@@ -13,7 +13,7 @@ public import Mathlib.MeasureTheory.Integral.Bochner.Basic
 public import Mathlib.MeasureTheory.Measure.Haar.NormedSpace
 
 /-!
-# Fourier convention used in the ridgelet papers
+# The angular-frequency Fourier convention of the ridgelet manuscripts
 
 Mathlib uses the character `exp (2 π i x)` whereas the L2 ridgelet manuscript uses
 
@@ -31,7 +31,7 @@ open scoped ComplexConjugate FourierTransform RealInnerProductSpace
 open FourierTransform MeasureTheory
 
 /-- Multiplying an integrable function by an a.e.-bounded-by-one measurable factor preserves
-integrability.  This is the common oscillatory-kernel step of the paper Fourier calculations. -/
+integrability.  This is the common oscillatory-kernel step of the angular Fourier calculations. -/
 theorem MeasureTheory.Integrable.mul_unimodular {α : Type*} [MeasurableSpace α]
     {μ : MeasureTheory.Measure α} {f g : α → ℂ}
     (hf : MeasureTheory.Integrable f μ) (hg : MeasureTheory.AEStronglyMeasurable g μ)
@@ -60,14 +60,14 @@ variable {V : Type*} [NormedAddCommGroup V] [InnerProductSpace ℝ V]
   [MeasurableSpace V] [BorelSpace V] [FiniteDimensional ℝ V]
 
 /-- The manuscript Fourier integral on an arbitrary finite-dimensional real inner-product space. -/
-def paperFourierIntegralInner (f : V → ℂ) (ξ : V) : ℂ :=
+def angularFourierIntegralInner (f : V → ℂ) (ξ : V) : ℂ :=
   ∫ x, Complex.exp (-Complex.I * (inner ℝ x ξ : ℂ)) * f x
 
-theorem paperFourierIntegralInner_eq_mathlib (f : V → ℂ) (ξ : V) :
-    paperFourierIntegralInner f ξ =
+theorem angularFourierIntegralInner_eq_mathlib (f : V → ℂ) (ξ : V) :
+    angularFourierIntegralInner f ξ =
       VectorFourier.fourierIntegral Real.fourierChar volume
         (innerₗ V) f ((2 * Real.pi)⁻¹ • ξ) := by
-  unfold paperFourierIntegralInner VectorFourier.fourierIntegral
+  unfold angularFourierIntegralInner VectorFourier.fourierIntegral
   apply integral_congr_ae
   filter_upwards with x
   simp only [Real.fourierChar_apply, Circle.smul_def, smul_eq_mul]
@@ -80,10 +80,10 @@ theorem paperFourierIntegralInner_eq_mathlib (f : V → ℂ) (ξ : V) :
 
 /-- Plancherel normalization for the manuscript Fourier convention on any finite-dimensional
 real inner-product space. -/
-theorem paper_plancherel_schwartz_inner (f : SchwartzMap V ℂ) :
-    ∫ ξ, ‖paperFourierIntegralInner f ξ‖ ^ 2 =
+theorem angular_plancherel_schwartz_inner (f : SchwartzMap V ℂ) :
+    ∫ ξ, ‖angularFourierIntegralInner f ξ‖ ^ 2 =
       (2 * Real.pi) ^ Module.finrank ℝ V * ∫ x, ‖f x‖ ^ 2 := by
-  simp_rw [paperFourierIntegralInner_eq_mathlib]
+  simp_rw [angularFourierIntegralInner_eq_mathlib]
   change
     (∫ ξ, ‖𝓕 (f : V → ℂ) ((2 * Real.pi)⁻¹ • ξ)‖ ^ 2) =
       (2 * Real.pi) ^ Module.finrank ℝ V * ∫ x, ‖f x‖ ^ 2
@@ -97,73 +97,73 @@ theorem paper_plancherel_schwartz_inner (f : SchwartzMap V ℂ) :
 end FiniteDimensional
 
 /-- The phase occurring in the Fourier convention of the L2 ridgelet manuscript. -/
-def paperPhase (x ξ : InputSpace m) : ℂ :=
+def angularPhase (x ξ : InputSpace m) : ℂ :=
   Complex.exp (-Complex.I * (inner ℝ x ξ : ℂ))
 
 @[simp]
-theorem paperPhase_zero_right (x : InputSpace m) : paperPhase x 0 = 1 := by
-  simp [paperPhase]
+theorem angularPhase_zero_right (x : InputSpace m) : angularPhase x 0 = 1 := by
+  simp [angularPhase]
 
 @[simp]
-theorem paperPhase_zero_left (ξ : InputSpace m) : paperPhase 0 ξ = 1 := by
-  simp [paperPhase]
+theorem angularPhase_zero_left (ξ : InputSpace m) : angularPhase 0 ξ = 1 := by
+  simp [angularPhase]
 
-theorem norm_paperPhase (x ξ : InputSpace m) : ‖paperPhase x ξ‖ = 1 := by
-  rw [paperPhase, Complex.norm_exp]
+theorem norm_angularPhase (x ξ : InputSpace m) : ‖angularPhase x ξ‖ = 1 := by
+  rw [angularPhase, Complex.norm_exp]
   simp
 
-theorem continuous_paperPhase_left (ξ : InputSpace m) :
-    Continuous (fun x => paperPhase x ξ) := by
-  unfold paperPhase
+theorem continuous_angularPhase_left (ξ : InputSpace m) :
+    Continuous (fun x => angularPhase x ξ) := by
+  unfold angularPhase
   fun_prop
 
 /-- The non-unitarily normalized Fourier integral used in the manuscript. -/
-def paperFourierIntegral (f : InputSpace m → ℂ) (ξ : InputSpace m) : ℂ :=
-  ∫ x, paperPhase x ξ * f x
+def angularFourierIntegral (f : InputSpace m → ℂ) (ξ : InputSpace m) : ℂ :=
+  ∫ x, angularPhase x ξ * f x
 
 @[simp]
-theorem paperFourierIntegral_zero :
-    paperFourierIntegral (fun _ : InputSpace m => 0) = 0 := by
+theorem angularFourierIntegral_zero :
+    angularFourierIntegral (fun _ : InputSpace m => 0) = 0 := by
   funext ξ
-  simp [paperFourierIntegral]
+  simp [angularFourierIntegral]
 
-theorem paperFourierIntegral_add {f g : InputSpace m → ℂ}
+theorem angularFourierIntegral_add {f g : InputSpace m → ℂ}
     (hf : Integrable f) (hg : Integrable g) :
-    paperFourierIntegral (f + g) = paperFourierIntegral f + paperFourierIntegral g := by
+    angularFourierIntegral (f + g) = angularFourierIntegral f + angularFourierIntegral g := by
   funext ξ
-  simp only [paperFourierIntegral, Pi.add_apply, mul_add]
+  simp only [angularFourierIntegral, Pi.add_apply, mul_add]
   rw [integral_add]
   · apply hf.bdd_mul
-    · exact (continuous_paperPhase_left ξ).aestronglyMeasurable
-    · exact Filter.Eventually.of_forall fun x => by rw [norm_paperPhase]
+    · exact (continuous_angularPhase_left ξ).aestronglyMeasurable
+    · exact Filter.Eventually.of_forall fun x => by rw [norm_angularPhase]
   · apply hg.bdd_mul
-    · exact (continuous_paperPhase_left ξ).aestronglyMeasurable
-    · exact Filter.Eventually.of_forall fun x => by rw [norm_paperPhase]
+    · exact (continuous_angularPhase_left ξ).aestronglyMeasurable
+    · exact Filter.Eventually.of_forall fun x => by rw [norm_angularPhase]
 
-theorem paperFourierIntegral_smul (c : ℂ) (f : InputSpace m → ℂ) :
-    paperFourierIntegral (c • f) = c • paperFourierIntegral f := by
+theorem angularFourierIntegral_smul (c : ℂ) (f : InputSpace m → ℂ) :
+    angularFourierIntegral (c • f) = c • angularFourierIntegral f := by
   funext ξ
-  simp only [paperFourierIntegral, Pi.smul_apply, smul_eq_mul]
+  simp only [angularFourierIntegral, Pi.smul_apply, smul_eq_mul]
   rw [← integral_const_mul]
   apply integral_congr_ae
   filter_upwards with x
-  simp only [paperPhase]
+  simp only [angularPhase]
   ring
 
-/-- Frequency rescaling relating the paper convention to Mathlib's `2π` convention. -/
+/-- Frequency rescaling relating the angular-frequency convention to Mathlib's `2π` convention. -/
 def toMathlibFrequency (ξ : InputSpace m) : InputSpace m :=
   (2 * Real.pi)⁻¹ • ξ
 
-/-- Pointwise bridge from the paper Fourier integral to Mathlib's Fourier integral.
+/-- Pointwise bridge from the angular Fourier integral to Mathlib's Fourier integral.
 
 This is deliberately exposed as a named theorem with a placeholder proof, so subsequent work on
 Fourier normalization can find it mechanically without depending on a bundled assumption object.
 -/
-theorem paperFourierIntegral_eq_mathlib (f : InputSpace m → ℂ) (ξ : InputSpace m) :
-    paperFourierIntegral f ξ =
+theorem angularFourierIntegral_eq_mathlib (f : InputSpace m → ℂ) (ξ : InputSpace m) :
+    angularFourierIntegral f ξ =
       VectorFourier.fourierIntegral Real.fourierChar volume
         (innerₗ (InputSpace m)) f (toMathlibFrequency ξ) := by
-  unfold paperFourierIntegral VectorFourier.fourierIntegral paperPhase toMathlibFrequency
+  unfold angularFourierIntegral VectorFourier.fourierIntegral angularPhase toMathlibFrequency
   apply integral_congr_ae
   filter_upwards with x
   simp only [Real.fourierChar_apply, Circle.smul_def, smul_eq_mul]
@@ -175,10 +175,10 @@ theorem paperFourierIntegral_eq_mathlib (f : InputSpace m → ℂ) (ξ : InputSp
   simp only [innerₗ_apply_apply]
 
 /-- Plancherel normalization in the manuscript convention, first stated for Schwartz functions. -/
-theorem paper_plancherel_schwartz (f : SchwartzMap (InputSpace m) ℂ) :
-    ∫ ξ, ‖paperFourierIntegral f ξ‖ ^ 2 =
+theorem angular_plancherel_schwartz (f : SchwartzMap (InputSpace m) ℂ) :
+    ∫ ξ, ‖angularFourierIntegral f ξ‖ ^ 2 =
       (2 * Real.pi) ^ m * ∫ x, ‖f x‖ ^ 2 := by
-  simp_rw [paperFourierIntegral_eq_mathlib]
+  simp_rw [angularFourierIntegral_eq_mathlib]
   change
     (∫ ξ, ‖𝓕 (f : InputSpace m → ℂ) ((2 * Real.pi)⁻¹ • ξ)‖ ^ 2) =
       (2 * Real.pi) ^ m * ∫ x, ‖f x‖ ^ 2

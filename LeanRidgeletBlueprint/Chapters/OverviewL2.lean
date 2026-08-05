@@ -18,7 +18,7 @@ file := "overview"
 %%%
 
 This chapter follows the publication order and single shared theorem-like counter of
-arXiv:2106.04770v2. The paper first
+arXiv:2106.04770v2. The manuscript first
 derives the separated Fourier expression in the Introduction, isolates its abstract unitary
 operator theory in Section 2, and only then constructs the concrete activation, coefficient, and
 parameter spaces. Later sections treat adjoint ridgelet functions, finite-width consequences,
@@ -178,7 +178,7 @@ $$`S_\sigma[\gamma](x)=\int\gamma(a,b)\sigma_{\mathrm{cl}}(a\cdot x-b)\,da\,db
 
 *Section 4: Neural-Network Specialization: Ridgelet Reconstruction from the Fourier Expression*
 
-:::definition "ridgelet_transform_and_pairing" (lean := "LeanRidgelet.ridgeletOperator, LeanRidgelet.ridgeletOperator_eq_unitaryRidgelet, LeanRidgelet.fiberBaseCoordinate, LeanRidgelet.ridgeletSpectrum, LeanRidgelet.ridgeletSpectrum_coe, LeanRidgelet.ridgeletFunction, LeanRidgelet.paperFourierDistribution_ridgeletFunction, LeanRidgelet.classicalRidgeletFunction, LeanRidgelet.classicalRidgeletIntegral, LeanRidgelet.ridgeletFunctionCore_apply_classical") (uses := "concrete_unitary_transform")
+:::definition "ridgelet_transform_and_pairing" (lean := "LeanRidgelet.ridgeletOperator, LeanRidgelet.ridgeletOperator_eq_unitaryRidgelet, LeanRidgelet.fiberBaseCoordinate, LeanRidgelet.ridgeletSpectrum, LeanRidgelet.ridgeletSpectrum_coe, LeanRidgelet.ridgeletFunction, LeanRidgelet.angularFourierDistribution_ridgeletFunction, LeanRidgelet.classicalRidgeletFunction, LeanRidgelet.classicalRidgeletIntegral, LeanRidgelet.ridgeletFunctionCore_apply_classical") (uses := "concrete_unitary_transform")
 Let $`m\ge1`, $`s,t\in\mathbb R`, $`h\in\mathcal H_{s,t}`, and
 $`f\in L^2(\mathbb R^m)`. Define
 $$`R_h[f]:=T^*[f\otimes h],\qquad \rho_h^\sharp:=|\omega|^m\overline h,
@@ -212,7 +212,7 @@ $`\rho\mapsto h` remains outside the current statement.
 
 *Section 5: Neural-Network Specialization: Adjoint, Null Space, and Complete General Solution*
 
-:::definition "adjoint_ridgelet_function" (lean := "LeanRidgelet.activationRieszRepresenter, LeanRidgelet.activationNormalization, LeanRidgelet.ridgeletFunction, LeanRidgelet.paperFourierDistribution_ridgeletFunction") (uses := "activation_functional, ridgelet_transform_and_pairing")
+:::definition "adjoint_ridgelet_function" (lean := "LeanRidgelet.activationRieszRepresenter, LeanRidgelet.activationNormalization, LeanRidgelet.ridgeletFunction, LeanRidgelet.angularFourierDistribution_ridgeletFunction") (uses := "activation_functional, ridgelet_transform_and_pairing")
 Let $`m\ge1`, $`s,t\in\mathbb R`, and $`\sigma\in\mathcal A_{s,t}`. Define the Riesz vector
 $`h_\sigma\in\mathcal H_{s,t}` and normalization $`c_\sigma` by
 $$`L_\sigma[h]=\langle h,h_\sigma\rangle,\qquad
@@ -338,4 +338,4 @@ result.
 
 *Section 11: Conclusion*
 
-The conclusion summarizes the paper and likewise adds no numbered result.
+The conclusion summarizes the manuscript and likewise adds no numbered result.

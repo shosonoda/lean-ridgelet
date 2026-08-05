@@ -194,7 +194,7 @@ theorem parameterFourierRestriction_apply {m : ℕ}
   rfl
 
 /-- Multiplication by `(2π)⁻¹` is antilipschitz with constant `2π`. -/
-theorem antilipschitzWith_paperFrequencyScale :
+theorem antilipschitzWith_angularFrequencyScale :
     AntilipschitzWith (⟨2 * Real.pi, by positivity⟩ : NNReal)
       (fun ω : ℝ ↦ (2 * Real.pi)⁻¹ • ω) := by
   rw [antilipschitzWith_iff_le_mul_dist]
@@ -209,11 +209,11 @@ def fourierDilationTransformFiberCore {m : ℕ} [NeZero m] (s t : ℝ)
     (γ : SchwartzMap (InputSpace m × ℝ) ℂ) (x : InputSpace m) : FiberCore m s t :=
   ((2 * Real.pi : ℂ) ^ m)⁻¹ •
     SchwartzMap.compCLMOfAntilipschitz ℂ (by fun_prop)
-      antilipschitzWith_paperFrequencyScale (parameterFourierRestriction γ x)
+      antilipschitzWith_angularFrequencyScale (parameterFourierRestriction γ x)
 
-theorem paperFourierIntegralInner_parameterFrequency {m : ℕ}
+theorem angularFourierIntegralInner_parameterFrequency {m : ℕ}
     (γ : SchwartzMap (InputSpace m × ℝ) ℂ) (x : InputSpace m) (ω : ℝ) :
-    paperFourierIntegralInner (parameterSchwartzL2 γ) (parameterFrequency x ω) =
+    angularFourierIntegralInner (parameterSchwartzL2 γ) (parameterFrequency x ω) =
       ∫ p : InputSpace m × ℝ, γ p * fourierDilationKernel x ω p := by
   rw [← (WithLp.volume_preserving_ofLp (InputSpace m) ℝ).integral_comp
     (parameterProductEquiv m).toHomeomorph.measurableEmbedding]
@@ -329,10 +329,10 @@ theorem integrable_fourierDilationCoordinate_mul {m : ℕ} [NeZero m]
       f (fourierDilationCoordinate z.1 z.2) * |z.2| ^ m) := by
   exact integrable_fourierDilationCoordinate_mul_aux f hf hf_cont
 
-theorem integrable_norm_sq_paperFourier_parameter {m : ℕ}
+theorem integrable_norm_sq_angularFourier_parameter {m : ℕ}
     (γ : SchwartzMap (InputSpace m × ℝ) ℂ) :
     Integrable (fun z : InputSpace m × ℝ =>
-      ‖paperFourierIntegralInner (parameterSchwartzL2 γ) (WithLp.toLp 2 z)‖ ^ 2) := by
+      ‖angularFourierIntegralInner (parameterSchwartzL2 γ) (WithLp.toLp 2 z)‖ ^ 2) := by
   let ψ := parameterSchwartzL2 γ
   let h := 𝓕 ψ
   have hbase : Integrable (fun ξ : ParameterProductL2 m => ‖h ξ‖ ^ 2) := by
@@ -349,36 +349,36 @@ theorem integrable_norm_sq_paperFourier_parameter {m : ℕ}
     (WithLp.volume_preserving_toLp (InputSpace m) ℝ).integrable_comp_of_integrable hscale
   refine hcomp.congr ?_
   filter_upwards with z
-  rw [paperFourierIntegralInner_eq_mathlib]
+  rw [angularFourierIntegralInner_eq_mathlib]
   rfl
 
-theorem continuous_norm_sq_paperFourier_parameter {m : ℕ}
+theorem continuous_norm_sq_angularFourier_parameter {m : ℕ}
     (γ : SchwartzMap (InputSpace m × ℝ) ℂ) :
     Continuous (fun z : InputSpace m × ℝ =>
-      ‖paperFourierIntegralInner (parameterSchwartzL2 γ) (WithLp.toLp 2 z)‖ ^ 2) := by
+      ‖angularFourierIntegralInner (parameterSchwartzL2 γ) (WithLp.toLp 2 z)‖ ^ 2) := by
   have hcont : Continuous (fun z : InputSpace m × ℝ =>
       ‖𝓕 (parameterSchwartzL2 γ)
         ((2 * Real.pi)⁻¹ • WithLp.toLp 2 z)‖ ^ 2) := by fun_prop
   convert hcont using 1
   ext z
-  rw [paperFourierIntegralInner_eq_mathlib]
+  rw [angularFourierIntegralInner_eq_mathlib]
   rfl
 
-theorem integral_norm_sq_paperFourier_parameter {m : ℕ}
+theorem integral_norm_sq_angularFourier_parameter {m : ℕ}
     (γ : SchwartzMap (InputSpace m × ℝ) ℂ) :
     (∫ z : InputSpace m × ℝ,
-        ‖paperFourierIntegralInner (parameterSchwartzL2 γ) (WithLp.toLp 2 z)‖ ^ 2) =
+        ‖angularFourierIntegralInner (parameterSchwartzL2 γ) (WithLp.toLp 2 z)‖ ^ 2) =
       (2 * Real.pi) ^ (m + 1) * ∫ z : InputSpace m × ℝ, ‖γ z‖ ^ 2 := by
   have hmap := (WithLp.volume_preserving_toLp (InputSpace m) ℝ).integral_comp
     (parameterProductEquiv m).symm.toHomeomorph.measurableEmbedding
     (fun ξ : ParameterProductL2 m =>
-      ‖paperFourierIntegralInner (parameterSchwartzL2 γ) ξ‖ ^ 2)
+      ‖angularFourierIntegralInner (parameterSchwartzL2 γ) ξ‖ ^ 2)
   calc
     _ = ∫ ξ : ParameterProductL2 m,
-        ‖paperFourierIntegralInner (parameterSchwartzL2 γ) ξ‖ ^ 2 := hmap
+        ‖angularFourierIntegralInner (parameterSchwartzL2 γ) ξ‖ ^ 2 := hmap
     _ = (2 * Real.pi) ^ Module.finrank ℝ (ParameterProductL2 m) *
         ∫ ξ : ParameterProductL2 m, ‖parameterSchwartzL2 γ ξ‖ ^ 2 :=
-      paper_plancherel_schwartz_inner (parameterSchwartzL2 γ)
+      angular_plancherel_schwartz_inner (parameterSchwartzL2 γ)
     _ = (2 * Real.pi) ^ (m + 1) *
         ∫ z : InputSpace m × ℝ, ‖γ z‖ ^ 2 := by
       rw [integral_norm_sq_parameterSchwartzL2]
@@ -391,37 +391,37 @@ theorem integral_norm_sq_paperFourier_parameter {m : ℕ}
           rw [Module.finrank_prod, finrank_euclideanSpace_fin]
           simp
 
-theorem integral_norm_sq_paperFourier_parameter_coordinate {m : ℕ} [NeZero m]
+theorem integral_norm_sq_angularFourier_parameter_coordinate {m : ℕ} [NeZero m]
     (γ : SchwartzMap (InputSpace m × ℝ) ℂ) :
     (∫ z : InputSpace m × ℝ,
-        ‖paperFourierIntegralInner (parameterSchwartzL2 γ) (WithLp.toLp 2 z)‖ ^ 2) =
+        ‖angularFourierIntegralInner (parameterSchwartzL2 γ) (WithLp.toLp 2 z)‖ ^ 2) =
       ∫ z : InputSpace m × ℝ,
-        ‖paperFourierIntegralInner (parameterSchwartzL2 γ)
+        ‖angularFourierIntegralInner (parameterSchwartzL2 γ)
           (parameterFrequency z.1 z.2)‖ ^ 2 * |z.2| ^ m := by
   exact integral_fourierDilationCoordinate_mul
     (fun z : InputSpace m × ℝ =>
-      ‖paperFourierIntegralInner (parameterSchwartzL2 γ) (WithLp.toLp 2 z)‖ ^ 2)
-    (integrable_norm_sq_paperFourier_parameter γ)
-    (continuous_norm_sq_paperFourier_parameter γ)
+      ‖angularFourierIntegralInner (parameterSchwartzL2 γ) (WithLp.toLp 2 z)‖ ^ 2)
+    (integrable_norm_sq_angularFourier_parameter γ)
+    (continuous_norm_sq_angularFourier_parameter γ)
 
-theorem integrable_norm_sq_paperFourier_parameter_coordinate {m : ℕ} [NeZero m]
+theorem integrable_norm_sq_angularFourier_parameter_coordinate {m : ℕ} [NeZero m]
     (γ : SchwartzMap (InputSpace m × ℝ) ℂ) :
     Integrable (fun z : InputSpace m × ℝ =>
-      ‖paperFourierIntegralInner (parameterSchwartzL2 γ)
+      ‖angularFourierIntegralInner (parameterSchwartzL2 γ)
         (parameterFrequency z.1 z.2)‖ ^ 2 * |z.2| ^ m) := by
   exact integrable_fourierDilationCoordinate_mul
     (fun z : InputSpace m × ℝ =>
-      ‖paperFourierIntegralInner (parameterSchwartzL2 γ) (WithLp.toLp 2 z)‖ ^ 2)
-    (integrable_norm_sq_paperFourier_parameter γ)
-    (continuous_norm_sq_paperFourier_parameter γ)
+      ‖angularFourierIntegralInner (parameterSchwartzL2 γ) (WithLp.toLp 2 z)‖ ^ 2)
+    (integrable_norm_sq_angularFourier_parameter γ)
+    (continuous_norm_sq_angularFourier_parameter γ)
 
-theorem fourierDilationTransformCore_eq_paperFourier {m : ℕ}
+theorem fourierDilationTransformCore_eq_angularFourier {m : ℕ}
     (γ : SchwartzMap (InputSpace m × ℝ) ℂ) (x : InputSpace m) (ω : ℝ) :
     fourierDilationTransformCore γ x ω =
       ((2 * Real.pi : ℂ) ^ m)⁻¹ *
-        paperFourierIntegralInner (parameterSchwartzL2 γ) (parameterFrequency x ω) := by
+        angularFourierIntegralInner (parameterSchwartzL2 γ) (parameterFrequency x ω) := by
   rw [fourierDilationTransformCore,
-    paperFourierIntegralInner_parameterFrequency]
+    angularFourierIntegralInner_parameterFrequency]
 
 /-- The scalar Fourier--dilation core is jointly continuous in the input and dilation
 frequency.  This supplies the scalar measurability part of the later fiber-valued strong
@@ -436,8 +436,8 @@ theorem continuous_fourierDilationTransformCore {m : ℕ}
         (𝓕 (parameterSchwartzL2 γ))
           ((2 * Real.pi)⁻¹ • parameterFrequency z.1 z.2) := by
     funext z
-    rw [fourierDilationTransformCore_eq_paperFourier,
-      paperFourierIntegralInner_eq_mathlib]
+    rw [fourierDilationTransformCore_eq_angularFourier,
+      angularFourierIntegralInner_eq_mathlib]
     rfl
   rw [heq]
   have hfrequency : Continuous (fun z : InputSpace m × ℝ =>
@@ -461,7 +461,7 @@ theorem fourierDilationTransformFiberCore_apply {m : ℕ} [NeZero m] (s t : ℝ)
     FiberCore.toSchwartz (fourierDilationTransformFiberCore s t γ x) ω =
       fourierDilationTransformCore γ x ω := by
   unfold FiberCore.toSchwartz
-  rw [fourierDilationTransformCore_eq_paperFourier, paperFourierIntegralInner_eq_mathlib]
+  rw [fourierDilationTransformCore_eq_angularFourier, angularFourierIntegralInner_eq_mathlib]
   simp only [fourierDilationTransformFiberCore, smul_apply, smul_eq_mul,
     SchwartzMap.compCLMOfAntilipschitz_apply, Function.comp_apply,
     parameterFourierRestriction_apply]
@@ -544,9 +544,9 @@ theorem norm_sq_fourierDilationTransformCore_eq {m : ℕ}
     (γ : SchwartzMap (InputSpace m × ℝ) ℂ) (x : InputSpace m) (ω : ℝ) :
     ‖fourierDilationTransformCore γ x ω‖ ^ 2 =
       (((2 * Real.pi) ^ m)⁻¹) ^ 2 *
-        ‖paperFourierIntegralInner (parameterSchwartzL2 γ)
+        ‖angularFourierIntegralInner (parameterSchwartzL2 γ)
           (parameterFrequency x ω)‖ ^ 2 := by
-  rw [fourierDilationTransformCore_eq_paperFourier, norm_mul, norm_inv, norm_pow]
+  rw [fourierDilationTransformCore_eq_angularFourier, norm_mul, norm_inv, norm_pow]
   have hpi : ‖(2 * Real.pi : ℂ)‖ = 2 * Real.pi := by
     simp [Complex.norm_real, abs_of_pos Real.pi_pos]
   rw [hpi]
@@ -556,7 +556,7 @@ theorem integrable_norm_sq_fourierDilationTransformCore_mul {m : ℕ} [NeZero m]
     (γ : SchwartzMap (InputSpace m × ℝ) ℂ) :
     Integrable (fun z : InputSpace m × ℝ =>
       ‖fourierDilationTransformCore γ z.1 z.2‖ ^ 2 * |z.2| ^ m) := by
-  have h := (integrable_norm_sq_paperFourier_parameter_coordinate γ).const_mul
+  have h := (integrable_norm_sq_angularFourier_parameter_coordinate γ).const_mul
     ((((2 * Real.pi) ^ m)⁻¹) ^ 2)
   refine h.congr ?_
   filter_upwards with z
@@ -592,10 +592,10 @@ theorem fourierDilationTransformCore_norm_sq {m : ℕ} [NeZero m]
           ‖fourierDilationTransformCore γ z.1 z.2‖ ^ 2 * |z.2| ^ m := by
   let A : ℝ := 2 * Real.pi
   let F : InputSpace m × ℝ → ℝ := fun z =>
-    ‖paperFourierIntegralInner (parameterSchwartzL2 γ)
+    ‖angularFourierIntegralInner (parameterSchwartzL2 γ)
       (parameterFrequency z.1 z.2)‖ ^ 2 * |z.2| ^ m
-  have hcoord := integral_norm_sq_paperFourier_parameter_coordinate γ
-  have hplanch := integral_norm_sq_paperFourier_parameter γ
+  have hcoord := integral_norm_sq_angularFourier_parameter_coordinate γ
+  have hplanch := integral_norm_sq_angularFourier_parameter γ
   have hF : (∫ z : InputSpace m × ℝ, F z) =
       A ^ (m + 1) * ∫ z : InputSpace m × ℝ, ‖γ z‖ ^ 2 := by
     rw [← hplanch, hcoord]
@@ -608,7 +608,7 @@ theorem fourierDilationTransformCore_norm_sq {m : ℕ} [NeZero m]
     filter_upwards with z
     rw [norm_sq_fourierDilationTransformCore_eq]
     change ((((A ^ m)⁻¹) ^ 2 *
-      ‖paperFourierIntegralInner (parameterSchwartzL2 γ)
+      ‖angularFourierIntegralInner (parameterSchwartzL2 γ)
         (parameterFrequency z.1 z.2)‖ ^ 2) * |z.2| ^ m) =
       (((A ^ m)⁻¹) ^ 2) * F z
     unfold F

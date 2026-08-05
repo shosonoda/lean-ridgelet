@@ -37,8 +37,8 @@ $`\langle\partial\rangle^t` correspond to the scoped Lean notations `𝓐 s t`, 
 `𝓖 m s t`, `L[σ]`, `𝐓`, `f♯`, `⧼x⧽^r`, and `⧼∂⧽^t`. The linked declarations remain the
 canonical API.
 
-:::definition "paper_fourier_convention" (lean := "LeanRidgelet.Fourier.paperFourierIntegralInner, LeanRidgelet.Fourier.paperFourierDistribution, LeanRidgelet.Fourier.paperFourierInvDistribution")
-Let $`V` be a finite-dimensional real inner-product space. Define the paper-normalized Fourier
+:::definition "angular_fourier_convention" (lean := "LeanRidgelet.Fourier.angularFourierIntegralInner, LeanRidgelet.Fourier.angularFourierDistribution, LeanRidgelet.Fourier.angularFourierInvDistribution")
+Let $`V` be a finite-dimensional real inner-product space. Define the angular-frequency Fourier
 transform by
 $$`\widehat f(\xi)=\int_V e^{-i\langle x,\xi\rangle}f(x)\,dx`.
 Mathlib's Fourier character uses the $`2\pi` convention, so rescaling the frequency by
@@ -46,9 +46,12 @@ $`\xi/(2\pi)` relates the two conventions. Lean also bundles the one-dimensional
 inverse transforms on tempered distributions and proves that they are mutual inverses.
 :::
 
-:::theorem "paper_plancherel" (lean := "LeanRidgelet.Fourier.paper_plancherel_schwartz_inner, LeanRidgelet.Fourier.paper_plancherel_schwartz")
-For every Schwartz function $`f`, the paper-normalized Plancherel identity is
+:::theorem "angular_plancherel" (lean := "LeanRidgelet.Fourier.angular_plancherel_schwartz_inner, LeanRidgelet.Fourier.angular_plancherel_schwartz, LeanRidgelet.Fourier.integral_angularFourierIntegralInner_mul_exp, LeanRidgelet.Fourier.integral_angularFourierIntegralInner_mul_conj")
+For every Schwartz function $`f`, the angular-frequency Plancherel identity is
 $$`\|\widehat f\|_{L^2(V)}^2=(2\pi)^{\dim V}\|f\|_{L^2(V)}^2`.
+The angular inverse integral is the rescaled Mathlib inverse transform (last declaration):
+$$`\int \widehat f(\xi)\,e^{i\langle\xi,x\rangle}\,d\xi=(2\pi)^{\dim V}\,\mathcal F^{-1}[\mathcal F f](x),`
+the bridge through which the Fourier inversion theorems compute angular inverse integrals.
 :::
 
 :::definition "japanese_bracket" (lean := "LeanRidgelet.japaneseBracketPow")

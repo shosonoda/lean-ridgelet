@@ -13,7 +13,7 @@ public import Mathlib.Analysis.SpecialFunctions.Artanh
 
 This file realizes the classical hyperbolic tangent as an activation coordinate in `A_{0,t}`.
 The condition `1 / 2 < t` makes `⟨x⟩⁻ᵗ tanh x` square-integrable, and the manuscript isometry
-coordinate of `tanh` is its paper Fourier transform: `σ = ⟨∂ω⟩^{-t}[tanh♯] = (⟨·⟩⁻ᵗ tanh)♯`.
+coordinate of `tanh` is its angular Fourier transform: `σ = ⟨∂ω⟩^{-t}[tanh♯] = (⟨·⟩⁻ᵗ tanh)♯`.
 The pairing-consistent classical realization `activationRealization` then acts by integration
 against the classical `tanh` function.
 -/
@@ -69,7 +69,7 @@ theorem memLp_tanhWeightedFn (t : ℝ) (ht : (1 : ℝ) / 2 < t) :
         rw [show (2 * -t) / 2 = -(2 * t) / 2 by ring]
         simp
 
-/-- The weighted `L²` element `⟨x⟩⁻ᵗ tanh x`, the paper inverse-Fourier side of the tanh
+/-- The weighted `L²` element `⟨x⟩⁻ᵗ tanh x`, the angular inverse-Fourier side of the tanh
 activation coordinate. -/
 def tanhWeightedCoordinate (t : ℝ) (ht : (1 : ℝ) / 2 < t) : L2 ℝ volume :=
   (memLp_tanhWeightedFn t ht).toLp (tanhWeightedFn t)
@@ -97,21 +97,21 @@ theorem tanhWeightedCoordinate_ne_zero (t : ℝ) (ht : (1 : ℝ) / 2 < t) :
   exact Complex.ofReal_ne_zero.mpr (mul_ne_zero hweight htanh_one) hvalue
 
 /-- The hyperbolic tangent as an activation coordinate in `A_{0,t}`: the manuscript isometry
-coordinate `⟨∂ω⟩^{-t}[tanh♯] = (⟨·⟩⁻ᵗ tanh)♯`, i.e. the paper Fourier transform of the
+coordinate `⟨∂ω⟩^{-t}[tanh♯] = (⟨·⟩⁻ᵗ tanh)♯`, i.e. the angular Fourier transform of the
 weighted `L²` element. -/
 def tanhActivation (t : ℝ) (ht : (1 : ℝ) / 2 < t) : ActivationSpace 0 t :=
-  paperFourierLp (tanhWeightedCoordinate t ht)
+  angularFourierLp (tanhWeightedCoordinate t ht)
 
 theorem tanhActivation_ne_zero (t : ℝ) (ht : (1 : ℝ) / 2 < t) :
     tanhActivation t ht ≠ 0 := by
   intro hσ
   apply tanhWeightedCoordinate_ne_zero t ht
-  apply paperFourierLp_injective
+  apply angularFourierLp_injective
   rw [map_zero]
   exact hσ
 
 /-- The pairing-consistent tempered-distribution realization of the hyperbolic tangent,
-`σ = 𝓕⁻¹_paper[σ♯]`. -/
+`σ = 𝓕⁻¹_ang[σ♯]`. -/
 def tanhTemperedDistribution (t : ℝ) (ht : (1 : ℝ) / 2 < t) :
     TemperedDistribution ℝ ℂ :=
   activationRealization 0 t (tanhActivation t ht)
@@ -121,7 +121,7 @@ theorem tanhTemperedDistribution_eq_weight (t : ℝ) (ht : (1 : ℝ) / 2 < t) :
     tanhTemperedDistribution t ht =
       temperedWeightMultiplier t
         (Lp.toTemperedDistributionCLM ℂ volume 2 (tanhWeightedCoordinate t ht)) :=
-  activationRealization_zero_paperFourierLp t (tanhWeightedCoordinate t ht)
+  activationRealization_zero_angularFourierLp t (tanhWeightedCoordinate t ht)
 
 /-- The distribution realization acts by integration against the classical `tanh` function. -/
 theorem tanhTemperedDistribution_apply (t : ℝ) (ht : (1 : ℝ) / 2 < t)
@@ -152,7 +152,7 @@ theorem memActivationSpace_tanhTemperedDistribution (t : ℝ)
     (ht : (1 : ℝ) / 2 < t) :
     MemActivationSpace 0 t (tanhTemperedDistribution t ht) := by
   refine ⟨tanhWeightedCoordinate t ht, ?_⟩
-  rw [paperBesselPotential_zero_apply, tanhTemperedDistribution_eq_weight]
+  rw [angularBesselPotential_zero_apply, tanhTemperedDistribution_eq_weight]
   unfold temperedWeightMultiplier
   rw [TemperedDistribution.smulLeftCLM_smulLeftCLM_apply
     (hasTemperateGrowth_temperedWeight t) (hasTemperateGrowth_temperedWeight (-t))]

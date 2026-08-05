@@ -12,7 +12,7 @@ public import LeanRidgelet.Space.Duality
 
 The Hilbert coordinate of `A_{s,t}` used by the operator layer is the manuscript isometry
 coordinate `⟨ω⟩^s ⟨∂ω⟩^{-t}[σ♯]` of equation (7); the spectrum `σ♯` and the classical
-activation `σ = 𝓕⁻¹_paper[σ♯]` are reconstructed from it in `LeanRidgelet.Space.Activation`.
+activation `σ = 𝓕⁻¹_ang[σ♯]` are reconstructed from it in `LeanRidgelet.Space.Activation`.
 This file proves that the bounded activation functional acts on the Schwartz fiber core by the
 distributional pairing `L_σ[h] = (2π)^{m-1} σ♯[h]` of the manuscript definition (10).  This is
 the bridge used by the classical-integral agreement theorems.
@@ -35,15 +35,15 @@ theorem activationSpectrum_apply (s t : ℝ) (σ : ActivationSpace s t)
     (h : SchwartzMap ℝ ℂ) :
     activationSpectrum s t σ h =
       inner ℂ (star σ) (fiberDualCoordinateCoreValue s t h) := by
-  unfold activationSpectrum paperBesselPotential
+  unfold activationSpectrum angularBesselPotential
   simp only [ContinuousLinearMap.comp_apply]
   rw [TemperedDistribution.fourierMultiplierCLM_apply_apply]
-  rw [fourier_smulLeft_fourierInv_of_even (hasTemperateGrowth_paperBesselSymbol t)
-    (paperBesselSymbol_neg t) h]
+  rw [fourier_smulLeft_fourierInv_of_even (hasTemperateGrowth_angularBesselSymbol t)
+    (angularBesselSymbol_neg t) h]
   unfold temperedWeightMultiplier
   rw [TemperedDistribution.smulLeftCLM_apply_apply]
   rw [show SchwartzMap.smulLeftCLM ℂ (temperedWeight (-s))
-        (SchwartzMap.fourierMultiplierCLM ℂ (paperBesselSymbol t) h) =
+        (SchwartzMap.fourierMultiplierCLM ℂ (angularBesselSymbol t) h) =
       fiberDualSchwartzCoordinate s t h from rfl]
   rw [Lp.toTemperedDistributionCLM_apply, Lp.toTemperedDistribution_apply]
   rw [L2.inner_def]
@@ -72,15 +72,15 @@ theorem activationFiberFunctional_eq_spectrum (m : ℕ) [NeZero m] (s t : ℝ)
   rw [activationFiberFunctional_coe, activationSpectrum_apply]
   rfl
 
-/-- The activation functional acts by pairing with the paper Fourier transform of the realized
+/-- The activation functional acts by pairing with the angular Fourier transform of the realized
 classical activation. -/
 theorem activationFiberFunctional_eq_realization (m : ℕ) [NeZero m] (s t : ℝ)
     (σ : ActivationSpace s t) (h : FiberCore m s t) :
     activationFiberFunctional m s t σ (h : FiberSpace m s t) =
       (2 * Real.pi : ℂ) ^ (m - 1) *
-        activationRealization s t σ (paperFourierSchwartz (FiberCore.toSchwartz h)) := by
+        activationRealization s t σ (angularFourierSchwartz (FiberCore.toSchwartz h)) := by
   rw [activationFiberFunctional_eq_spectrum,
-    ← paperFourierDistribution_activationRealization,
-    paperFourierDistribution_apply]
+    ← angularFourierDistribution_activationRealization,
+    angularFourierDistribution_apply]
 
 end LeanRidgelet

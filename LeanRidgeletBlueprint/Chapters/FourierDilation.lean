@@ -43,7 +43,7 @@ identity with Jacobian $`|\omega|^m`.
 :::
 
 :::theorem "fourier_dilation_core_plancherel" (lean := "LeanRidgelet.fourierDilationTransformCore_norm_sq, LeanRidgelet.integral_fiberBaseNormSq_fourierDilationTransformFiberCore")
-Combining the paper-normalized Plancherel identity with the dilation change of variables yields,
+Combining the angular-frequency Plancherel identity with the dilation change of variables yields,
 on the Schwartz core,
 $$`\int |T[\gamma](x,\omega)|^2|\omega|^m\,dx\,d\omega=(2\pi)^{1-m}\|\gamma\|_{L^2}^2`.
 :::

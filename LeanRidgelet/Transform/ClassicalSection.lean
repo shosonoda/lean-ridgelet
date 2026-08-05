@@ -16,7 +16,7 @@ and uses it to study the classical section integral
 
 `φ_x(z) = ∫ γ(a, ⟨a,x⟩ - z) da`,
 
-which represents the paper Fourier transform of the Fourier--dilation core `T_pt[γ](x, ·)`:
+which represents the angular Fourier transform of the Fourier--dilation core `T_pt[γ](x, ·)`:
 `φ_x = (2π)^{m-1} (T_pt[γ](x,·))♯`.  This identity is the 1D Fourier-inversion step in the
 manuscript's proof that the Hilbert-space synthesis operator agrees with the classical network
 integral (Theorem `thm:bdd.S`).
@@ -214,10 +214,10 @@ theorem continuous_shearedParameterIntegral {m : ℕ}
       fun_prop
     exact hcont.continuousAt
 
-/-- The paper inverse Fourier transform of the classical section integral is the
+/-- The angular inverse Fourier transform of the classical section integral is the
 Fourier--dilation core: the manuscript identity `φ_x = (2π)^{m-1} (T_pt[γ](x,·))♯` before
 inversion. -/
-theorem inverse_paperFourier_shearedParameterIntegral {m : ℕ} [NeZero m]
+theorem inverse_angularFourier_shearedParameterIntegral {m : ℕ} [NeZero m]
     (γ : SchwartzMap (InputSpace m × ℝ) ℂ) (x : InputSpace m) (ω : ℝ) :
     (2 * Real.pi : ℂ)⁻¹ *
         ∫ z : ℝ, shearedParameterIntegral γ x z * Complex.exp (Complex.I * (z * ω)) =
@@ -280,12 +280,12 @@ theorem inverse_paperFourier_shearedParameterIntegral {m : ℕ} [NeZero m]
   rw [inv_mul_cancel₀ hπ, one_mul]
 
 /-- The kernel identity `φ_x(z) = (2π)^{m-1} (T_pt[γ](x,·))♯(z)`: the classical section
-integral is the paper Fourier transform of the Fourier--dilation coefficient vector. -/
-theorem shearedParameterIntegral_eq_paperFourierSchwartz {m : ℕ} [NeZero m] (s t : ℝ)
+integral is the angular Fourier transform of the Fourier--dilation coefficient vector. -/
+theorem shearedParameterIntegral_eq_angularFourierSchwartz {m : ℕ} [NeZero m] (s t : ℝ)
     (γ : SchwartzMap (InputSpace m × ℝ) ℂ) (x : InputSpace m) (z : ℝ) :
     shearedParameterIntegral γ x z =
       (2 * Real.pi : ℂ) ^ (m - 1) *
-        paperFourierSchwartz
+        angularFourierSchwartz
           (FiberCore.toSchwartz (fourierDilationTransformFiberCore s t γ x)) z := by
   have hg : Integrable (fun ω : ℝ ↦
       (2 * Real.pi : ℂ) ^ (m - 1) * fourierDilationTransformCore γ x ω) := by
@@ -294,11 +294,11 @@ theorem shearedParameterIntegral_eq_paperFourierSchwartz {m : ℕ} [NeZero m] (s
     refine (hint.const_mul ((2 * Real.pi : ℂ) ^ (m - 1))).congr ?_
     filter_upwards with ω
     rw [fourierDilationTransformFiberCore_apply]
-  have hmain := paperFourier_inversion_of_integrable
+  have hmain := angularFourier_inversion_of_integrable
     (continuous_shearedParameterIntegral γ x)
     (integrable_shearedParameterIntegral γ x) hg
-    (fun ω ↦ inverse_paperFourier_shearedParameterIntegral γ x ω) z
-  rw [hmain, paperFourierSchwartz_apply, ← integral_const_mul]
+    (fun ω ↦ inverse_angularFourier_shearedParameterIntegral γ x ω) z
+  rw [hmain, angularFourierSchwartz_apply, ← integral_const_mul]
   apply integral_congr_ae
   filter_upwards with ω
   rw [fourierDilationTransformFiberCore_apply,

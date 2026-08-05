@@ -10,12 +10,12 @@ public import Mathlib.Analysis.Distribution.FourierMultiplier
 public import Mathlib.Analysis.Distribution.TemperedDistribution
 
 /-!
-# Paper-normalized Fourier analysis on tempered distributions
+# Angular-frequency Fourier analysis on tempered distributions
 
 This file implements the manuscript convention `f♯(ω) = ∫ z, exp (-i z ω) f(z) dz` on
 one-dimensional tempered distributions: pointwise and distributional conjugation, real
-dilations, the paper-normalized forward and inverse Fourier transforms with their test-function
-actions, the `L¹` inversion theorem in the paper convention, and the even-symbol transpose
+dilations, the angular-frequency forward and inverse Fourier transforms with their test-function
+actions, the `L¹` inversion theorem in the angular convention, and the even-symbol transpose
 identity used by Fourier multipliers.
 -/
 
@@ -174,51 +174,51 @@ theorem temperedDistributionDilation_inv (c : ℝ) (hc : c ≠ 0)
 
 /-- Fourier transform of a one-dimensional tempered distribution in the manuscript convention
 `exp (-i x ω)`. -/
-def paperFourierDistribution :
+def angularFourierDistribution :
     TemperedDistribution ℝ ℂ →L[ℂ] TemperedDistribution ℝ ℂ :=
   temperedDistributionDilation (2 * Real.pi)⁻¹ (inv_ne_zero two_mul_pi_ne_zero) ∘L
     FourierTransform.fourierCLM ℂ (TemperedDistribution ℝ ℂ)
 
 /-- Inverse Fourier transform of a one-dimensional tempered distribution in the manuscript
 convention. -/
-def paperFourierInvDistribution :
+def angularFourierInvDistribution :
     TemperedDistribution ℝ ℂ →L[ℂ] TemperedDistribution ℝ ℂ :=
   FourierTransform.fourierInvCLM ℂ (TemperedDistribution ℝ ℂ) ∘L
     temperedDistributionDilation (2 * Real.pi) two_mul_pi_ne_zero
 
-/-- The paper-normalized Fourier transform of a Schwartz function, still in Schwartz space. -/
-def paperFourierSchwartz (f : SchwartzMap ℝ ℂ) : SchwartzMap ℝ ℂ :=
+/-- The angular-frequency Fourier transform of a Schwartz function, still in Schwartz space. -/
+def angularFourierSchwartz (f : SchwartzMap ℝ ℂ) : SchwartzMap ℝ ℂ :=
   SchwartzMap.compCLMOfContinuousLinearEquiv ℂ
     (realDilationCLE (2 * Real.pi)⁻¹ (inv_ne_zero two_mul_pi_ne_zero)) (𝓕 f)
 
-/-- The distributional paper Fourier transform agrees with the Schwartz-space formula. -/
-theorem paperFourierDistribution_toTemperedDistributionCLM_eq
+/-- The distributional angular Fourier transform agrees with the Schwartz-space formula. -/
+theorem angularFourierDistribution_toTemperedDistributionCLM_eq
     (f : SchwartzMap ℝ ℂ) :
-    paperFourierDistribution
+    angularFourierDistribution
         (SchwartzMap.toTemperedDistributionCLM ℝ ℂ volume f) =
-      SchwartzMap.toTemperedDistributionCLM ℝ ℂ volume (paperFourierSchwartz f) := by
-  unfold paperFourierDistribution paperFourierSchwartz
+      SchwartzMap.toTemperedDistributionCLM ℝ ℂ volume (angularFourierSchwartz f) := by
+  unfold angularFourierDistribution angularFourierSchwartz
   simp only [ContinuousLinearMap.comp_apply, fourierCLM_apply]
   rw [TemperedDistribution.fourier_toTemperedDistributionCLM_eq]
   exact temperedDistributionDilation_toTemperedDistributionCLM_eq
     (2 * Real.pi)⁻¹ (inv_ne_zero two_mul_pi_ne_zero) (𝓕 f)
 
-/-- The paper-normalized Fourier transform is a left inverse of its inverse transform. -/
-theorem paperFourierDistribution_paperFourierInvDistribution
+/-- The angular-frequency Fourier transform is a left inverse of its inverse transform. -/
+theorem angularFourierDistribution_angularFourierInvDistribution
     (u : TemperedDistribution ℝ ℂ) :
-    paperFourierDistribution (paperFourierInvDistribution u) = u := by
-  unfold paperFourierDistribution paperFourierInvDistribution
+    angularFourierDistribution (angularFourierInvDistribution u) = u := by
+  unfold angularFourierDistribution angularFourierInvDistribution
   simp only [ContinuousLinearMap.comp_apply, fourierCLM_apply, fourierInvCLM_apply]
   rw [fourier_fourierInv_eq]
   simpa only [inv_inv] using
     temperedDistributionDilation_inv (2 * Real.pi)⁻¹
       (inv_ne_zero two_mul_pi_ne_zero) u
 
-/-- The paper-normalized inverse Fourier transform is a left inverse of the forward transform. -/
-theorem paperFourierInvDistribution_paperFourierDistribution
+/-- The angular-frequency inverse Fourier transform is a left inverse of the forward transform. -/
+theorem angularFourierInvDistribution_angularFourierDistribution
     (u : TemperedDistribution ℝ ℂ) :
-    paperFourierInvDistribution (paperFourierDistribution u) = u := by
-  unfold paperFourierDistribution paperFourierInvDistribution
+    angularFourierInvDistribution (angularFourierDistribution u) = u := by
+  unfold angularFourierDistribution angularFourierInvDistribution
   simp only [ContinuousLinearMap.comp_apply, fourierCLM_apply, fourierInvCLM_apply]
   rw [show temperedDistributionDilation (2 * Real.pi) two_mul_pi_ne_zero
       (temperedDistributionDilation (2 * Real.pi)⁻¹ (inv_ne_zero two_mul_pi_ne_zero)
@@ -228,23 +228,23 @@ theorem paperFourierInvDistribution_paperFourierDistribution
 
 end TemperedDistribution
 
-/-! ### Test-function action and inversion for the paper convention on `ℝ` -/
+/-! ### Test-function action and inversion for the angular convention on `ℝ` -/
 
-/-- The paper-normalized Schwartz Fourier transform is the paper Fourier integral. -/
-theorem paperFourierSchwartz_eq_paperFourierIntegralInner
+/-- The angular-frequency Schwartz Fourier transform is the angular Fourier integral. -/
+theorem angularFourierSchwartz_eq_angularFourierIntegralInner
     (f : SchwartzMap ℝ ℂ) (ξ : ℝ) :
-    paperFourierSchwartz f ξ = paperFourierIntegralInner (f : ℝ → ℂ) ξ := by
-  rw [paperFourierIntegralInner_eq_mathlib]
-  unfold paperFourierSchwartz
+    angularFourierSchwartz f ξ = angularFourierIntegralInner (f : ℝ → ℂ) ξ := by
+  rw [angularFourierIntegralInner_eq_mathlib]
+  unfold angularFourierSchwartz
   rw [SchwartzMap.compCLMOfContinuousLinearEquiv_apply, SchwartzMap.fourier_coe]
   rfl
 
-/-- Pointwise integral formula for the paper-normalized Schwartz Fourier transform. -/
-theorem paperFourierSchwartz_apply (f : SchwartzMap ℝ ℂ) (ξ : ℝ) :
-    paperFourierSchwartz f ξ =
+/-- Pointwise integral formula for the angular-frequency Schwartz Fourier transform. -/
+theorem angularFourierSchwartz_apply (f : SchwartzMap ℝ ℂ) (ξ : ℝ) :
+    angularFourierSchwartz f ξ =
       ∫ b : ℝ, Complex.exp (-Complex.I * (b * ξ)) * f b := by
-  rw [paperFourierSchwartz_eq_paperFourierIntegralInner]
-  unfold paperFourierIntegralInner
+  rw [angularFourierSchwartz_eq_angularFourierIntegralInner]
+  unfold angularFourierIntegralInner
   apply integral_congr_ae
   filter_upwards with b
   have harg : -Complex.I * ((inner ℝ b ξ : ℝ) : ℂ) =
@@ -254,12 +254,12 @@ theorem paperFourierSchwartz_apply (f : SchwartzMap ℝ ℂ) (ξ : ℝ) :
     ring
   rw [harg]
 
-/-- Rescaling a Schwartz function by `2π` rescales its Mathlib Fourier transform to the paper
+/-- Rescaling a Schwartz function by `2π` rescales its Mathlib Fourier transform to the angular
 transform. -/
 theorem fourier_schwartz_comp_two_pi (φ : SchwartzMap ℝ ℂ) :
     𝓕 (SchwartzMap.compCLMOfContinuousLinearEquiv ℂ
         (realDilationCLE (2 * Real.pi)⁻¹ (inv_ne_zero two_mul_pi_ne_zero)).symm φ) =
-      ((2 * Real.pi : ℝ) : ℂ)⁻¹ • paperFourierSchwartz φ := by
+      ((2 * Real.pi : ℝ) : ℂ)⁻¹ • angularFourierSchwartz φ := by
   ext ξ
   let F : ℝ → ℂ := fun w ↦ Real.fourierChar (-(w * ((2 * Real.pi)⁻¹ * ξ))) • φ w
   have hstep1 : 𝓕 (SchwartzMap.compCLMOfContinuousLinearEquiv ℂ
@@ -294,8 +294,8 @@ theorem fourier_schwartz_comp_two_pi (φ : SchwartzMap ℝ ℂ) :
   have hstep2 : (∫ v : ℝ, F ((2 * Real.pi) • v)) =
       |((2 * Real.pi) ^ Module.finrank ℝ ℝ)⁻¹| • ∫ w : ℝ, F w :=
     Measure.integral_comp_smul volume F (2 * Real.pi)
-  have hstep3 : (∫ w : ℝ, F w) = paperFourierSchwartz φ ξ := by
-    unfold paperFourierSchwartz
+  have hstep3 : (∫ w : ℝ, F w) = angularFourierSchwartz φ ξ := by
+    unfold angularFourierSchwartz
     rw [SchwartzMap.compCLMOfContinuousLinearEquiv_apply]
     change _ = 𝓕 φ ((realDilationCLE (2 * Real.pi)⁻¹ (inv_ne_zero two_mul_pi_ne_zero)) ξ)
     rw [realDilationCLE_apply, SchwartzMap.fourier_coe, Real.fourier_eq]
@@ -314,11 +314,11 @@ theorem fourier_schwartz_comp_two_pi (φ : SchwartzMap ℝ ℂ) :
   push_cast
   rfl
 
-/-- The paper-normalized distributional Fourier transform acts by the paper-normalized Schwartz
+/-- The angular-frequency distributional Fourier transform acts by the angular-frequency Schwartz
 transform on test functions. -/
-theorem paperFourierDistribution_apply (u : TemperedDistribution ℝ ℂ) (φ : SchwartzMap ℝ ℂ) :
-    paperFourierDistribution u φ = u (paperFourierSchwartz φ) := by
-  unfold paperFourierDistribution
+theorem angularFourierDistribution_apply (u : TemperedDistribution ℝ ℂ) (φ : SchwartzMap ℝ ℂ) :
+    angularFourierDistribution u φ = u (angularFourierSchwartz φ) := by
+  unfold angularFourierDistribution
   simp only [ContinuousLinearMap.comp_apply, fourierCLM_apply]
   rw [temperedDistributionDilation_apply, TemperedDistribution.fourier_apply,
     fourier_schwartz_comp_two_pi, map_smul]
@@ -331,10 +331,10 @@ theorem paperFourierDistribution_apply (u : TemperedDistribution ℝ ℂ) (φ : 
     field_simp
   rw [hpi, one_mul]
 
-/-- Paper-convention `L¹` Fourier inversion: if a continuous integrable function has an
-integrable paper inverse transform `g`, then it is recovered from `g` by the paper forward
+/-- Angular-convention `L¹` Fourier inversion: if a continuous integrable function has an
+integrable angular inverse transform `g`, then it is recovered from `g` by the angular forward
 integral. -/
-theorem paperFourier_inversion_of_integrable {f g : ℝ → ℂ}
+theorem angularFourier_inversion_of_integrable {f g : ℝ → ℂ}
     (hf_cont : Continuous f) (hf : Integrable f) (hg : Integrable g)
     (hfg : ∀ ω : ℝ,
       (2 * Real.pi : ℂ)⁻¹ * ∫ z : ℝ, f z * Complex.exp (Complex.I * (z * ω)) = g ω)

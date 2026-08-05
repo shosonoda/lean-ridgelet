@@ -11,7 +11,7 @@ public import Mathlib.Analysis.SpecialFunctions.Gaussian.GaussianIntegral
 /-!
 # Gaussian activation
 
-This file begins the standard-activation analysis of Chapter 5. The normalized Gaussian has paper
+This file begins the standard-activation analysis of Chapter 5. The normalized Gaussian has angular
 Fourier transform `exp (-ω² / 2)`, which directly gives its coordinate in `A_{0,0}`.
 -/
 
@@ -23,7 +23,7 @@ open MeasureTheory
 
 namespace LeanRidgelet
 
-/-- Fourier coordinate of the normalized standard Gaussian in the paper convention. -/
+/-- Fourier coordinate of the normalized standard Gaussian in the angular-frequency convention. -/
 def gaussianFourierCoordinateFn (ω : ℝ) : ℂ :=
   Complex.exp (-(2 : ℂ)⁻¹ * (ω : ℂ) ^ 2)
 
@@ -65,10 +65,10 @@ theorem activationDistribution_gaussianActivation :
   have hweight : temperedWeight 0 = fun _ : ℝ ↦ 1 := by
     funext x
     simp [temperedWeight]
-  have hbessel : paperBesselSymbol 0 = fun _ : ℝ ↦ 1 := by
+  have hbessel : angularBesselSymbol 0 = fun _ : ℝ ↦ 1 := by
     funext ξ
-    simp [paperBesselSymbol]
-  unfold activationDistribution temperedWeightMultiplier paperBesselPotential
+    simp [angularBesselSymbol]
+  unfold activationDistribution temperedWeightMultiplier angularBesselPotential
   simp only [neg_zero]
   rw [hweight, hbessel]
   simp [TemperedDistribution.smulLeftCLM_const,
