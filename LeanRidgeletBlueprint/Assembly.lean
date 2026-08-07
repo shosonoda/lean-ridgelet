@@ -11,6 +11,7 @@ import LeanRidgeletBlueprint.Chapters.FurtherResults
 import LeanRidgeletBlueprint.Chapters.OverviewL1
 import LeanRidgeletBlueprint.Chapters.L1Theory
 import LeanRidgeletBlueprint.Chapters.ToMathlib
+import LeanRidgeletBlueprint.Generated
 
 open Verso.Doc
 open Verso.Genre
@@ -31,6 +32,7 @@ attribute [local irreducible]
   LeanRidgeletBlueprint.Chapters.OverviewL1.«the canonical document object name»
   LeanRidgeletBlueprint.Chapters.L1Theory.«the canonical document object name»
   LeanRidgeletBlueprint.Chapters.ToMathlib.«the canonical document object name»
+  LeanRidgeletBlueprint.Generated.«the canonical document object name»
 
 private opaque overviewL2Part : Part Manual :=
   (%doc LeanRidgeletBlueprint.Chapters.OverviewL2)
@@ -62,11 +64,21 @@ private opaque l1TheoryPart : Part Manual :=
 private opaque toMathlibPart : Part Manual :=
   (%doc LeanRidgeletBlueprint.Chapters.ToMathlib)
 
+/--
+The *Dependency Graph* and *Blueprint Summary* chapters, which `{blueprint_graph}` and
+`{blueprint_summary}` build from the node registry in `LeanRidgeletBlueprint.Generated`. That
+module exists only to carry the two commands: they must be elaborated somewhere that imports every
+chapter, and putting them in `Blueprint.lean` itself makes the build pathologically slow, as its
+module docstring records. Only the subparts are used; the wrapper title is discarded.
+-/
+private opaque generatedParts : Array (Part Manual) :=
+  (%doc LeanRidgeletBlueprint.Generated).subParts
+
 /-- The standard Verso document tree used for multi-page Blueprint output. -/
 opaque assembledBlueprint : Part Manual :=
   { (%doc LeanRidgeletBlueprint.Blueprint) with
     subParts := #[overviewL2Part, foundationsPart, fourierDilationPart, operatorsPart,
       generalSolutionPart, activationsPart, furtherResultsPart, overviewL1Part,
-      l1TheoryPart, toMathlibPart] }
+      l1TheoryPart, toMathlibPart] ++ generatedParts }
 
 end LeanRidgeletBlueprint

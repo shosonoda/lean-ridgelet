@@ -23,6 +23,13 @@ CHAPTERS = (
     ("to-mathlib", "Mathlib upstream candidates"),
 )
 
+# Chapters that `{blueprint_graph}` and `{blueprint_summary}` generate from the node registry.
+# They carry no hand-written Lean panels, so they are verified but not rewritten.
+GENERATED_CHAPTERS = (
+    ("Dependency-Graph", "Dependency Graph"),
+    ("Blueprint-Summary", "Blueprint Summary"),
+)
+
 DECL_PATTERN = re.compile(
     r'(?P<prefix><div class="declaration decl [^"]*" '
     r'data-decl="(?P<decl>[^"]+)" data-kind="(?P<kind>def|abbrev)">.*?)'
@@ -164,6 +171,25 @@ def verify_navigation(output_root: Path, chapters: tuple[tuple[str, str], ...]) 
             raise RuntimeError(f"missing standard next-page navigation in {index}")
 
 
+def verify_generated_chapters(output_root: Path) -> None:
+    html_root = output_root / "html-multi"
+    markers = {
+        "Dependency-Graph": ("bp_graph_legend", "bp-graph-data"),
+        "Blueprint-Summary": ("bp_summary_grid",),
+    }
+    for slug, title in GENERATED_CHAPTERS:
+        index = html_root / slug / "index.html"
+        if not index.is_file():
+            raise RuntimeError(f"missing generated chapter page for {slug}")
+        document = index.read_text(encoding="utf-8")
+        for marker in markers[slug]:
+            if marker not in document:
+                raise RuntimeError(f"generated chapter {slug} is missing {marker}")
+        root = (html_root / "index.html").read_text(encoding="utf-8")
+        if f'href="{slug}/' not in root or title not in root:
+            raise RuntimeError(f"missing generated chapter link for {slug} in the root page")
+
+
 def main() -> None:
     parser = argparse.ArgumentParser()
     parser.add_argument(
@@ -191,6 +217,8 @@ def main() -> None:
         raise RuntimeError("no Lean definition implementations were inserted")
     verify_navigation(output_root, chapters)
     print(f"verified standard Verso navigation across all {len(chapters)} chapters")
+    verify_generated_chapters(output_root)
+    print(f"verified {len(GENERATED_CHAPTERS)} generated chapters")
 
 
 if __name__ == "__main__":

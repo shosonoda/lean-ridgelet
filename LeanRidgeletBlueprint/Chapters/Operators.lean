@@ -69,7 +69,7 @@ $`(x,\omega)\mapsto f(x)h(\omega)` that represents $`T[R_h[f]]`. The reconstruct
 distribution acts by integration against the same classical ridgelet function.
 :::
 
-:::lemma_ "fourier_expressions" (uses := "classical_synthesis_agreement, classical_ridgelet_agreement, ridgelet_simple_tensor")
+:::lemma_ "fourier_expressions_detail" (uses := "classical_synthesis_agreement, classical_ridgelet_agreement, ridgelet_simple_tensor")
 The bias Fourier transform of the classical ridgelet formula
 $`R[f;\rho](a,b)=\int f(x)\overline{\rho(a\cdot x-b)}\,dx` and the Fourier representation of
 synthesis are

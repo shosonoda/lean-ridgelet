@@ -69,6 +69,12 @@ The left sidebar is Verso's generated table of contents and links to all ten cha
 seven for the L2 theory, two for the L1 theory, and one for the general-purpose results that are
 candidates for upstreaming to Mathlib.
 
+Two generated chapters follow them. <http://localhost:8000/html-multi/Dependency-Graph/> draws
+every Blueprint node and its `(uses := ...)` edges, coloured by formalization status;
+<http://localhost:8000/html-multi/Blueprint-Summary/> reports coverage counts, the most-used
+statements, and the nodes that carry no Lean declaration yet. The graph page loads `d3` and
+`d3-graphviz` from a CDN at view time and therefore needs network access in the browser.
+
 Definition panels include the Lean implementation beginning at `:=` when the declaration belongs
 to this project.
 

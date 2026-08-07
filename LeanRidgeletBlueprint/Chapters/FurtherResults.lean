@@ -28,27 +28,27 @@ visible component without changing the null component, and this perturbation is 
 minimum norm.
 :::
 
-:::definition "measure_valued_synthesis"
+:::definition "measure_valued_synthesis_detail"
 For a finite complex Radon measure $`\mu` and a localized data measure $`\nu`, define the
 measure-valued synthesis $`S_\nu[\mu]` as the Bochner integral of the feature map.
 :::
 
-:::theorem "normalized_finite_width_null_approximation" (uses := "measure_valued_synthesis")
+:::theorem "normalized_finite_width_null_approximation" (uses := "measure_valued_synthesis_detail")
 A null measure of total variation one can be approximated by an atomic measure of width $`N`,
 whose output norm converges to zero at rate $`O(N^{-1/2})`.
 :::
 
-:::lemma_ "truncated_monte_carlo_quadrature" (uses := "measure_valued_synthesis")
+:::lemma_ "truncated_monte_carlo_quadrature" (uses := "measure_valued_synthesis_detail")
 Uniform Monte Carlo sampling on a bounded parameter domain for a finite measure separates the
 truncation error from the sampling error, and the latter has mean square $`O(N^{-1})`.
 :::
 
-:::corollary "discretizable_ridgelet_null_elements" (uses := "normalized_finite_width_null_approximation")
+:::corollary "discretizable_ridgelet_null_elements_detail" (uses := "normalized_finite_width_null_approximation")
 For a continuous activation of at most polynomial growth and a compactly supported data measure,
 every Schwartz ridgelet null element yields a finite-width null approximation.
 :::
 
-:::proposition "exact_finite_null_relations"
+:::proposition "exact_finite_null_relations_detail"
 The parity of an activation gives an exact two-atom null relation. For ReLU, affine cancellation
 conditions give further exact null relations among finitely many neurons.
 :::

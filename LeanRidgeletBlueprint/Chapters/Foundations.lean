@@ -59,7 +59,7 @@ For a real exponent $`r`, define the Japanese bracket power by
 $`\langle x\rangle^r=(1+\|x\|^2)^{r/2}`.
 :::
 
-:::definition "activation_space" (lean := "LeanRidgelet.ActivationSpace, LeanRidgelet.activationDistribution")
+:::definition "activation_space_detail" (lean := "LeanRidgelet.ActivationSpace, LeanRidgelet.activationDistribution")
 For $`s,t\in\mathbb R`, the activation Hilbert space $`\mathcal A_{s,t}` is modeled in
 $`L^2(\mathbb R)` coordinates. The tempered-distribution realization of a coordinate $`u` is
 $$`\sigma=\langle\cdot\rangle^t\langle\partial\rangle^{-s}[u]`.
@@ -67,7 +67,7 @@ Thus $`\mathcal A_{s,t}` is a coordinate model of
 $`\langle\cdot\rangle^tH^s(\mathbb R)`.
 :::
 
-:::proposition "activation_hilbert_structure" (lean := "LeanRidgelet.activationCoordinateEquiv, LeanRidgelet.activationDistribution_injective")
+:::proposition "activation_hilbert_structure_detail" (lean := "LeanRidgelet.activationCoordinateEquiv, LeanRidgelet.activationDistribution_injective")
 $`\mathcal A_{s,t}` is a Hilbert space, and its $`L^2(\mathbb R)` coordinate map is a linear
 isometric equivalence. Its realization in tempered distributions is injective.
 :::

@@ -7,7 +7,8 @@ usage() {
 Usage: scripts/build-blueprint.sh
 
 Build the ten-chapter Verso Blueprint: the L2 theory, the L1 theory, and the Mathlib upstream
-candidates. The development and public builds are the same document.
+candidates, followed by the generated Dependency Graph and Blueprint Summary chapters. The
+development and public builds are the same document.
 EOF
 }
 
@@ -45,6 +46,8 @@ chapters=(
   overview-l1
   l1-theory
   to-mathlib
+  Dependency-Graph
+  Blueprint-Summary
 )
 
 for chapter in "${chapters[@]}"; do
@@ -57,3 +60,7 @@ grep -q 'class="split-toc book"' \
   _out/blueprint/html-multi/index.html
 grep -q 'bp_external_decl_implementation' \
   _out/blueprint/html-multi/foundations/index.html
+grep -q 'bp_graph_legend' \
+  _out/blueprint/html-multi/Dependency-Graph/index.html
+grep -q 'bp_summary_grid' \
+  _out/blueprint/html-multi/Blueprint-Summary/index.html
