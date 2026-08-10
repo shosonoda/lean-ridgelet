@@ -14,7 +14,7 @@ import LeanRidgeletBlueprint.Chapters.ToMathlib
 import LeanRidgeletBlueprint.Chapters.ToMathlibLieGroup
 import LeanRidgeletBlueprint.Chapters.OverviewFS
 import LeanRidgeletBlueprint.Chapters.FSTheory
-import LeanRidgeletBlueprint.Generated
+import LeanRidgeletBlueprint.PublicGenerated
 
 open Verso.Doc
 open Verso.Genre
@@ -38,7 +38,7 @@ attribute [local irreducible]
   LeanRidgeletBlueprint.Chapters.ToMathlibLieGroup.«the canonical document object name»
   LeanRidgeletBlueprint.Chapters.OverviewFS.«the canonical document object name»
   LeanRidgeletBlueprint.Chapters.FSTheory.«the canonical document object name»
-  LeanRidgeletBlueprint.Generated.«the canonical document object name»
+  LeanRidgeletBlueprint.PublicGenerated.«the canonical document object name»
 
 private opaque overviewL2Part : Part Manual :=
   (%doc LeanRidgeletBlueprint.Chapters.OverviewL2)
@@ -80,23 +80,23 @@ private opaque fsTheoryPart : Part Manual :=
   (%doc LeanRidgeletBlueprint.Chapters.FSTheory)
 
 /--
-The *Dependency Graph* and *Blueprint Summary* chapters, which `{blueprint_graph}` and
-`{blueprint_summary}` build from the node registry in `LeanRidgeletBlueprint.Generated`. That
-module exists only to carry the two commands: they must be elaborated somewhere that imports every
-chapter, and putting them in `Blueprint.lean` itself makes the build pathologically slow, as its
-module docstring records. Only the subparts are used; the wrapper title is discarded.
+The *Dependency Graph* and *Blueprint Summary* chapters for the public build, generated from the
+node registry in `LeanRidgeletBlueprint.PublicGenerated`. That module imports the published chapters
+only, so these two pages cannot show a development-only node. Only the subparts are used;
+the wrapper title is discarded.
 -/
 private opaque generatedParts : Array (Part Manual) :=
-  (%doc LeanRidgeletBlueprint.Generated).subParts
+  (%doc LeanRidgeletBlueprint.PublicGenerated).subParts
 
-/-- The standard Verso document tree used for multi-page Blueprint output in the development
-build: the thirteen published chapters, then the generated ones.
-`LeanRidgeletBlueprint.PublicAssembly` is the same tree; the two are kept separate so that a future
-manuscript can be developed privately without rebuilding the machinery. -/
-opaque assembledBlueprint : Part Manual :=
+/-- The thirteen-chapter Verso document tree used for public Blueprint output. Identical to
+`LeanRidgeletBlueprint.assembledBlueprint` at present, nothing being development-only; the two are
+kept separate so that a future manuscript can be developed privately without rebuilding the
+machinery. -/
+opaque assembledPublicBlueprint : Part Manual :=
   { (%doc LeanRidgeletBlueprint.Blueprint) with
     subParts := #[overviewL2Part, foundationsPart, fourierDilationPart, operatorsPart,
       generalSolutionPart, activationsPart, furtherResultsPart, overviewL1Part,
-      l1TheoryPart, toMathlibPart, toMathlibLieGroupPart, overviewFSPart, fsTheoryPart] ++ generatedParts }
+      l1TheoryPart, toMathlibPart, toMathlibLieGroupPart, overviewFSPart, fsTheoryPart]
+      ++ generatedParts }
 
 end LeanRidgeletBlueprint

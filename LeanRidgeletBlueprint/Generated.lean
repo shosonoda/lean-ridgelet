@@ -13,6 +13,9 @@ import LeanRidgeletBlueprint.Chapters.FurtherResults
 import LeanRidgeletBlueprint.Chapters.OverviewL1
 import LeanRidgeletBlueprint.Chapters.L1Theory
 import LeanRidgeletBlueprint.Chapters.ToMathlib
+import LeanRidgeletBlueprint.Chapters.ToMathlibLieGroup
+import LeanRidgeletBlueprint.Chapters.OverviewFS
+import LeanRidgeletBlueprint.Chapters.FSTheory
 
 open Verso.Genre
 open Verso.Genre.Manual
@@ -34,6 +37,12 @@ here again, renaming this module is the first thing to try.
 
 `LeanRidgeletBlueprint.Assembly` takes only the subparts of this document, so the wrapper title and
 this comment never reach the rendered output.
+
+This carrier is the *development* one: it imports every chapter, whether published or not. The
+public build has its own carrier, `LeanRidgeletBlueprint.PublicGenerated`, importing only the
+published ones. The registry is read out of the environment, so a shared carrier would put a
+development-only node into the public graph and summary. At present nothing is development-only and
+the two carriers import the same chapters.
 
 The graph options are chosen for this project's shape. Its 140 nodes fall into many small
 components, so the default `TB` without packing lays them out in one row: a 11540 by 724 box, an

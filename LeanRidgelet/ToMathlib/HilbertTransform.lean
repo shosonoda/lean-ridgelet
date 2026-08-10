@@ -385,7 +385,7 @@ theorem abs_partial_dirichlet_le {ε R : ℝ} (hε : 0 < ε) (hεR : ε ≤ R) (
     |∫ s in ε..R, Real.sin (s * (2 * π * ξ)) / s| ≤ 3 := by
   rcases eq_or_ne ξ 0 with hξ | hξ
   · subst hξ
-    simp only [mul_zero, zero_mul, Real.sin_zero, zero_div]
+    simp only [mul_zero, Real.sin_zero, zero_div]
     simp
   · have hω : (2 * π * ξ) ≠ 0 := by
       have : (0 : ℝ) < 2 * π := by positivity

@@ -10,6 +10,7 @@ cd "$repo_root"
 # `audit/Assumptions.lean`, checked below. Keep the two lists in sync.
 sorry_files=(
   '!OverviewL2.lean'
+  '!**/FS/Targets.lean'
 )
 
 globs=('--glob' '*.lean')

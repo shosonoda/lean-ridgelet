@@ -51,7 +51,7 @@ theorem integrable_pow_smul_schwartz (φ : SchwartzMap ℝ ℂ) (n : ℕ) :
   have h := φ.integrable_pow_mul volume n
   refine Integrable.mono' h ?_ (Filter.Eventually.of_forall fun z => ?_)
   · exact ((Complex.continuous_ofReal.pow n).mul φ.continuous).aestronglyMeasurable
-  · simp [norm_mul, Complex.norm_pow]
+  · simp
 
 /-- The **Lizorkin space** `𝒮₀(ℝ)`: the Schwartz functions all of whose moments vanish. Its
 annihilator contains every polynomial, which is why the Lizorkin dual `𝒮₀'(ℝ)` sees tempered
@@ -64,7 +64,7 @@ def LizorkinSpace : Submodule ℂ (SchwartzMap ℝ ℂ) where
         = (∫ z : ℝ, (z : ℂ) ^ n * φ z) + ∫ z : ℝ, (z : ℂ) ^ n * ψ z := by
       rw [← integral_add (integrable_pow_smul_schwartz φ n) (integrable_pow_smul_schwartz ψ n)]
       refine integral_congr_ae (Filter.Eventually.of_forall fun z => ?_)
-      simp only [SchwartzMap.add_apply]
+      simp only [add_apply]
       ring
     rw [h, hφ n, hψ n, add_zero]
   zero_mem' := by
@@ -75,7 +75,7 @@ def LizorkinSpace : Submodule ℂ (SchwartzMap ℝ ℂ) where
     have h : (∫ z : ℝ, (z : ℂ) ^ n * (c • φ) z) = c * ∫ z : ℝ, (z : ℂ) ^ n * φ z := by
       rw [← integral_const_mul]
       refine integral_congr_ae (Filter.Eventually.of_forall fun z => ?_)
-      simp only [SchwartzMap.smul_apply, smul_eq_mul]
+      simp only [smul_apply, smul_eq_mul]
       ring
     rw [h, hφ n, mul_zero]
 
@@ -137,7 +137,7 @@ theorem integral_polynomial_mul_eq_zero_of_mem_lizorkinSpace {φ : SchwartzMap �
   rw [show (∫ z : ℝ, Q.eval (z : ℂ) * φ z)
       = ∫ z : ℝ, ∑ i ∈ Finset.range (Q.natDegree + 1), Q.coeff i * ((z : ℂ) ^ i * φ z) from
     integral_congr_ae (Filter.Eventually.of_forall hpt),
-    integral_finset_sum _ (fun i _ => ((integrable_pow_smul_schwartz φ i).const_mul _))]
+    integral_finsetSum _ (fun i _ => ((integrable_pow_smul_schwartz φ i).const_mul _))]
   refine Finset.sum_eq_zero fun i _ => ?_
   rw [integral_const_mul, hφ i, mul_zero]
 

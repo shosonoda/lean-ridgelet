@@ -279,6 +279,7 @@ end FourierSlice
 
 section Schwartz
 
+omit [FiniteDimensional ℝ E] [MeasurableSpace E] [BorelSpace E] in
 /-- Schwartz decay in Japanese-bracket form: `‖f x‖ ≤ C (1 + ‖x‖)^{-k}`. -/
 theorem schwartz_norm_le_one_add_norm_rpow (f : SchwartzMap E ℂ) (k : ℕ) :
     ∃ C : ℝ, ∀ x : E, ‖f x‖ ≤ C * (1 + ‖x‖) ^ (-(k : ℝ)) := by
@@ -291,6 +292,7 @@ theorem schwartz_norm_le_one_add_norm_rpow (f : SchwartzMap E ℂ) (k : ℕ) :
   rw [Real.rpow_neg (by positivity), Real.rpow_natCast, le_mul_inv_iff₀ hpos, mul_comm]
   exact h
 
+omit [FiniteDimensional ℝ E] [MeasurableSpace E] [BorelSpace E] in
 /-- For a unit vector `u`, a point of the line `ℝ u` and a point of its orthogonal complement
 have norm at least that of the second summand. -/
 theorem norm_le_norm_smul_add {u : E} (p : ℝ)
@@ -344,11 +346,13 @@ theorem continuous_radonTransform_schwartz (f : SchwartzMap E ℂ) (u : E) :
     exact f.continuous.comp (by fun_prop)
 
 
+omit [FiniteDimensional ℝ E] [MeasurableSpace E] [BorelSpace E] in
 /-- The ray map `ω ↦ ω • u` has temperate growth. -/
 theorem hasTemperateGrowth_smul_right (u : E) :
     Function.HasTemperateGrowth (fun ω : ℝ => ω • u) :=
   (ContinuousLinearMap.toSpanSingleton ℝ u).hasTemperateGrowth
 
+omit [FiniteDimensional ℝ E] [MeasurableSpace E] [BorelSpace E] in
 /-- The ray map through a unit vector is antilipschitz with constant `1`. -/
 theorem antilipschitzWith_smul_right {u : E} (hu : ‖u‖ = 1) :
     AntilipschitzWith 1 (fun ω : ℝ => ω • u) := by

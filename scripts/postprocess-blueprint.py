@@ -10,7 +10,7 @@ import re
 from pathlib import Path
 
 
-CHAPTERS = (
+PUBLIC_CHAPTERS = (
     ("overview", "L2 theory: arXiv:2106.04770v2 implementation map"),
     ("foundations", "Fourier conventions and Hilbert spaces"),
     ("fourier-dilation", "Unitary coordinates and their Fourier construction"),
@@ -21,7 +21,15 @@ CHAPTERS = (
     ("overview-l1", "L1 theory: arXiv:1505.03654v2 implementation map"),
     ("l1-theory", "L1 theory: formalization details"),
     ("to-mathlib", "Mathlib upstream candidates"),
+    ("to-mathlib-lie", "Mathlib upstream candidates: groups and homogeneous spaces"),
+    ("overview-fs", "Fourier slice method: arXiv:2402.15984 implementation map"),
+    ("fs-theory", "Fourier slice method: formalization details"),
 )
+
+# Chapters that the public document leaves out. Empty: everything is published. The two-mode build
+# is kept so that a future manuscript can be developed privately again without rebuilding it; see
+# `scripts/build-blueprint.sh`.
+DEVELOPMENT_ONLY_CHAPTERS: tuple[tuple[str, str], ...] = ()
 
 # Chapters that `{blueprint_graph}` and `{blueprint_summary}` generate from the node registry.
 # They carry no hand-written Lean panels, so they are verified but not rewritten.
@@ -199,6 +207,11 @@ def main() -> None:
         type=Path,
         help="Blueprint output root (default: _out/blueprint)",
     )
+    parser.add_argument(
+        "--exclude-fs",
+        action="store_true",
+        help="process and verify only the published chapters",
+    )
     args = parser.parse_args()
 
     repo_root = Path(__file__).resolve().parent.parent
@@ -206,7 +219,9 @@ def main() -> None:
     if not output_root.is_absolute():
         output_root = repo_root / output_root
 
-    chapters = CHAPTERS
+    chapters = PUBLIC_CHAPTERS
+    if not args.exclude_fs:
+        chapters += DEVELOPMENT_ONLY_CHAPTERS
 
     total = 0
     for slug, _ in chapters:

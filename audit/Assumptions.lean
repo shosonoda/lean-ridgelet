@@ -42,7 +42,8 @@ private def permittedSorryDeclarations : NameSet :=
     [``LeanRidgelet.l2_theorem_four_encoding_and_perturbative_readout,
      ``LeanRidgelet.l2_theorem_five_normalized_finite_width_approximation,
      ``LeanRidgelet.l2_corollary_one_discretizable_ridgelet_null_elements,
-     ``LeanRidgelet.l2_proposition_two_exact_finite_null_relations]
+     ``LeanRidgelet.l2_proposition_two_exact_finite_null_relations,
+     ``LeanRidgelet.fs_svdJacobian]
 
 /-- Reviewed proposition-valued fields of project-defined structures and classes.
 
