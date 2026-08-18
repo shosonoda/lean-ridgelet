@@ -9,12 +9,12 @@ open Informal
 #doc (Manual) "Lean Ridgelet Blueprint" =>
 
 This Blueprint connects the mathematical development of integral-representation neural networks
-and ridgelet transforms with the declarations in `LeanRidgelet`. Each theory gets one *overview*
-chapter, which lists the manuscript's definitions and numbered results in publication order with
-a link to the declaration carrying each — the place to check what is formalized — followed by
-*detail* chapters that trace the dependency structure of the Lean development and use the current
-notation. The first chapter is the overview of arXiv:2106.04770v2, in its general-first
-publication order.
+and ridgelet transforms with the declarations in `LeanRidgelet`. L2, L1, the Fourier-slice
+method, the harmonic-analysis method, and the Mathlib-upstream candidates are separate top-level
+parts. Within each theory, an *overview* section lists the manuscript's definitions and numbered
+results in publication order with a link to the declaration carrying each — the place to check
+what is formalized — and *detail* sections trace the Lean dependency structure. The first section
+of the L2 part is the overview of arXiv:2106.04770v2 in its general-first publication order.
 
 The mathematical text follows the manuscript notation. In Lean, the opt-in scope
 `LeanRidgelet.Notation` provides the space names `𝓐`, `𝓗`, `𝓖`, and `𝕐`, together with `S[σ]`,

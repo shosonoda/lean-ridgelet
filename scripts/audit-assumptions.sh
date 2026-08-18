@@ -11,6 +11,7 @@ cd "$repo_root"
 sorry_files=(
   '!OverviewL2.lean'
   '!**/FS/Targets.lean'
+  '!**/HA/QuadraticNonzero.lean'
 )
 
 globs=('--glob' '*.lean')

@@ -1,4 +1,3 @@
-import LeanRidgelet
 import Verso
 import VersoManual
 import VersoBlueprint
@@ -7,9 +6,6 @@ open Verso.Genre
 open Verso.Genre.Manual
 open Informal
 
-set_option linter.hashCommand false
--- Verso directive headers and display mathematics must stay on one physical line.
-set_option linter.style.longLine false
 set_option verso.blueprint.externalCode.strictResolve true
 
 #doc (Manual) "Further results from the source manuscript" =>

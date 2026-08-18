@@ -6,6 +6,8 @@ Authors: Sho Sonoda, Claude
 module
 
 public import LeanRidgelet.FS.DPlane.Affine
+public import LeanRidgelet.ToMathlib.LieGroup.Hyperbolic
+public import LeanRidgelet.ToMathlib.LieGroup.PositiveDefinite
 public import LeanRidgelet.ToMathlib.TemperateGrowth
 
 /-!
@@ -14,8 +16,15 @@ public import LeanRidgelet.ToMathlib.TemperateGrowth
 The results of `arXiv:2402.15984` that were not yet proved, stated so that the goals are Lean
 propositions rather than prose. What is still open carries a `sorry` registered in
 `permittedSorryDeclarations` of `audit/Assumptions.lean`, exactly as the four outstanding results of
-the L2 manuscript are in `OverviewL2`; **one target is left, the Jacobian of the singular value
-decomposition.**
+the L2 manuscript are in `OverviewL2`; **three targets are left: the Jacobian of the singular value
+decomposition, and the Helgason--Fourier inversion formula on each of the two spaces Section 5
+instantiates at.**
+
+The last two became statable only once the models existed. Section 5 takes the geometry of `G/K` as
+data, and with the data free the inversion formula is not a proposition at all; the Poincaré ball
+model of `LeanRidgelet.ToMathlib.LieGroup.Hyperbolic` and the chart model of
+`LeanRidgelet.ToMathlib.LieGroup.PositiveDefinite` fix it, so both formulas are now definite claims
+about definite spaces.
 
 The fractional derivative is now proved; it is a statement about the Fourier transform on a
 finite-dimensional inner product space and will move to `ToMathlib`. The Jacobian is a statement
@@ -326,5 +335,75 @@ theorem fs_svdJacobian [Nontrivial (EuclideanSpace ℝ (Fin k))]
   sorry
 
 end SVD
+
+/-! ## The Helgason--Fourier inversion formula on real hyperbolic space -/
+
+/-- **The Helgason--Fourier inversion formula on `ℍ^m`**, the input the reconstruction formula of
+Section 5 needs at the article's first example:
+
+`f(x) = |W|^{-1} ∫_ℝ ∫_{𝕊^{m-1}} f̂(λ,u) e^{(iλ+ϱ)⟨x,u⟩} |c(λ)|^{-2} du dλ`
+
+in the Poincaré ball model, with `dλ` Lebesgue measure on `ℝ`, `du` the uniform probability measure
+on the boundary sphere, and `dμ` the invariant measure `(2/(1-‖x‖²))^m dx`.
+
+Every piece of that statement is now constructed, which is what makes this a proposition rather
+than a schema: `fs_symmetric_reconstruction_of_inversion` receives the geometry as free data, and
+with free data the formula has no truth value. Feeding the ball model to the abstract layer fixes
+it,
+and `fs_hyperbolic_reconstruction_of_inversion` turns this target into the article's reconstruction
+formula on `ℍ^m` with nothing else assumed.
+
+The order of the Weyl group and the `c`-function are existential rather than fixed, for the same
+reason as in `fs_svdJacobian`: the triple `(|W|, c, dλ)` is only meaningful jointly. S. Helgason
+normalizes `c` by `c(-iϱ) = 1` in *Groups and Geometric Analysis* but writes the inversion formula
+of
+*Geometric Analysis on Symmetric Spaces* against a normalization of `dλ` that is not Lebesgue
+measure, and read with Lebesgue `dλ` the two differ by a power of `π`; the article's appendix mixes
+the two. Producing the constant is part of proving this, not of stating it — the same discipline
+that
+made the constant of the matrix polar integration formula come out as a ratio of sphere areas.
+
+No nonvanishing of `c` is asserted: the rank-one `c`-function is a ratio of Gamma factors with a
+pole
+at the origin, and correspondingly `|c(λ)|^{-2}` vanishes there.
+
+The test functions are the smooth ones compactly supported inside the ball, which is `𝒟(X)` for the
+ball model; that is the class Helgason's Theorem 1.3, Ch. III states the formula for. -/
+theorem fs_hyperbolicHelgasonInversion (E : Type*) [NormedAddCommGroup E] [InnerProductSpace ℝ E]
+    [FiniteDimensional ℝ E] [MeasurableSpace E] [BorelSpace E] [Nontrivial E] :
+    ∃ (W : ℝ) (c : ℝ → ℂ), 0 < W ∧
+      ∀ f : E → ℂ, ContDiff ℝ ((⊤ : ℕ∞) : WithTop ℕ∞) f → HasCompactSupport f →
+        tsupport f ⊆ HyperbolicSpace.poincareBall E →
+        HyperbolicSpace.HasInversion W c f := by
+  sorry
+
+/-! ## The Helgason--Fourier inversion formula on the manifold of positive definite matrices -/
+
+/-- **The Helgason--Fourier inversion formula on `ℙ_m = GL(m,ℝ)/O(m)`**, the input the
+reconstruction formula of Section 5 needs at the article's second example:
+
+`f(x) = |W|^{-1} ∫_{𝔞*} ∫_{∂ℙ_m} f̂(λ,u) e^{(iλ+ϱ)⟨x,u⟩} |c(λ)|^{-2} du dλ`
+
+read in the chart of upper-triangular coordinates, with `dλ` Lebesgue measure on `𝔞* ≅ ℝ^m`, `du`
+the Haar probability measure of the orthogonal group standing in for `K/M`, and `dμ` the invariant
+measure `|det x|^{-(m+1)/2} ∏_{i ≤ j} dx_{ij}`.
+
+This is the higher-rank companion of `fs_hyperbolicHelgasonInversion`: the rank of `ℙ_m` is `m`, so
+the frequency is a vector, and `fs_spd_reconstruction_of_inversion` turns this target into the
+article's reconstruction formula with the Jacobian exponent `m`.
+
+`ϱ` is *not* existential: `SpdSpace.HasInversion` fixes it to `SpdSpace.spdRho m`, the article's
+`(-½,…,-½,(m-1)/4)`, which is the contour `Re s = -ρ` of A. Terras, *Harmonic Analysis on Symmetric
+Spaces*, Thm 1.3.1(1), read in the coordinates this model uses — the leading principal minors, the
+ones her power function `p_s(Y) = ∏_j |Y_j|^{s_j}` is written in. `|W|` and `c` stay existential:
+Terras gives both explicitly, but her contour measure has to be converted to Lebesgue measure on
+`𝔞*` first, and that conversion is part of proving this. -/
+theorem fs_spdHelgasonInversion (m : ℕ) :
+    ∃ (W : ℝ) (c : EuclideanSpace ℝ (Fin m) → ℂ), 0 < W ∧
+      ∀ f : EuclideanSpace ℝ (SpdSpace.UpperIdx m) → ℂ,
+        ContDiff ℝ ((⊤ : ℕ∞) : WithTop ℕ∞) f → HasCompactSupport f →
+        tsupport f ⊆ SpdSpace.chart m →
+        SpdSpace.HasInversion W c f := by
+  sorry
 
 end LeanRidgelet

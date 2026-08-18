@@ -3,17 +3,19 @@
 set -euo pipefail
 
 mode=auto
+force=false
 
 usage() {
   cat <<'EOF'
-Usage: scripts/build-blueprint.sh [--development|--public]
+Usage: scripts/build-blueprint.sh [--development|--public] [--force]
 
-Build the Verso Blueprint: the L2 theory, the L1 theory, the two chapters of Mathlib upstream
-candidates, and the two Fourier slice chapters, followed by the generated Dependency Graph and
-Blueprint Summary chapters. Both modes currently build the same document — nothing is
-development-only — and the two-mode machinery is kept so that a future manuscript can be developed
-privately without rebuilding it. With no option, private-only directories select the development
-build; otherwise public mode is used.
+Build the hierarchical Verso Blueprint: independent L2, L1, Fourier-slice, harmonic-analysis, and
+ToMathlib subtrees followed by the generated Dependency Graph and Blueprint Summary. Development
+mode includes the harmonic-analysis subtree; public mode excludes its pages and nodes. With no option,
+private-only directories select the development build; otherwise public mode is used.
+
+The generated site and Lake-built generator are cached. Pass --force to regenerate the site even
+when its mode-specific input fingerprint is unchanged.
 EOF
 }
 
@@ -24,6 +26,9 @@ while [[ $# -gt 0 ]]; do
       ;;
     --public)
       mode=public
+      ;;
+    --force)
+      force=true
       ;;
     -h|--help)
       usage
@@ -54,56 +59,140 @@ else
   main_source=LeanRidgeletBlueprint/PublicMain.lean
 fi
 
-lake build "$assembly_target"
-rm -rf _out/blueprint
-lake lean "$main_source" -- \
-  --run "$main_source" --output _out/blueprint
+if rg -n '^import LeanRidgelet$' LeanRidgeletBlueprint/Chapters; then
+  echo 'Blueprint chapters must use theory-specific imports, not the LeanRidgelet umbrella' >&2
+  exit 1
+fi
+
+mkdir -p _out/blueprint-cache
+cache_root="_out/blueprint-cache/$mode"
+active_root="_out/blueprint"
+fingerprint_file="$cache_root/.build-fingerprint"
+
+fingerprint_inputs() {
+  printf '%s\n' "mode=$mode" 'blueprint-cache-format=2'
+  for path in lean-toolchain lakefile.toml lake-manifest.json \
+      scripts/build-blueprint.sh scripts/postprocess-blueprint.py \
+      LeanRidgelet.lean LeanRidgeletBlueprint.lean LeanRidgeletBlueprintMain.lean; do
+    if [[ -f "$path" ]]; then
+      shasum -a 256 "$path"
+    fi
+  done
+  while IFS= read -r path; do
+    if [[ "$mode" == public ]]; then
+      case "$path" in
+        LeanRidgelet/HA/*|LeanRidgelet/OverviewHA.lean|LeanRidgeletBlueprint/Assembly.lean|LeanRidgeletBlueprint/Generated.lean|LeanRidgeletBlueprint/Parts/HA.lean|LeanRidgeletBlueprint/Chapters/HA.lean|LeanRidgeletBlueprint/Chapters/OverviewHA.lean|LeanRidgeletBlueprint/Chapters/HATheory.lean)
+          continue
+          ;;
+      esac
+    fi
+    shasum -a 256 "$path"
+  done < <(find LeanRidgelet LeanRidgeletBlueprint -type f -name '*.lean' | LC_ALL=C sort)
+}
+
+fingerprint="$(fingerprint_inputs | shasum -a 256 | awk '{print $1}')"
+
+activate_cache() {
+  rm -rf "$active_root"
+  ln -s "blueprint-cache/$mode" "$active_root"
+}
+
+cached_fingerprint=
+if [[ -f "$fingerprint_file" ]]; then
+  IFS= read -r cached_fingerprint < "$fingerprint_file" || true
+fi
+
+if ! "$force" && [[ "$cached_fingerprint" == "$fingerprint" ]]; then
+  echo "Reusing cached $mode Blueprint output."
+  activate_cache
+else
+  lake build "$assembly_target"
+  work_root="$(mktemp -d "_out/.blueprint-$mode.XXXXXX")"
+  cleanup() {
+    if [[ -n "${work_root:-}" && -e "$work_root" ]]; then
+      rm -rf "$work_root"
+    fi
+  }
+  trap cleanup EXIT
+  lake lean "$main_source" -- \
+    --run "$main_source" --output "$work_root"
+
+  postprocess_args=("$work_root")
+  if [[ "$mode" == public ]]; then
+    postprocess_args+=(--published-only)
+  fi
+  python3 scripts/postprocess-blueprint.py "${postprocess_args[@]}"
+  printf '%s\n' "$fingerprint" > "$work_root/.build-fingerprint"
+
+  rm -rf "$cache_root"
+  mv "$work_root" "$cache_root"
+  work_root=
+  activate_cache
+fi
 
 test -f _out/blueprint/html-multi/index.html
 test -f _out/blueprint/html-multi/-verso-data/blueprint-manifest.json
 
-chapters=(
-  overview
-  foundations
-  fourier-dilation
-  operators
-  general-solution
-  activations
-  further-results
-  overview-l1
-  l1-theory
-  to-mathlib
-  to-mathlib-lie
-  overview-fs
-  fs-theory
+pages=(
+  l2
+  l2/overview
+  l2/foundations
+  l2/fourier-dilation
+  l2/operators
+  l2/general-solution
+  l2/activations
+  l2/further-results
+  l1
+  l1/overview-l1
+  l1/l1-theory
+  fs
+  fs/overview-fs
+  fs/fs-theory
 )
 
-chapters+=(Dependency-Graph Blueprint-Summary)
-
-for chapter in "${chapters[@]}"; do
-  test -f "_out/blueprint/html-multi/$chapter/index.html"
-done
-
-postprocess_args=(_out/blueprint)
-if [[ "$mode" == public ]]; then
-  postprocess_args+=(--exclude-fs)
+if [[ "$mode" == development ]]; then
+  pages+=(ha ha/overview-ha ha/ha-representations ha/ha-affine ha/ha-architectures)
 fi
-python3 scripts/postprocess-blueprint.py "${postprocess_args[@]}"
+
+pages+=(
+  to-mathlib
+  to-mathlib/measure-lp
+  to-mathlib/radon-fourier
+  to-mathlib/integral-fourier-tools
+  to-mathlib/schwartz-convolution
+  to-mathlib/finite-euclidean
+  to-mathlib/representations
+  to-mathlib/invariant-geometry
+  to-mathlib/symmetric-spaces
+  Dependency-Graph
+  Blueprint-Summary
+)
+
+for page in "${pages[@]}"; do
+  test -f "_out/blueprint/html-multi/$page/index.html"
+done
 
 grep -q 'class="split-toc book"' \
   _out/blueprint/html-multi/index.html
 grep -q 'bp_external_decl_implementation' \
-  _out/blueprint/html-multi/foundations/index.html
+  _out/blueprint/html-multi/l2/foundations/index.html
 grep -q 'bp_graph_legend' \
   _out/blueprint/html-multi/Dependency-Graph/index.html
 grep -q 'bp_summary_grid' \
   _out/blueprint/html-multi/Blueprint-Summary/index.html
 
-# Nothing is development-only at present, so the public output is checked to contain the same
-# chapters as the development one rather than fewer. Should a manuscript be developed privately
-# again, list its chapters in `postprocess-blueprint.py` as development-only and reinstate a check
-# here that they are absent from the public output.
 if [[ "$mode" == public ]]; then
-  test -e _out/blueprint/html-multi/overview-fs
-  test -e _out/blueprint/html-multi/fs-theory
+  test ! -e _out/blueprint/html-multi/ha
+  if rg -q 'overview-ha|ha-representations|ha-affine|ha-architectures|ha_main_reconstruction|ha_reconstruction_detail' \
+      _out/blueprint/html-multi/index.html \
+      _out/blueprint/html-multi/Dependency-Graph/index.html \
+      _out/blueprint/html-multi/Blueprint-Summary/index.html; then
+    echo 'development-only harmonic-analysis content entered the public Blueprint' >&2
+    exit 1
+  fi
+else
+  test -e _out/blueprint/html-multi/ha/overview-ha
+  test -e _out/blueprint/html-multi/ha/ha-representations
+  test -e _out/blueprint/html-multi/ha/ha-affine
+  test -e _out/blueprint/html-multi/ha/ha-architectures
 fi

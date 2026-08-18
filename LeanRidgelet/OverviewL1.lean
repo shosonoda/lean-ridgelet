@@ -19,6 +19,7 @@ public import LeanRidgelet.L1.Reconstruction
 public import LeanRidgelet.L1.ReconstructionL2
 public import LeanRidgelet.L1.ReconstructionSection
 public import LeanRidgelet.L1.StructureTheorem
+public import LeanRidgelet.L1.TruncatedLimit
 public import LeanRidgelet.L1.TruncatedPower
 
 /-!

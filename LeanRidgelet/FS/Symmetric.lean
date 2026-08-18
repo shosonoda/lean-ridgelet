@@ -6,6 +6,7 @@ Authors: Sho Sonoda, Claude
 module
 
 public import LeanRidgelet.FS.Euclidean
+public import LeanRidgelet.ToMathlib.LieGroup.Symmetric
 
 /-!
 # Fourier slice method, Case III: networks on a noncompact symmetric space
@@ -138,6 +139,73 @@ theorem fs_symmetric_reconstruction_of_inversion (ν : Measure U) (ϱ : InputSpa
   have := fs_reconstruction_of_inversion (volume : Measure (InputSpace r)) ν Fσ Fρ Ff
     (harishChandraDensity W cfun) cd (horosphericalWeight ϱ cd) f hinv x
   rwa [fs_finrank_inputSpace] at this
+
+/-! ## The hypothesis is the Helgason--Fourier inversion formula
+
+`fs_symmetric_reconstruction_of_inversion` was stated before any of the Helgason--Fourier theory
+existed, so its hypothesis is written out by hand. `ToMathlib.LieGroup.Symmetric` now has that
+theory in Mathlib generality, and the three lemmas below identify the two statements: the phase
+times the weight is the horospherical character, the article's density is the Plancherel density,
+and therefore the hypothesis *is* `SymmetricSpace.HasHelgasonInversion`.
+
+What this buys is that the hypothesis becomes a proposition a concrete model can be asked to
+prove. With the geometry left as free data it is not one. -/
+
+omit [MeasurableSpace U] in
+/-- The layer's plane wave times its horospherical weight is the horospherical character, stated
+for an arbitrary `𝔞` rather than `InputSpace r`. The weight is the character at zero frequency, and
+the character is multiplicative in the frequency because it is an exponential of a linear
+functional; this is the rank-free form of
+`fs_fourierSlicePhase_mul_horosphericalWeight`, and it is what every concrete model uses to feed its
+inversion formula to the master theorem. -/
+theorem fs_fourierSlicePhase_mul_horosphericalCharacter_zero {A : Type*} [NormedAddCommGroup A]
+    [InnerProductSpace ℝ A] (rho lam v : A) :
+    fourierSlicePhase (inner ℝ lam v) * SymmetricSpace.horosphericalCharacter rho 0 v
+      = SymmetricSpace.horosphericalCharacter rho lam v := by
+  rw [fourierSlicePhase, SymmetricSpace.horosphericalCharacter,
+    SymmetricSpace.horosphericalCharacter, ← Complex.exp_add]
+  simp
+
+omit [MeasurableSpace U] in
+/-- The layer's plane wave times its horospherical weight is the horospherical character
+`e^{(iλ+ϱ)⟪x,u⟫}` of the Helgason--Fourier theory. -/
+theorem fs_fourierSlicePhase_mul_horosphericalWeight (ϱ lam : InputSpace r)
+    (cd : X → U → InputSpace r) (x : X) (u : U) :
+    fourierSlicePhase (inner ℝ lam (cd x u)) * horosphericalWeight ϱ cd x u
+      = SymmetricSpace.horosphericalCharacter ϱ lam (cd x u) := by
+  rw [fourierSlicePhase, horosphericalWeight, SymmetricSpace.horosphericalCharacter,
+    ← Complex.exp_add]
+
+omit [MeasurableSpace U] in
+/-- The article's density `|W|⁻¹|c(λ)|⁻²` is the Plancherel density of the inversion formula. -/
+theorem fs_harishChandraDensity_eq (W : ℝ) (cfun : InputSpace r → ℂ) :
+    harishChandraDensity W cfun = SymmetricSpace.plancherelDensity W cfun := rfl
+
+/-- **The reconstruction formula on `G/K`, with the Helgason--Fourier inversion formula as the
+hypothesis in its own terms.** This is `fs_symmetric_reconstruction_of_inversion` with the
+hand-written hypothesis replaced by `SymmetricSpace.HasHelgasonInversion`, and the Fourier data
+replaced by the Helgason--Fourier transform itself rather than left as an arbitrary function.
+
+Proving the hypothesis for a concrete `X` — first the hyperbolic space, then the manifold of
+positive definite matrices — is the separate long-term milestone; what is settled here is that
+there is nothing else left to supply. -/
+theorem fs_symmetric_reconstruction_of_helgasonInversion [MeasurableSpace X] (μX : Measure X)
+    (ν : Measure U) (ϱ : InputSpace r) (cd : X → U → InputSpace r) (Fσ Fρ : ℝ → ℂ) (W : ℝ)
+    (cfun : InputSpace r → ℂ) (f : X → ℂ)
+    (hinv : SymmetricSpace.HasHelgasonInversion μX (volume : Measure (InputSpace r)) ν cd ϱ W
+      cfun f)
+    (x : X) :
+    symmetricFourierExpression ν ϱ cd Fσ
+        (separationOfVariables (SymmetricSpace.helgasonFourier μX cd ϱ f)
+          (harishChandraDensity W cfun) Fρ) x
+      = fourierSlicePairing (r : ℝ) Fσ Fρ * f x := by
+  refine fs_symmetric_reconstruction_of_inversion ν ϱ cd Fσ Fρ
+    (SymmetricSpace.helgasonFourier μX cd ϱ f) W cfun f (fun y => ?_) x
+  rw [← hinv y]
+  refine integral_congr_ae (Filter.Eventually.of_forall fun lam => ?_)
+  refine integral_congr_ae (Filter.Eventually.of_forall fun u => ?_)
+  simp only [fs_harishChandraDensity_eq, mul_assoc,
+    fs_fourierSlicePhase_mul_horosphericalWeight]
 
 /-- The shape is inhabited: with a one-point boundary, `ϱ = 0` and the identity as composite
 distance, the symmetric-space Fourier expression is the Euclidean one of `FS.Euclidean`, whose

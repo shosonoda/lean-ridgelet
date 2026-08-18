@@ -10,6 +10,8 @@ public import LeanRidgelet.FS.Defs
 public import LeanRidgelet.FS.Euclidean
 public import LeanRidgelet.FS.FiniteField
 public import LeanRidgelet.FS.GroupConv
+public import LeanRidgelet.FS.Hyperbolic
+public import LeanRidgelet.FS.PositiveDefinite
 public import LeanRidgelet.FS.Scheme
 public import LeanRidgelet.FS.Symmetric
 public import LeanRidgelet.FS.Targets

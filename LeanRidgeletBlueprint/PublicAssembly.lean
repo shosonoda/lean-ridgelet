@@ -1,19 +1,10 @@
 import VersoManual
 import VersoBlueprint
 import LeanRidgeletBlueprint.Blueprint
-import LeanRidgeletBlueprint.Chapters.OverviewL2
-import LeanRidgeletBlueprint.Chapters.Foundations
-import LeanRidgeletBlueprint.Chapters.FourierDilation
-import LeanRidgeletBlueprint.Chapters.Operators
-import LeanRidgeletBlueprint.Chapters.GeneralSolution
-import LeanRidgeletBlueprint.Chapters.Activations
-import LeanRidgeletBlueprint.Chapters.FurtherResults
-import LeanRidgeletBlueprint.Chapters.OverviewL1
-import LeanRidgeletBlueprint.Chapters.L1Theory
-import LeanRidgeletBlueprint.Chapters.ToMathlib
-import LeanRidgeletBlueprint.Chapters.ToMathlibLieGroup
-import LeanRidgeletBlueprint.Chapters.OverviewFS
-import LeanRidgeletBlueprint.Chapters.FSTheory
+import LeanRidgeletBlueprint.Parts.L2
+import LeanRidgeletBlueprint.Parts.L1
+import LeanRidgeletBlueprint.Parts.FS
+import LeanRidgeletBlueprint.Parts.ToMathlib
 import LeanRidgeletBlueprint.PublicGenerated
 
 open Verso.Doc
@@ -25,78 +16,23 @@ set_option compiler.extract_closed false
 
 attribute [local irreducible]
   LeanRidgeletBlueprint.Blueprint.«the canonical document object name»
-  LeanRidgeletBlueprint.Chapters.OverviewL2.«the canonical document object name»
-  LeanRidgeletBlueprint.Chapters.Foundations.«the canonical document object name»
-  LeanRidgeletBlueprint.Chapters.FourierDilation.«the canonical document object name»
-  LeanRidgeletBlueprint.Chapters.Operators.«the canonical document object name»
-  LeanRidgeletBlueprint.Chapters.GeneralSolution.«the canonical document object name»
-  LeanRidgeletBlueprint.Chapters.Activations.«the canonical document object name»
-  LeanRidgeletBlueprint.Chapters.FurtherResults.«the canonical document object name»
-  LeanRidgeletBlueprint.Chapters.OverviewL1.«the canonical document object name»
-  LeanRidgeletBlueprint.Chapters.L1Theory.«the canonical document object name»
-  LeanRidgeletBlueprint.Chapters.ToMathlib.«the canonical document object name»
-  LeanRidgeletBlueprint.Chapters.ToMathlibLieGroup.«the canonical document object name»
-  LeanRidgeletBlueprint.Chapters.OverviewFS.«the canonical document object name»
-  LeanRidgeletBlueprint.Chapters.FSTheory.«the canonical document object name»
   LeanRidgeletBlueprint.PublicGenerated.«the canonical document object name»
 
-private opaque overviewL2Part : Part Manual :=
-  (%doc LeanRidgeletBlueprint.Chapters.OverviewL2)
-
-private opaque foundationsPart : Part Manual :=
-  (%doc LeanRidgeletBlueprint.Chapters.Foundations)
-
-private opaque fourierDilationPart : Part Manual :=
-  (%doc LeanRidgeletBlueprint.Chapters.FourierDilation)
-
-private opaque operatorsPart : Part Manual :=
-  (%doc LeanRidgeletBlueprint.Chapters.Operators)
-
-private opaque generalSolutionPart : Part Manual :=
-  (%doc LeanRidgeletBlueprint.Chapters.GeneralSolution)
-
-private opaque activationsPart : Part Manual :=
-  (%doc LeanRidgeletBlueprint.Chapters.Activations)
-
-private opaque furtherResultsPart : Part Manual :=
-  (%doc LeanRidgeletBlueprint.Chapters.FurtherResults)
-
-private opaque overviewL1Part : Part Manual :=
-  (%doc LeanRidgeletBlueprint.Chapters.OverviewL1)
-
-private opaque l1TheoryPart : Part Manual :=
-  (%doc LeanRidgeletBlueprint.Chapters.L1Theory)
-
-private opaque toMathlibPart : Part Manual :=
-  (%doc LeanRidgeletBlueprint.Chapters.ToMathlib)
-
-private opaque toMathlibLieGroupPart : Part Manual :=
-  (%doc LeanRidgeletBlueprint.Chapters.ToMathlibLieGroup)
-
-private opaque overviewFSPart : Part Manual :=
-  (%doc LeanRidgeletBlueprint.Chapters.OverviewFS)
-
-private opaque fsTheoryPart : Part Manual :=
-  (%doc LeanRidgeletBlueprint.Chapters.FSTheory)
-
 /--
-The *Dependency Graph* and *Blueprint Summary* chapters for the public build, generated from the
-node registry in `LeanRidgeletBlueprint.PublicGenerated`. That module imports the published chapters
-only, so these two pages cannot show a development-only node. Only the subparts are used;
-the wrapper title is discarded.
+The *Dependency Graph* and *Blueprint Summary* generated from the public node registry. Only the
+subparts are used; the carrier's wrapper title is discarded.
 -/
 private opaque generatedParts : Array (Part Manual) :=
   (%doc LeanRidgeletBlueprint.PublicGenerated).subParts
 
-/-- The thirteen-chapter Verso document tree used for public Blueprint output. Identical to
-`LeanRidgeletBlueprint.assembledBlueprint` at present, nothing being development-only; the two are
-kept separate so that a future manuscript can be developed privately without rebuilding the
-machinery. -/
+/-- The hierarchical public Blueprint; the development-only harmonic-analysis subtree is absent. -/
 opaque assembledPublicBlueprint : Part Manual :=
   { (%doc LeanRidgeletBlueprint.Blueprint) with
-    subParts := #[overviewL2Part, foundationsPart, fourierDilationPart, operatorsPart,
-      generalSolutionPart, activationsPart, furtherResultsPart, overviewL1Part,
-      l1TheoryPart, toMathlibPart, toMathlibLieGroupPart, overviewFSPart, fsTheoryPart]
-      ++ generatedParts }
+    subParts := #[
+      LeanRidgeletBlueprint.Parts.L2.part,
+      LeanRidgeletBlueprint.Parts.L1.part,
+      LeanRidgeletBlueprint.Parts.FS.part,
+      LeanRidgeletBlueprint.Parts.ToMathlib.part
+    ] ++ generatedParts }
 
 end LeanRidgeletBlueprint

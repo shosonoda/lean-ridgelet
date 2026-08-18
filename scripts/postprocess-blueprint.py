@@ -10,26 +10,52 @@ import re
 from pathlib import Path
 
 
-PUBLIC_CHAPTERS = (
-    ("overview", "L2 theory: arXiv:2106.04770v2 implementation map"),
-    ("foundations", "Fourier conventions and Hilbert spaces"),
-    ("fourier-dilation", "Unitary coordinates and their Fourier construction"),
-    ("operators", "Synthesis, ridgelets, and reconstruction"),
-    ("general-solution", "Null space and the general solution"),
-    ("activations", "Standard activation functions"),
-    ("further-results", "Further results from the source manuscript"),
-    ("overview-l1", "L1 theory: arXiv:1505.03654v2 implementation map"),
-    ("l1-theory", "L1 theory: formalization details"),
-    ("to-mathlib", "Mathlib upstream candidates"),
-    ("to-mathlib-lie", "Mathlib upstream candidates: groups and homogeneous spaces"),
-    ("overview-fs", "Fourier slice method: arXiv:2402.15984 implementation map"),
-    ("fs-theory", "Fourier slice method: formalization details"),
+L2_PAGES = (
+    ("l2", "L2 theory"),
+    ("l2/overview", "L2 theory: arXiv:2106.04770v2 implementation map"),
+    ("l2/foundations", "Fourier conventions and Hilbert spaces"),
+    ("l2/fourier-dilation", "Unitary coordinates and their Fourier construction"),
+    ("l2/operators", "Synthesis, ridgelets, and reconstruction"),
+    ("l2/general-solution", "Null space and the general solution"),
+    ("l2/activations", "Standard activation functions"),
+    ("l2/further-results", "Further results from the source manuscript"),
 )
 
-# Chapters that the public document leaves out. Empty: everything is published. The two-mode build
-# is kept so that a future manuscript can be developed privately again without rebuilding it; see
-# `scripts/build-blueprint.sh`.
-DEVELOPMENT_ONLY_CHAPTERS: tuple[tuple[str, str], ...] = ()
+L1_PAGES = (
+    ("l1", "L1 theory"),
+    ("l1/overview-l1", "L1 theory: arXiv:1505.03654v2 implementation map"),
+    ("l1/l1-theory", "L1 theory: formalization details"),
+)
+
+FS_PAGES = (
+    ("fs", "Fourier slice method"),
+    ("fs/overview-fs", "Fourier slice method: arXiv:2402.15984 implementation map"),
+    ("fs/fs-theory", "Fourier slice method: formalization details"),
+)
+
+HA_PAGES = (
+    ("ha", "Harmonic-analysis method"),
+    ("ha/overview-ha", "Harmonic-analysis method: arXiv:2405.13682 implementation map"),
+    ("ha/ha-representations", "Harmonic-analysis method: representations and intertwiners"),
+    ("ha/ha-affine", "Harmonic-analysis method: the affine Mackey model"),
+    ("ha/ha-architectures", "Harmonic-analysis method: reconstruction and architectures"),
+)
+
+TO_MATHLIB_PAGES = (
+    ("to-mathlib", "Mathlib upstream candidates"),
+    ("to-mathlib/measure-lp", "Mathlib candidates: Lp and measure transport"),
+    ("to-mathlib/radon-fourier", "Mathlib candidates: Radon and Fourier transforms"),
+    ("to-mathlib/integral-fourier-tools", "Mathlib candidates: integral and Fourier tools"),
+    ("to-mathlib/schwartz-convolution", "Mathlib candidates: Schwartz space and convolution"),
+    ("to-mathlib/finite-euclidean", "Mathlib candidates: finite Fourier and Euclidean geometry"),
+    ("to-mathlib/representations", "Mathlib candidates: unitary representations and groups"),
+    ("to-mathlib/invariant-geometry", "Mathlib candidates: invariant geometry and integration"),
+    ("to-mathlib/symmetric-spaces",
+     "Mathlib candidates: symmetric spaces and the Helgason--Fourier transform"),
+)
+
+PUBLIC_PAGES = L2_PAGES + L1_PAGES + FS_PAGES + TO_MATHLIB_PAGES
+DEVELOPMENT_PAGES = L2_PAGES + L1_PAGES + FS_PAGES + HA_PAGES + TO_MATHLIB_PAGES
 
 # Chapters that `{blueprint_graph}` and `{blueprint_summary}` generate from the node registry.
 # They carry no hand-written Lean panels, so they are verified but not rewritten.
@@ -68,10 +94,11 @@ STYLE = """
 """
 
 OVERVIEW_LABEL_PATTERN = re.compile(
-    r'(?P<open><span class="bp_label[^"]*">)1\.(?P<number>\d+)(?P<close></span>)'
+    r'(?P<open><span class="bp_label[^"]*">)(?:\d+\.)+(?P<number>\d+)(?P<close></span>)'
 )
 OVERVIEW_REFERENCE_PATTERN = re.compile(
-    r'\b(?P<kind>Definition|Theorem|Proposition|Lemma|Corollary) 1\.(?P<number>\d+)\b'
+    r'\b(?P<kind>Definition|Theorem|Proposition|Lemma|Corollary) '
+    r'(?:\d+\.)+(?P<number>\d+)\b'
 )
 OVERVIEW_STATEMENT_LABEL_PATTERN = re.compile(
     r'<div class="bp_heading bp_kind_'
@@ -128,8 +155,8 @@ def inject_implementations(document: str, repo_root: Path) -> tuple[str, int]:
 def normalize_overview_numbering(document: str) -> str:
     """Match the manuscript's global 1--26 theorem counter.
 
-    Verso prefixes statement labels with the Blueprint chapter number, producing `1.1` through
-    `1.26`. The manuscript uses the same shared ordering without the chapter prefix.
+    Verso prefixes statement labels with their nested Blueprint section number. The manuscript
+    uses the same shared ordering without that hierarchy prefix.
     """
     document = OLD_OVERVIEW_STYLE_PATTERN.sub("", document)
     document = OVERVIEW_LABEL_PATTERN.sub(
@@ -153,29 +180,42 @@ def process_chapter(repo_root: Path, output_root: Path, slug: str) -> int:
     document, implementation_count = inject_implementations(document, repo_root)
     if "lean-ridgelet-blueprint-style" not in document:
         document = document.replace("</head>", STYLE + "</head>", 1)
-    if slug == "overview":
+    if slug == "l2/overview":
         document = normalize_overview_numbering(document)
     index.write_text(document, encoding="utf-8")
     return implementation_count
 
 
-def verify_navigation(output_root: Path, chapters: tuple[tuple[str, str], ...]) -> None:
+def verify_navigation(output_root: Path, pages_to_check: tuple[tuple[str, str], ...]) -> None:
     html_root = output_root / "html-multi"
-    pages = [html_root / "index.html"] + [
-        html_root / slug / "index.html" for slug, _ in chapters
-    ]
-    for page_number, index in enumerate(pages):
+    all_entries = pages_to_check + GENERATED_CHAPTERS
+    groups: dict[str, tuple[tuple[str, str], ...]] = {}
+    for slug, _ in pages_to_check:
+        group = slug.split("/", 1)[0]
+        groups[group] = tuple(entry for entry in pages_to_check if entry[0].split("/", 1)[0] == group)
+    top_entries = tuple(entry for entry in pages_to_check if "/" not in entry[0]) + GENERATED_CHAPTERS
+    page_entries: tuple[tuple[str | None, str], ...] = ((None, ""),) + tuple(
+        (slug, title) for slug, title in all_entries
+    )
+    for slug, _ in all_entries:
+        if not (html_root / slug / "index.html").is_file():
+            raise RuntimeError(f"missing standard Blueprint page for {slug}")
+    for page_number, (page_slug, _) in enumerate(page_entries):
+        index = html_root / "index.html" if page_slug is None else html_root / page_slug / "index.html"
         document = index.read_text(encoding="utf-8")
         if document.count('class="split-toc book"') != 1:
             raise RuntimeError(f"expected exactly one standard Verso table of contents in {index}")
-        for slug, title in chapters:
+        required_entries = top_entries
+        if page_slug is not None:
+            group = page_slug.split("/", 1)[0]
+            if group in groups:
+                required_entries += groups[group][1:]
+        for slug, title in required_entries:
             if f'href="{slug}/' not in document or title not in document:
-                raise RuntimeError(f"missing standard chapter link for {slug} in {index}")
-            if not (html_root / slug / "index.html").is_file():
-                raise RuntimeError(f"missing standard chapter page for {slug}")
+                raise RuntimeError(f"missing standard Blueprint page link for {slug} in {index}")
         if page_number > 0 and 'rel="prev"' not in document:
             raise RuntimeError(f"missing standard previous-page navigation in {index}")
-        if page_number + 1 < len(pages) and 'rel="next"' not in document:
+        if page_number + 1 < len(page_entries) and 'rel="next"' not in document:
             raise RuntimeError(f"missing standard next-page navigation in {index}")
 
 
@@ -208,7 +248,8 @@ def main() -> None:
         help="Blueprint output root (default: _out/blueprint)",
     )
     parser.add_argument(
-        "--exclude-fs",
+        "--published-only",
+        dest="published_only",
         action="store_true",
         help="process and verify only the published chapters",
     )
@@ -219,19 +260,17 @@ def main() -> None:
     if not output_root.is_absolute():
         output_root = repo_root / output_root
 
-    chapters = PUBLIC_CHAPTERS
-    if not args.exclude_fs:
-        chapters += DEVELOPMENT_ONLY_CHAPTERS
+    pages = PUBLIC_PAGES if args.published_only else DEVELOPMENT_PAGES
 
     total = 0
-    for slug, _ in chapters:
+    for slug, _ in pages:
         count = process_chapter(repo_root, output_root, slug)
         total += count
         print(f"postprocessed {slug}: {count} Lean definition implementation(s)")
     if total == 0:
         raise RuntimeError("no Lean definition implementations were inserted")
-    verify_navigation(output_root, chapters)
-    print(f"verified standard Verso navigation across all {len(chapters)} chapters")
+    verify_navigation(output_root, pages)
+    print(f"verified standard Verso navigation across all {len(pages)} theory pages")
     verify_generated_chapters(output_root)
     print(f"verified {len(GENERATED_CHAPTERS)} generated chapters")
 

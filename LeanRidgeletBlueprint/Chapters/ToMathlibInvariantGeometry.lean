@@ -1,4 +1,14 @@
-import LeanRidgelet
+import LeanRidgeletBlueprint.Chapters.ToMathlibIntegralFourierTools
+import LeanRidgeletBlueprint.Chapters.ToMathlibFiniteEuclidean
+import LeanRidgelet.ToMathlib.LieGroup.OrthogonalGroup
+import LeanRidgelet.ToMathlib.LieGroup.SphereInvariantMeasure
+import LeanRidgelet.ToMathlib.LieGroup.MatrixPolar
+import LeanRidgelet.ToMathlib.LieGroup.StiefelCodimOne
+import LeanRidgelet.ToMathlib.LieGroup.SingularValueDecomposition
+import LeanRidgelet.ToMathlib.LieGroup.UnitsHaar
+import LeanRidgelet.ToMathlib.LieGroup.SemidirectProductHaar
+import LeanRidgelet.ToMathlib.LieGroup.HaarAutomorphism
+import LeanRidgelet.ToMathlib.LieGroup.GeneralLinearHaar
 import Verso
 import VersoManual
 import VersoBlueprint
@@ -12,16 +22,12 @@ set_option linter.hashCommand false
 set_option linter.style.longLine false
 set_option verso.blueprint.externalCode.strictResolve true
 
-#doc (Manual) "Mathlib upstream candidates: groups and homogeneous spaces" =>
+#doc (Manual) "Mathlib candidates: invariant geometry and integration" =>
 %%%
-file := "to-mathlib-lie"
+file := "invariant-geometry"
 %%%
 
-This chapter is the part of the upstream candidates that concerns *analysis on compact groups and their homogeneous spaces*. It is separated from the rest because Mathlib's coverage there is thinner than in Fourier and Schwartz analysis, because the remaining gap of this kind is the one open problem of the `d`-plane development, and because the same material is what a future treatment of the noncompact symmetric-space case would build on. The files live under `LeanRidgelet/ToMathlib/LieGroup/`.
-
-What Mathlib does have is the abstract theory: Haar measure on a locally compact group, its uniqueness, and the unitary group of a C\*-algebra as a topological group. What it does not have is any of the concrete objects a reconstruction formula over a manifold of frames needs. The chapter supplies them in the order they depend on each other: the orthogonal group as a compact group with a Haar *probability* measure; the Stiefel manifold with a topology, a Borel structure and an invariant measure; uniqueness of the rotation-invariant measure on the sphere; the matrix polar integration formula that those two combine into; the identification of the Stiefel manifold at codimension one with the sphere; and the singular value decomposition.
-
-One gap remains, and it is recorded at the end: the *Jacobian* of the singular value decomposition. It is the only piece of the `d`-plane development that is not formalized, it is needed for no proof — only to relate two parameter measures — and it is a project of its own, because it factors through Weyl's integration formula for real symmetric matrices, which Mathlib does not have either.
+The orthogonal group, invariant measures on Stiefel manifolds and spheres, the matrix polar formula, the codimension-one specialization, singular value decomposition, and Haar measure on the unit group of a finite-dimensional algebra and on a semidirect product.
 
 *The orthogonal group and the Stiefel manifold*
 
@@ -65,16 +71,56 @@ The measurability cannot be weakened to almost-everywhere measurability, and the
 
 :::theorem "mathlib_stiefel_codim_one" (lean := "MeasureTheory.continuous_frameOfUnitVector, MeasureTheory.stiefelHomeomorphSphere, MeasureTheory.stiefelHomeomorphSphere_apply, MeasureTheory.measurePreserving_stiefelHomeomorphSphere, MeasureTheory.integral_stiefelMeasure_codimOne") (uses := "mathlib_sphere_invariant_measure, mathlib_dplane_transform")
 *The Stiefel manifold at codimension one is the unit sphere.* The set-level identification is in `mathlib_dplane_transform` and the measure theory of the two sides is in `mathlib_sphere_invariant_measure`; this joins them. The identification is a *homeomorphism*: sending a frame to its unit vector is continuous because the topology on the Stiefel manifold is induced from the continuous linear maps, and sending a unit vector to the frame that scales it is continuous because that frame is the coordinate functional tensored with the vector, a bounded bilinear operation. Reading "the direction of a random frame is uniform on the sphere" through the identification then makes it *measure preserving*, onto the surface measure divided by its total mass — the only difference between the two sides being that the invariant measure on the Stiefel manifold is normalized to a probability measure and `Measure.toSphere` is not.
+:::
 
 The change of variables for integrals follows with no measurability hypothesis on the integrand, the substitution being along an equivalence. Its use is to make "the general codimension specializes to codimension one" a theorem about the two layers rather than a remark about two constructions that resemble each other.
-:::
 
 *Matrix decompositions*
 
 :::theorem "mathlib_svd" (lean := "MeasureTheory.linearMapOfFamily, MeasureTheory.linearMapOfFamily_apply, MeasureTheory.isometryOfOrthonormalFamily, MeasureTheory.isometryOfOrthonormalFamily_apply, MeasureTheory.isometryOfOrthonormalFamily_single, MeasureTheory.exists_svd") (uses := "mathlib_diagonal_scaling")
 *Singular value decomposition of an injective linear map.* Mathlib has singular *values* — `LinearMap.singularValues`, the square roots of the eigenvalues of $`A^\top A` — but not the decomposition they are the values of. It is proved here in the case that integration over a matrix space needs: an injective $`A:\mathbb R^k\to E` factors as $`A=UDV^\top` with `U` an orthonormal `k`-frame, `V` a rotation of $`\mathbb R^k`, and `D` the coordinatewise scaling by `k` *positive* numbers.
+:::
 
 The proof is the spectral theorem and nothing else. $`T=A^\top A` is symmetric, and positive definite because `A` is injective; its orthonormal eigenbasis $`(b_i)` has eigenvalues $`\mu_i=\|Ab_i\|^2>0`; the vectors $`u_i=Ab_i/\sqrt{\mu_i}` are orthonormal in `E` because $`\langle Ab_i,Ab_j\rangle=\langle Tb_i,b_j\rangle=\mu_i\delta_{ij}`; and reading `A` in the two bases gives the factorization with $`d_i=\sqrt{\mu_i}` and `V` the basis change. One auxiliary construction is worth naming on its own: an orthonormal family indexed by `Fin k` *is* a linear isometry out of $`\mathbb R^k`, sending the standard basis to the family.
 
 What is *not* here is the measure-theoretic half — the Jacobian $`\mathrm dA=\delta(D)\,\mathrm dD\,\mathrm dU\,\mathrm dV`, which is what turns an integral over the matrix space into one over the singular value coordinates. Its published proofs go through exterior differential forms, or through the Jacobian of the matrix polar decomposition together with Weyl's integration formula for real symmetric matrices, and Mathlib has none of those.
+
+*Haar measure on the unit group of a finite-dimensional algebra*
+
+:::theorem "mathlib_units_haar" (lean := "MeasureTheory.lmul_eq_mulLeft, MeasureTheory.continuous_algebraNorm, MeasureTheory.algebraNorm_units_ne_zero, MeasureTheory.unitsHaarDensity, MeasureTheory.unitsHaarDensity_apply, MeasureTheory.continuous_unitsHaarDensity_comp_units_val, MeasureTheory.measurable_unitsHaarDensity, MeasureTheory.unitsHaarDensity_mul, MeasureTheory.unitsHaarDensity_one, MeasureTheory.unitsHaarDensity_units_ne_zero, MeasureTheory.unitsHaarDensity_units_ne_top, MeasureTheory.unitsHaarDensity_units_inv_mul_units, MeasureTheory.exists_unitsHaarDensity_le_of_isCompact, MeasureTheory.map_mul_left_withDensity_unitsHaarDensity, MeasureTheory.Measure.unitsHaar, MeasureTheory.Measure.unitsHaar_apply, MeasureTheory.Measure.unitsHaar_apply_of_measurableSet, MeasureTheory.units_val_image_preimage_mul_left, MeasureTheory.Measure.isMulLeftInvariant_unitsHaar, MeasureTheory.Measure.isFiniteMeasureOnCompacts_unitsHaar, MeasureTheory.Measure.isOpenPosMeasure_unitsHaar, MeasureTheory.Measure.isHaarMeasure_unitsHaar, MeasureTheory.instLocallyCompactSpaceUnits, MeasureTheory.instSecondCountableTopologyUnits, MeasureTheory.Measure.exists_haar_eq_smul_unitsHaar, MeasureTheory.Measure.exists_map_units_val_haar_restrict_le")
+*Haar measure of a unit group as a weighted Lebesgue measure.* The unit group of a finite-dimensional real normed algebra `A` is open in `A`, so its Haar measure should be an explicit weighted additive Haar measure of `A`. The weight is the reciprocal absolute algebra norm $`|N(a)|^{-1}`, where $`N(a)=\det(x\mapsto ax)` is Mathlib's `Algebra.norm`. Multiplicativity of the algebra norm — free, since `Algebra.norm` is a monoid homomorphism — makes the weighted measure invariant under left multiplication by units: substituting $`b=u^{-1}b'` rescales additive Haar measure by $`|N(u)|^{-1}` while the weight picks up the reciprocal factor $`|N(u^{-1})|^{-1}`, and the two cancel because $`N(u^{-1})N(u)=1`. No determinant power in $`\dim A` has to be evaluated.
 :::
+
+The weighted measure is finite on compact subsets of the unit group, because the weight is continuous there — the algebra norm is continuous, being the determinant of the continuous linear map $`x\mapsto ax`, and it does not vanish on units — and it is positive on nonempty open sets, because the weight is positive on units. Transporting it to the unit group along the open embedding gives a Haar measure, so uniqueness of Haar measure identifies the canonical Haar measure of the unit group with it up to a positive finite factor.
+
+The consequence used downstream is a comparison: on a compact subset of the unit group, the image of Haar measure under the inclusion into `A` is dominated by a multiple of additive Haar measure of `A`. It converts local integrability statements on the algebra into local integrability statements on the group, which is what the quotient-integral estimate of an induced representation needs.
+
+*Haar measure of a semidirect product*
+
+:::theorem "mathlib_semidirect_haar" (lean := "MeasureTheory.map_mul_left_withDensity_monoidHom, SemidirectProduct.prodMeasure, SemidirectProduct.measurable_homeomorphProd_symm, SemidirectProduct.measurable_homeomorphProd, SemidirectProduct.prodMeasure_apply, SemidirectProduct.homeomorphProd_symm_comp_mul_left, SemidirectProduct.isMulLeftInvariant_prodMeasure, SemidirectProduct.isFiniteMeasureOnCompacts_prodMeasure, SemidirectProduct.isOpenPosMeasure_prodMeasure, SemidirectProduct.isHaarMeasure_prodMeasure, SemidirectProduct.exists_haar_eq_smul_prodMeasure, SemidirectProduct.exists_map_right_haar_restrict_le") (uses := "mathlib_units_haar")
+*Left Haar measure of `N ⋊ G` as a product measure.* Haar measure of a semidirect product is Haar measure of the normal factor times a *relatively* invariant measure on the acting factor, the correction being exactly the factor $`χ(g)` by which the action of `g` rescales Haar measure of `N`. The proof is short because left translation by a fixed $`x_0` acts on the two product coordinates separately — the acting coordinate of $`x_0` is fixed, so its action on `N` does not depend on the point being translated — hence `Measure.map_prod_map` applies, and the two coordinate factors $`χ(x_0.\mathrm{right})` and $`χ(x_0.\mathrm{right}^{-1})` cancel by multiplicativity alone. No positivity or finiteness of the character is used.
+:::
+
+The relatively invariant measure on `G` comes from twisting Haar measure by the character: for a monoid homomorphism $`χ:G\to[0,∞]`, left translation rescales $`χ\,\mathrm dκ` by $`χ(g_0^{-1})`. Finiteness on compacts and positivity on open sets are inherited from the two factors through the product homeomorphism, so uniqueness of Haar measure identifies the canonical Haar measure of the semidirect product with the product measure up to a positive finite factor.
+
+The estimate extracted for use downstream bounds, on a compact subset of the group, the image of Haar measure under the projection to the acting factor by the relatively invariant measure, with constant the Haar measure of the compact projection to the normal factor.
+
+*Haar measure under a group automorphism*
+
+:::theorem "mathlib_haar_automorphism" (lean := "MeasureTheory.exists_map_continuousMulEquiv_haar_eq_smul_haar, MeasureTheory.exists_map_continuousMulEquiv_haar_restrict_eq_smul_haar_restrict") (uses := "mathlib_semidirect_haar")
+*Transporting Haar measure through an automorphism.* A continuous group automorphism with continuous inverse pushes Haar measure to a Haar measure, hence — by uniqueness — to a positive finite multiple of the original one. Restricted to a measurable set, the image measure is exactly that multiple of Haar measure restricted to the image set.
+:::
+
+This is the form in which a compactly supported estimate survives a coordinate change of the group. The case needed here is the contragredient map $`L\mapsto (L^\dagger)^{-1}` of a general linear group, which is an automorphism because it is the composition of two anti-automorphisms, inversion and the adjoint.
+
+*Contragredient orbits of the general linear group*
+
+:::theorem "mathlib_general_linear_haar" (lean := "ContinuousLinearMap.contragredientUnit, ContinuousLinearMap.contragredientUnit_val, ContinuousLinearMap.contragredientUnit_inv_val, ContinuousLinearMap.contragredientUnit_mul, ContinuousLinearMap.contragredientUnit_one, ContinuousLinearMap.contragredientUnit_involutive, ContinuousLinearMap.continuous_contragredientUnit_val, ContinuousLinearMap.continuous_contragredientUnit, ContinuousLinearMap.contragredientUnits, ContinuousLinearMap.contragredientUnits_apply, ContinuousLinearMap.evalLinearMap, ContinuousLinearMap.evalLinearMap_apply, ContinuousLinearMap.evalLinearMap_surjective, ContinuousLinearMap.exists_map_contragredientOrbit_haar_restrict_le, ContinuousLinearMap.adjointEvalLinearMap, ContinuousLinearMap.adjointEvalLinearMap_apply, ContinuousLinearMap.adjointEvalLinearMap_surjective, ContinuousLinearMap.exists_map_adjointOrbit_haar_restrict_le") (uses := "mathlib_haar_automorphism, mathlib_units_haar, mathlib_linear_surjection_haar")
+*Contragredient orbit maps and Haar measure.* The contragredient map $`L\mapsto (L^{-1})^\dagger` is an automorphism of the group of invertible operators on a finite-dimensional real inner-product space: it composes the two anti-automorphisms $`L\mapsto L^{-1}` and $`L\mapsto L^\dagger`, and it is an involution, so it is its own inverse. Evaluation $`A\mapsto A\xi` at a nonzero vector is a surjective linear map, a rank-one operator realizing any prescribed value.
+:::
+
+Chaining the three preceding estimates along $`L\mapsto(L^{-1})^\dagger\mapsto\text{(inclusion into the algebra)}\mapsto A\xi` bounds, on a compact set of invertible operators, the image of Haar measure under a contragredient orbit map by a finite multiple of Lebesgue measure restricted to the compact image. Each of the three steps preserves the compact restriction, which is what makes the composite usable for functions that are only locally integrable.
+
+The variant for the *adjoint* orbit map $`L\mapsto L^\dagger\xi` — the orbit map composed with inversion, which is the form a group convolution consumes — is cheaper: taking adjoints and evaluating are both linear on the operator algebra, so only the unit-group comparison and the linear pushforward bound are used, with no Haar transport along an automorphism.
+
+The symmetric-space material that used to close this page — the abstract Helgason--Fourier layer and the two concrete models it is instantiated at — is now the `ToMathlib / Symmetric spaces` page.

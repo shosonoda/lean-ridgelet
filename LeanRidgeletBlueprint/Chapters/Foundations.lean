@@ -1,4 +1,4 @@
-import LeanRidgelet
+import LeanRidgelet.OverviewL2
 import Verso
 import VersoManual
 import VersoBlueprint

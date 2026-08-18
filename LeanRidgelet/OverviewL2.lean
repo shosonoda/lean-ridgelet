@@ -5,7 +5,23 @@ Authors: Sho Sonoda, OpenAI Codex
 -/
 module
 
+public import LeanRidgelet.Activation.Gaussian
+public import LeanRidgelet.Activation.ReLU
+public import LeanRidgelet.Activation.Tanh
+public import LeanRidgelet.Fourier.AngularDistribution
+public import LeanRidgelet.Fourier.AngularLp
+public import LeanRidgelet.Fourier.AngularPlancherel
+public import LeanRidgelet.Fourier.AngularWeightedSobolev
+public import LeanRidgelet.Notation
+public import LeanRidgelet.Operator.ClassicalRidgelet
+public import LeanRidgelet.Operator.ClassicalSynthesis
+public import LeanRidgelet.Operator.Gaussian
+public import LeanRidgelet.Operator.ReLU
 public import LeanRidgelet.Operator.Ridgelet
+public import LeanRidgelet.Operator.Tanh
+public import LeanRidgelet.Operator.UnitarySynthesis
+public import LeanRidgelet.Space.ActivationRealization
+public import LeanRidgelet.Transform.ClassicalSection
 
 /-!
 # L2 manuscript results

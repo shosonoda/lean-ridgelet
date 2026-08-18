@@ -1,4 +1,4 @@
-import LeanRidgelet
+import LeanRidgelet.OverviewL1
 import Verso
 import VersoManual
 import VersoBlueprint
@@ -78,11 +78,13 @@ the two bounds — uniform near the origin, dilation-decaying at infinity — th
 $$`\mathscr R^\dagger_\eta[\mathscr R_\psi f](x;\varepsilon,\delta)=\frac1{2\pi}\int_{\zeta\ne0}u(\zeta)\,G_{x,\varepsilon,\delta}(\zeta)\,d\zeta.`
 :::
 
-:::lemma_ "l1_truncation_limit" (lean := "LeanRidgelet.norm_truncatedSpectralWindow_le, LeanRidgelet.continuous_truncatedSpectralFactor, LeanRidgelet.tendsto_truncatedSpectralWindow, LeanRidgelet.tendsto_truncatedDualRidgeletTransform, LeanRidgelet.ae_integral_angularFourier_mul_exp, LeanRidgelet.integral_angularFourier_mul_exp_of_continuousAt") (uses := "l1_spectral_pairing, mathlib_fourier_inversion_ae, angular_plancherel")
+:::lemma_ "l1_truncation_limit" (lean := "LeanRidgelet.norm_truncatedSpectralWindow_le, LeanRidgelet.continuous_truncatedSpectralFactor, LeanRidgelet.tendsto_truncatedSpectralWindow, LeanRidgelet.tendsto_truncatedDualRidgeletTransform, LeanRidgelet.measurableSet_truncationAnnulus, LeanRidgelet.ae_parameter_fst_ne_zero, LeanRidgelet.truncatedDualRidgeletTransform_eq_integral_indicator, LeanRidgelet.tendsto_truncatedDualRidgeletTransform_of_integrable, LeanRidgelet.ae_integral_angularFourier_mul_exp, LeanRidgelet.integral_angularFourier_mul_exp_of_continuousAt") (uses := "l1_spectral_pairing, mathlib_fourier_inversion_ae, angular_plancherel")
 *The truncation limit (step T6).* At every nonzero frequency the spectral window converges to the full inverse spectral integral along the truncation filter $`\varepsilon\to0^+`, $`\delta\to\infty` (dominated convergence over the dilated annuli, majorant $`\|\widehat f\|_1`; the origin is null for $`m\ge1`). A second dominated convergence with majorant $`\|u\|\,\|\widehat f\|_1` — uniform in the truncation — passes the limit through the spectral pairing:
 $$`\mathscr R^\dagger_\eta[\mathscr R_\psi f](x;\varepsilon,\delta)\longrightarrow K_{\psi,\eta}\,(2\pi)^{-m}\int\widehat f(\xi)e^{i\langle\xi,x\rangle}d\xi,`
 and the inverse spectral integral equals $`(2\pi)^mf(x)` almost everywhere (by almost-everywhere Fourier inversion) and at continuity points (by Mathlib's inversion theorem), through the angular bridge of the foundations chapter. This proves `l1_reconstruction`.
 :::
+
+A second truncation limit is available for the dual transform alone, without the spectral route: if the full dual integrand is integrable for the parameter Lebesgue measure, the truncated dual transform converges to the untruncated one along the same filter, by dominated convergence with the integrand itself as majorant. The filter is a genuine product, so it is countably generated and the dominated-convergence theorem applies to it directly; the input dimension must be nonzero, since otherwise every annulus is empty and the truncated transform vanishes while the untruncated one does not. This lemma does not discharge the reconstruction hypothesis of the endpoints above: for the admissible pairs the construction chapter produces, the ridgelet transform is only square-integrable against the weighted parameter measure, which does not give the integrability this lemma needs.
 
 *`L1.LambdaOperator`: the multiplier property*
 
