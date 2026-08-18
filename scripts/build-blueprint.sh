@@ -10,9 +10,10 @@ usage() {
 Usage: scripts/build-blueprint.sh [--development|--public] [--force]
 
 Build the hierarchical Verso Blueprint: independent L2, L1, Fourier-slice, harmonic-analysis, and
-ToMathlib subtrees followed by the generated Dependency Graph and Blueprint Summary. Development
-mode includes the harmonic-analysis subtree; public mode excludes its pages and nodes. With no option,
-private-only directories select the development build; otherwise public mode is used.
+ToMathlib subtrees followed by the generated Dependency Graph and Blueprint Summary. No subtree is
+development-only at present, so both modes build the same document; the two assemblies stay separate
+so that the next unstable subtree can be held back. With no option, private-only directories select
+the development build; otherwise public mode is used.
 
 The generated site and Lake-built generator are cached. Pass --force to regenerate the site even
 when its mode-specific input fingerprint is unchanged.
@@ -79,13 +80,6 @@ fingerprint_inputs() {
     fi
   done
   while IFS= read -r path; do
-    if [[ "$mode" == public ]]; then
-      case "$path" in
-        LeanRidgelet/HA/*|LeanRidgelet/OverviewHA.lean|LeanRidgeletBlueprint/Assembly.lean|LeanRidgeletBlueprint/Generated.lean|LeanRidgeletBlueprint/Parts/HA.lean|LeanRidgeletBlueprint/Chapters/HA.lean|LeanRidgeletBlueprint/Chapters/OverviewHA.lean|LeanRidgeletBlueprint/Chapters/HATheory.lean)
-          continue
-          ;;
-      esac
-    fi
     shasum -a 256 "$path"
   done < <(find LeanRidgelet LeanRidgeletBlueprint -type f -name '*.lean' | LC_ALL=C sort)
 }
@@ -150,9 +144,13 @@ pages=(
   fs/fs-theory
 )
 
-if [[ "$mode" == development ]]; then
-  pages+=(ha ha/overview-ha ha/ha-representations ha/ha-affine ha/ha-architectures)
-fi
+pages+=(
+  ha
+  ha/overview-ha
+  ha/ha-representations
+  ha/ha-affine
+  ha/ha-architectures
+)
 
 pages+=(
   to-mathlib
@@ -181,18 +179,14 @@ grep -q 'bp_graph_legend' \
 grep -q 'bp_summary_grid' \
   _out/blueprint/html-multi/Blueprint-Summary/index.html
 
-if [[ "$mode" == public ]]; then
-  test ! -e _out/blueprint/html-multi/ha
-  if rg -q 'overview-ha|ha-representations|ha-affine|ha-architectures|ha_main_reconstruction|ha_reconstruction_detail' \
-      _out/blueprint/html-multi/index.html \
-      _out/blueprint/html-multi/Dependency-Graph/index.html \
-      _out/blueprint/html-multi/Blueprint-Summary/index.html; then
-    echo 'development-only harmonic-analysis content entered the public Blueprint' >&2
-    exit 1
-  fi
-else
-  test -e _out/blueprint/html-multi/ha/overview-ha
-  test -e _out/blueprint/html-multi/ha/ha-representations
-  test -e _out/blueprint/html-multi/ha/ha-affine
-  test -e _out/blueprint/html-multi/ha/ha-architectures
+test -e _out/blueprint/html-multi/ha/overview-ha
+test -e _out/blueprint/html-multi/ha/ha-representations
+test -e _out/blueprint/html-multi/ha/ha-affine
+test -e _out/blueprint/html-multi/ha/ha-architectures
+
+if ! rg -q 'ha_main_reconstruction|ha_reconstruction_detail' \
+    _out/blueprint/html-multi/Dependency-Graph/index.html \
+    _out/blueprint/html-multi/Blueprint-Summary/index.html; then
+  echo 'harmonic-analysis nodes are missing from the generated chapters' >&2
+  exit 1
 fi

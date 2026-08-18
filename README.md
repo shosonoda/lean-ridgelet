@@ -6,8 +6,8 @@
 
 Lean formalization of integral representations and ridgelet transforms. It covers the L1 and L2
 theories for fully-connected networks, the Fourier-slice method across several architectures, and
-the developing harmonic-analysis/Schur method. Each theory separates a publication-order roadmap
-from implementation modules arranged by Lean dependency.
+the harmonic-analysis/Schur method for group-equivariant architectures. Each theory separates a
+publication-order roadmap from implementation modules arranged by Lean dependency.
 
 The Fourier-slice part reaches the networks on noncompact symmetric spaces, so the
 upstream-candidate layer carries a Helgason--Fourier transform with the geometry as data, together
@@ -62,11 +62,11 @@ Generate the Verso Blueprint with:
 ```
 
 The build is incremental. `LeanRidgeletBlueprint/Parts/` provides separate cached subtrees for
-L2, L1, Fourier slice, and ToMathlib. Child pages use topic-specific imports, and ToMathlib is
-split into eight independent analytic, geometric, and representation-theoretic pages. Lake can
-therefore reuse unrelated page and subtree `.olean` files. The rendered site is cached under
-`_out/blueprint-cache/`; an unchanged input fingerprint skips regeneration and postprocessing.
-Use `./scripts/build-blueprint.sh --force` for a complete regeneration.
+L2, L1, Fourier slice, harmonic analysis, and ToMathlib. Child pages use topic-specific imports,
+and ToMathlib is split into eight independent analytic, geometric, and representation-theoretic
+pages. Lake can therefore reuse unrelated page and subtree `.olean` files. The rendered site is
+cached under `_out/blueprint-cache/`; an unchanged input fingerprint skips regeneration and
+postprocessing. Use `./scripts/build-blueprint.sh --force` for a complete regeneration.
 
 Preview the complete generated site through a local HTTP server:
 
@@ -75,13 +75,12 @@ python3 -m http.server 8000 --directory _out/blueprint
 ```
 
 Then open <http://localhost:8000/html-multi/>. Verso's standard multi-page renderer preserves a
-four-part hierarchy with twenty-three theory pages. Its nodes connect the informal statements to
+five-part hierarchy with twenty-eight theory pages. Its nodes connect the informal statements to
 their Lean declarations. A direct page URL is, for example,
 <http://localhost:8000/html-multi/l2/foundations/>. Stop the server with `Ctrl-C`. Serving over
 HTTP ensures that Blueprint preview data and browser modules are loaded correctly. The left
-sidebar is Verso's generated table of contents: L2, L1, Fourier slice, and ToMathlib are the
-top-level parts, with overview, detail, or topic pages nested beneath them. The development-only
-harmonic-analysis part is not included in this mirror.
+sidebar is Verso's generated table of contents: L2, L1, Fourier slice, harmonic analysis, and
+ToMathlib are the top-level parts, with overview, detail, or topic pages nested beneath them.
 
 Two generated chapters follow them. <http://localhost:8000/html-multi/Dependency-Graph/> draws
 every Blueprint node and its `(uses := ...)` edges, coloured by formalization status;

@@ -54,7 +54,10 @@ TO_MATHLIB_PAGES = (
      "Mathlib candidates: symmetric spaces and the Helgason--Fourier transform"),
 )
 
-PUBLIC_PAGES = L2_PAGES + L1_PAGES + FS_PAGES + TO_MATHLIB_PAGES
+# No subtree is development-only at present: the harmonic-analysis pages joined the published ones
+# on 2026-08-19, as the Fourier-slice pages did on 2026-08-11. The two tuples stay separate so that
+# the next unstable subtree can be added to the development one alone.
+PUBLIC_PAGES = L2_PAGES + L1_PAGES + FS_PAGES + HA_PAGES + TO_MATHLIB_PAGES
 DEVELOPMENT_PAGES = L2_PAGES + L1_PAGES + FS_PAGES + HA_PAGES + TO_MATHLIB_PAGES
 
 # Chapters that `{blueprint_graph}` and `{blueprint_summary}` generate from the node registry.
