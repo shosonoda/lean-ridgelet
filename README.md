@@ -68,6 +68,10 @@ pages. Lake can therefore reuse unrelated page and subtree `.olean` files. The r
 cached under `_out/blueprint-cache/`; an unchanged input fingerprint skips regeneration and
 postprocessing. Use `./scripts/build-blueprint.sh --force` for a complete regeneration.
 
+The documentation workflow also restores the preceding successful run's project and Verso
+`.olean` files. Lake validates their dependency hashes and rebuilds only changed modules and their
+dependents; Mathlib's much larger build tree continues to come from `lake exe cache get`.
+
 Preview the complete generated site through a local HTTP server:
 
 ```bash

@@ -60,7 +60,12 @@ else
   main_source=LeanRidgeletBlueprint/PublicMain.lean
 fi
 
-if rg -n '^import LeanRidgelet$' LeanRidgeletBlueprint/Chapters; then
+chapter_sources=()
+while IFS= read -r -d '' path; do
+  chapter_sources+=("$path")
+done < <(find LeanRidgeletBlueprint/Chapters -type f -name '*.lean' -print0)
+
+if ((${#chapter_sources[@]} > 0)) && grep -nH '^import LeanRidgelet$' "${chapter_sources[@]}"; then
   echo 'Blueprint chapters must use theory-specific imports, not the LeanRidgelet umbrella' >&2
   exit 1
 fi
@@ -184,7 +189,7 @@ test -e _out/blueprint/html-multi/ha/ha-representations
 test -e _out/blueprint/html-multi/ha/ha-affine
 test -e _out/blueprint/html-multi/ha/ha-architectures
 
-if ! rg -q 'ha_main_reconstruction|ha_reconstruction_detail' \
+if ! grep -Eq 'ha_main_reconstruction|ha_reconstruction_detail' \
     _out/blueprint/html-multi/Dependency-Graph/index.html \
     _out/blueprint/html-multi/Blueprint-Summary/index.html; then
   echo 'harmonic-analysis nodes are missing from the generated chapters' >&2

@@ -27,6 +27,22 @@ jobs:
           use-github-cache: false
           use-mathlib-cache: true
 
+      # Keep this narrower than lean-action's full `.lake` cache: Mathlib's build tree alone is
+      # several gigabytes and is already supplied by `lake exe cache get`. The fallback key restores
+      # the preceding successful run, after which Lake rebuilds only invalidated project/Blueprint
+      # modules and their dependents.
+      - name: Restore incremental project and Blueprint builds
+        uses: actions/cache@v5
+        with:
+          path: |
+            .lake/build
+            .lake/packages/VersoBlueprint/.lake/build
+            .lake/packages/verso/.lake/build
+            .lake/packages/subverso/.lake/build
+          key: lake-build-${{ runner.os }}-${{ runner.arch }}-${{ hashFiles('lean-toolchain', 'lake-manifest.json') }}-${{ github.sha }}
+          restore-keys: |
+            lake-build-${{ runner.os }}-${{ runner.arch }}-${{ hashFiles('lean-toolchain', 'lake-manifest.json') }}-
+
       - name: Build the library and audit assumptions
         run: ./scripts/audit-assumptions.sh
 
