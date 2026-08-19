@@ -22,6 +22,8 @@ public import LeanRidgelet.ToMathlib.HilbertSchmidtKernel
 public import LeanRidgelet.ToMathlib.HilbertTransform
 public import LeanRidgelet.ToMathlib.IteratedFubini
 public import LeanRidgelet.ToMathlib.L2Duality
+public import LeanRidgelet.ToMathlib.LpOperatorOfPointwise
+public import LeanRidgelet.ToMathlib.ParametricIteratedDeriv
 public import LeanRidgelet.ToMathlib.LinearSurjectionHaar
 public import LeanRidgelet.ToMathlib.LipschitzDiscretization
 public import LeanRidgelet.ToMathlib.Lizorkin

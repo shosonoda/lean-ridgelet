@@ -39,6 +39,7 @@ HA_PAGES = (
     ("ha/ha-representations", "Harmonic-analysis method: representations and intertwiners"),
     ("ha/ha-affine", "Harmonic-analysis method: the affine Mackey model"),
     ("ha/ha-architectures", "Harmonic-analysis method: reconstruction and architectures"),
+    ("ha/ha-quadratic", "Harmonic-analysis method: the quadratic-form network"),
 )
 
 TO_MATHLIB_PAGES = (

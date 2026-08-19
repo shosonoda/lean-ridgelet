@@ -12,6 +12,8 @@ import LeanRidgelet.ToMathlib.ContinuousConstDensityPreimage
 import LeanRidgelet.ToMathlib.AffineHaar
 import LeanRidgelet.ToMathlib.LinearSurjectionHaar
 import LeanRidgelet.ToMathlib.L2Duality
+import LeanRidgelet.ToMathlib.LpOperatorOfPointwise
+import LeanRidgelet.ToMathlib.ParametricIteratedDeriv
 import LeanRidgelet.ToMathlib.LpFunctor
 import LeanRidgelet.ToMathlib.LpIndicator
 import LeanRidgelet.ToMathlib.LpCompactlySupportedMultiplier
@@ -79,13 +81,25 @@ translation invariance.
 
 *Hilbert-space duality and `Lp` operators*
 
-:::theorem "mathlib_l2_duality" (lean := "MeasureTheory.eLpNorm_two_eq_lintegral_enorm_sq, MeasureTheory.MemLp.norm_integral_mul_conj_le, MeasureTheory.MemLp.integrable_norm_sq, MeasureTheory.eLpNorm_two_le_of_forall_indicator_pairing_le, MeasureTheory.memLp_two_of_integrable_of_bound")
+:::theorem "mathlib_l2_duality" (lean := "MeasureTheory.eLpNorm_two_eq_lintegral_enorm_sq, MeasureTheory.eLpNorm_two_sq_eq_lintegral_enorm_sq, MeasureTheory.lintegral_enorm_mul_le_eLpNorm_two_mul_eLpNorm_two, MeasureTheory.MemLp.norm_integral_mul_conj_le, MeasureTheory.MemLp.integrable_norm_sq, MeasureTheory.eLpNorm_two_le_of_forall_indicator_pairing_le, MeasureTheory.memLp_two_of_integrable_of_bound")
 *Cauchy--Schwarz and an `L²` duality criterion.* Two elementary tools that Mathlib states only in `Lp`-space form. First, *Cauchy--Schwarz for Bochner integrals*: for square-integrable scalar `u`, `v`,
 $$`\Big\|\int u\,\overline v\Big\|\le\Big(\int\|u\|^2\Big)^{1/2}\Big(\int\|v\|^2\Big)^{1/2},`
 by Hölder's inequality for the norms. Second, an *`L²` duality criterion*: if `h` is measurable, the measurable sets $`s_n` increase to the whole space, every truncation $`1_{s_n}h` is square-integrable, and
 $$`\Big|\int h\,\overline{1_{s_n}h}\Big|\le M\,\|1_{s_n}h\|_2\quad\text{for all }n,`
-then `h` itself is square-integrable with $`\|h\|_2\le M`. This is the standard device for turning a duality bound $`|\langle h,g\rangle|\le M\|g\|_2` into a norm bound *without* knowing beforehand that `h` lies in `L²`: each truncation is square-integrable by construction, the displayed inequality reads $`t_n\le M\sqrt{t_n}` for $`t_n=\|1_{s_n}h\|_2^2`, and monotone convergence lifts the resulting uniform bound $`t_n\le M^2` to `h`. The auxiliary `lintegral` form of the `L²` seminorm, the natural-power integrability of $`\|\cdot\|^2`, and the inclusion $`L^1\cap L^\infty\subseteq L^2` (an integrable function with a uniform bound is square-integrable) are provided alongside.
+then `h` itself is square-integrable with $`\|h\|_2\le M`. This is the standard device for turning a duality bound $`|\langle h,g\rangle|\le M\|g\|_2` into a norm bound *without* knowing beforehand that `h` lies in `L²`: each truncation is square-integrable by construction, the displayed inequality reads $`t_n\le M\sqrt{t_n}` for $`t_n=\|1_{s_n}h\|_2^2`, and monotone convergence lifts the resulting uniform bound $`t_n\le M^2` to `h`. The auxiliary `lintegral` form of the `L²` seminorm — with and without the square root — the natural-power integrability of $`\|\cdot\|^2`, and the inclusion $`L^1\cap L^\infty\subseteq L^2` (an integrable function with a uniform bound is square-integrable) are provided alongside. So is the `lintegral` form of Cauchy--Schwarz, $`\int^-\|u\|_e\|v\|_e\le\|u\|_2\|v\|_2`, which needs no integrability hypothesis and allows the two targets to differ, so that it applies to a scalar coefficient paired against a vector-valued kernel.
 :::
+
+:::theorem "mathlib_parametric_iterated_deriv" (lean := "MeasureTheory.stronglyMeasurable_iteratedDeriv_succ, MeasureTheory.stronglyMeasurable_iteratedDeriv, MeasureTheory.parametricDeriv, MeasureTheory.parametricIteratedDeriv, MeasureTheory.parametricDeriv_slice, MeasureTheory.parametricIteratedDeriv_slice, MeasureTheory.parametricIteratedDeriv_zero, MeasureTheory.parametricIteratedDeriv_succ, MeasureTheory.parametricIteratedDeriv_succ', MeasureTheory.measurable_parametricDeriv_of_continuous, MeasureTheory.measurable_parametricIteratedDeriv_succ_of_continuous, MeasureTheory.contDiff_parametricDeriv, MeasureTheory.continuous_parametricIteratedDeriv, MeasureTheory.measurable_parametricIteratedDeriv, MeasureTheory.measurable_parametricIteratedDeriv_succ")
+*Measurability of an iterated derivative in a parameter.* Mathlib knows that a single derivative is measurable with no differentiability assumption — for one variable because the derivative vanishes off the differentiability set and that set is Borel, and for a jointly continuous family by the same argument with a parameter — but neither statement iterates on its own, the parametric one consuming a joint continuity it does not produce. One variable is then free: iterating costs nothing, so an iterated derivative of positive order is strongly measurable for *every* function on the line. A parameter has content, and there are two routes. The *continuity route* supplies the missing induction: the derivative in the last variable of a jointly $`C^{m+1}` function of a pair is jointly $`C^m`, so an induction on the order gives joint continuity of the parametric iterated derivative. Feeding that back into the one-step lemma gains an order, so $`C^j` gives measurability of order $`j+1` rather than of order $`j`. The *limit route* is the one-step lemma itself, stated in this file's notation: joint continuity at order $`j` gives joint measurability at order $`j+1`, assuming no differentiability at all.
+:::
+
+:::theorem "mathlib_lp_operator_of_pointwise" (lean := "MeasureTheory.lpLinearMapOfPointwise, MeasureTheory.coeFn_lpLinearMapOfPointwise, MeasureTheory.lpOperatorOfPointwise, MeasureTheory.lpOperatorOfPointwise_apply, MeasureTheory.coeFn_lpOperatorOfPointwise, MeasureTheory.norm_lpOperatorOfPointwise_le")
+*A bounded operator on $`L^2` from a pointwise formula.* An integral transform is given by a formula on functions; turning it into a bounded operator is always the same four steps, and this does them once.
+:::
+
+The four inputs are: the formula's value is square integrable, the formula is additive and homogeneous almost everywhere, and its $`L^2` norm is at most a constant times the input's. Out comes the operator, with its values represented by the formula and its operator norm bounded by that constant.
+
+Additivity and homogeneity are hypotheses rather than consequences, and that is the point of the packaging. A formula linear on functions need not be linear on almost-everywhere classes: splitting the defining integral over a sum requires each piece to be integrable. So those two hypotheses are exactly where the integrability of an integral transform enters, and isolating them is what makes the rest mechanical.
 
 :::theorem "mathlib_bochner_integral_l2" (lean := "MeasureTheory.integral_L2_coeFn_ae, MeasureTheory.integral_L2_coeFn_ae_of_restrict_of_aefinStronglyMeasurable, MeasureTheory.integral_L2_coeFn_ae_of_restrict, MeasureTheory.integral_norm_restrict_le_norm_mul_rpow")
 *Pointwise representatives of `L²`-valued Bochner integrals.* Let $`\Phi(a)` be a scalar `L²`

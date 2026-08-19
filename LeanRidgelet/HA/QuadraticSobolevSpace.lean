@@ -5,7 +5,6 @@ Authors: Sho Sonoda, Claude
 -/
 module
 
-public import Mathlib.MeasureTheory.Integral.MeanInequalities
 public import LeanRidgelet.ToMathlib.L2Duality
 public import LeanRidgelet.HA.ParametricDerivMeasurable
 public import LeanRidgelet.HA.QuadraticShear
@@ -116,36 +115,6 @@ open MeasureTheory
 open scoped ENNReal InnerProductSpace NNReal ComplexConjugate
 
 namespace LeanRidgelet
-
-/-! ### Two facts about the `L²` seminorm -/
-
-/-- The square of the `L²` seminorm is the lower Lebesgue integral of the squared enorm.  This is
-`MeasureTheory.eLpNorm_two_eq_lintegral_enorm_sq` with the square root cleared, which is the form in
-which the seminorms below meet the `lintegral` identities of `LeanRidgelet.HA.QuadraticShear`. -/
-theorem eLpNorm_two_sq_eq_lintegral_enorm_sq {α : Type*} [MeasurableSpace α] {μ : Measure α}
-    {F : Type*} [NormedAddCommGroup F] (u : α → F) :
-    eLpNorm u 2 μ ^ 2 = ∫⁻ a, ‖u a‖ₑ ^ 2 ∂μ := by
-  rw [eLpNorm_two_eq_lintegral_enorm_sq,
-    ← ENNReal.rpow_natCast ((∫⁻ a, ‖u a‖ₑ ^ 2 ∂μ) ^ ((1 : ℝ) / 2)) 2, ← ENNReal.rpow_mul]
-  norm_num
-
-/-- **Cauchy--Schwarz for lower Lebesgue integrals.**  The integral of a product of two enorms is at
-most the product of the two `L²` seminorms.  This is Hölder's inequality at the conjugate pair
-`(2, 2)`, and it is what turns the synthesis integral into a pairing of the seminorm with a dual
-quantity for the synthesis feature. -/
-theorem lintegral_enorm_mul_le_eLpNorm_two_mul_eLpNorm_two {α : Type*} [MeasurableSpace α]
-    (μ : Measure α) {F G : Type*} [NormedAddCommGroup F] [MeasurableSpace F]
-    [OpensMeasurableSpace F] [NormedAddCommGroup G] [MeasurableSpace G] [OpensMeasurableSpace G]
-    {u : α → F} {v : α → G} (hu : AEMeasurable u μ) (hv : AEMeasurable v μ) :
-    ∫⁻ a, ‖u a‖ₑ * ‖v a‖ₑ ∂μ ≤ eLpNorm u 2 μ * eLpNorm v 2 μ := by
-  have hpq : (2 : ℝ).HolderConjugate 2 := by
-    rw [Real.holderConjugate_iff]
-    norm_num
-  have h := ENNReal.lintegral_mul_le_Lp_mul_Lq μ hpq hu.enorm hv.enorm
-  simp only [Pi.mul_apply] at h
-  refine h.trans_eq ?_
-  rw [eLpNorm_two_eq_lintegral_enorm_sq, eLpNorm_two_eq_lintegral_enorm_sq]
-  norm_num [ENNReal.rpow_natCast]
 
 variable {E : Type*} [NormedAddCommGroup E] [InnerProductSpace ℝ E] [FiniteDimensional ℝ E]
 

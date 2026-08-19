@@ -9,6 +9,7 @@ public import Mathlib.MeasureTheory.Integral.Bochner.Basic
 public import Mathlib.MeasureTheory.Integral.Bochner.ContinuousLinearMap
 public import Mathlib.MeasureTheory.Integral.Lebesgue.Add
 public import Mathlib.MeasureTheory.Function.LpSeminorm.Basic
+public import Mathlib.MeasureTheory.Integral.MeanInequalities
 
 /-!
 # Cauchy--Schwarz and an `L²` duality criterion
@@ -19,7 +20,11 @@ This file is a Mathlib upstream candidate and has no dependencies on the rest of
 ## Main results
 
 * `MeasureTheory.eLpNorm_two_eq_lintegral_enorm_sq`: the `L²` seminorm as the square root of the
-  `lintegral` of the squared enorm.
+  `lintegral` of the squared enorm, and `MeasureTheory.eLpNorm_two_sq_eq_lintegral_enorm_sq`: the
+  same with the root cleared.
+* `MeasureTheory.lintegral_enorm_mul_le_eLpNorm_two_mul_eLpNorm_two` (**Cauchy--Schwarz for lower
+  Lebesgue integrals**): `∫⁻ ‖u‖ₑ ‖v‖ₑ ≤ ‖u‖₂ ‖v‖₂`, with no integrability hypothesis and the two
+  targets allowed to differ.
 * `MeasureTheory.MemLp.norm_integral_mul_conj_le` (**Cauchy--Schwarz for Bochner integrals**):
   `‖∫ u ⋅ conj v‖ ≤ (∫ ‖u‖²)^{1/2} (∫ ‖v‖²)^{1/2}` for square-integrable `u`, `v`.
 * `MeasureTheory.memLp_two_of_integrable_of_bound`: `L¹ ∩ L^∞ ⊆ L²` — an integrable function
@@ -48,6 +53,35 @@ theorem eLpNorm_two_eq_lintegral_enorm_sq {α : Type*} [MeasurableSpace α] {μ 
     {E : Type*} [NormedAddCommGroup E] (g : α → E) :
     eLpNorm g 2 μ = (∫⁻ x, ‖g x‖ₑ ^ 2 ∂μ) ^ ((1 : ℝ) / 2) := by
   rw [eLpNorm_eq_lintegral_rpow_enorm_toReal two_ne_zero ENNReal.ofNat_ne_top]
+  norm_num [ENNReal.rpow_natCast]
+
+
+/-- The square of the `L²` seminorm is the lower Lebesgue integral of the squared enorm.  This is
+`MeasureTheory.eLpNorm_two_eq_lintegral_enorm_sq` with the square root cleared, which is the form a
+caller needs when an `L²` seminorm has to meet a `lintegral` identity. -/
+theorem eLpNorm_two_sq_eq_lintegral_enorm_sq {α : Type*} [MeasurableSpace α] {μ : Measure α}
+    {F : Type*} [NormedAddCommGroup F] (u : α → F) :
+    eLpNorm u 2 μ ^ 2 = ∫⁻ a, ‖u a‖ₑ ^ 2 ∂μ := by
+  rw [eLpNorm_two_eq_lintegral_enorm_sq,
+    ← ENNReal.rpow_natCast ((∫⁻ a, ‖u a‖ₑ ^ 2 ∂μ) ^ ((1 : ℝ) / 2)) 2, ← ENNReal.rpow_mul]
+  norm_num
+
+/-- **Cauchy--Schwarz for lower Lebesgue integrals.**  The integral of a product of two enorms is at
+most the product of the two `L²` seminorms.  This is Hölder's inequality at the conjugate pair
+`(2, 2)`, stated for two possibly different targets so that it applies to a pairing of a scalar
+coefficient against a vector-valued kernel. -/
+theorem lintegral_enorm_mul_le_eLpNorm_two_mul_eLpNorm_two {α : Type*} [MeasurableSpace α]
+    (μ : Measure α) {F G : Type*} [NormedAddCommGroup F] [MeasurableSpace F]
+    [OpensMeasurableSpace F] [NormedAddCommGroup G] [MeasurableSpace G] [OpensMeasurableSpace G]
+    {u : α → F} {v : α → G} (hu : AEMeasurable u μ) (hv : AEMeasurable v μ) :
+    ∫⁻ a, ‖u a‖ₑ * ‖v a‖ₑ ∂μ ≤ eLpNorm u 2 μ * eLpNorm v 2 μ := by
+  have hpq : (2 : ℝ).HolderConjugate 2 := by
+    rw [Real.holderConjugate_iff]
+    norm_num
+  have h := ENNReal.lintegral_mul_le_Lp_mul_Lq μ hpq hu.enorm hv.enorm
+  simp only [Pi.mul_apply] at h
+  refine h.trans_eq ?_
+  rw [eLpNorm_two_eq_lintegral_enorm_sq, eLpNorm_two_eq_lintegral_enorm_sq]
   norm_num [ENNReal.rpow_natCast]
 
 /-- **Cauchy--Schwarz inequality** for the Bochner integral of a product `u ⋅ conj v` of

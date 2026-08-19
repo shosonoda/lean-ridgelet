@@ -5,6 +5,9 @@ Authors: Sho Sonoda, Claude
 -/
 module
 
+public import LeanRidgelet.HA.AdjointReconstruction
+public import LeanRidgelet.HA.BochnerAdjoint
+public import LeanRidgelet.HA.QuadraticSobolevCarrier
 public import LeanRidgelet.HA.QuadraticReconstruction
 public import LeanRidgelet.HA.QuadraticSobolevSpace
 
@@ -32,24 +35,27 @@ The assembly separates cleanly into a part that is proved here and two analytic 
   scalar to be nonzero -- the whole nonvanishing question is the existence of a single probe.
 * `LeanRidgelet.inner_quadraticReconstruction`: the scalar is computed by every probe, so it is the
   admissibility constant of the pair rather than an abstract choice.
-* `LeanRidgelet.quadratic_reconstruction_nonzero_of_apply_ne_zero`: the endpoint with a nonzero
-  constant, from a probe.  No placeholder in its proof.
+* `LeanRidgelet.quadratic_reconstruction_nonzero_of_apply_ne_zero` and
+  `LeanRidgelet.exists_ne_zero_of_quadraticCompositeEndomorphism`: the endpoint with a nonzero
+  constant from a probe, for a pair and for an endomorphism.  No placeholder in either proof.
+* `LeanRidgelet.eLpNorm_bochnerSynthesis_bochnerRidgelet_le`: **the composite is bounded** by the
+  product of the two constants -- and the estimate does *not* say either factor is bounded on
+  parameter `L²`, which is exactly why it escapes the Hilbert--Schmidt obstruction.
 
 ## What remains, and where it is recorded
 
 Two named theorems carry a `sorry`, and they are the two halves of the article's boundedness
 appendix in the shape the intermediate space needs.
 
-* `LeanRidgelet.exists_quadraticIntertwiners_of_bounds`: the two bounds through `Γ^k` --
-  `LeanRidgelet.QuadraticAnalysisBound` and `LeanRidgelet.QuadraticSynthesisBound`, stated exactly
-  as
-  `LeanRidgelet.HA.QuadraticSobolevSpace` leaves them -- produce a bounded intertwining pair whose
-  composite is the pointwise Bochner composite.  What is missing is the packaging: a carrier for
-  `Γ^k`, its completeness, and the promotion of the seminorm identities to a bounded action, none of
-  which that file does.
+* `LeanRidgelet.exists_quadraticCompositeIntertwiner_of_bounds`: the two bounds through `Γ^k` --
+  `LeanRidgelet.QuadraticAnalysisBound` and `LeanRidgelet.QuadraticSynthesisBound` -- produce a
+  bounded intertwining **endomorphism** of data `L²` realizing the pointwise Bochner composite.  The
+  estimate itself is proved, in `LeanRidgelet.eLpNorm_bochnerSynthesis_bochnerRidgelet_le`; what is
+  missing is the packaging of a pointwise formula as an operator, which needs almost-everywhere
+  additivity of the two integrals.
 * `LeanRidgelet.exists_quadraticAdmissiblePair`: an admissible pair exists -- some synthesis
-feature,
-  analysis feature and order satisfy both bounds and leave the pointwise composite nonvanishing on
+  feature, analysis feature and order satisfy both bounds and leave the pointwise composite
+  nonvanishing on
   some datum.  This is the admissibility constant of the article being nonzero.
 
 The nonvanishing is stated as an existence over pairs on purpose.  For a *fixed* pair it is false:
@@ -98,6 +104,16 @@ abbrev QuadraticRidgelet (lam : Measure (QuadraticParameter E)) [lam.IsAddHaarMe
   JointEquivariantRidgelet
     (affineDataLpUnitaryRepresentation (Y := ℂ) (volume : Measure E)).toContRepresentation
     (quadraticRelativeParameterLpUnitaryRepresentation lam).toContRepresentation
+
+/-- A bounded intertwining **endomorphism** of data `L²`: the shape the article's weaker boundedness
+hypothesis takes, and -- as `LeanRidgelet.eLpNorm_bochnerSynthesis_bochnerRidgelet_le` shows -- the
+shape the intermediate-space route actually produces.  The two bounds control the composite, not the
+two factors separately: the synthesis is bounded on `Γ^k`, which is smaller than parameter `L²`, so
+nothing in them says the machine is bounded there. -/
+abbrev QuadraticCompositeEndomorphism :=
+  JointEquivariantMachine
+    (affineDataLpUnitaryRepresentation (Y := ℂ) (volume : Measure E)).toContRepresentation
+    (affineDataLpUnitaryRepresentation (Y := ℂ) (volume : Measure E)).toContRepresentation
 
 /-! ### The reconstruction scalar, named -/
 
@@ -183,34 +199,123 @@ def QuadraticAnalysisBound (lam : Measure (QuadraticParameter E)) (ψ : ℝ → 
       C * eLpNorm (f : E → ℂ) 2 (volume : Measure E)
 
 /-- **The synthesis bound out of `Γ^k`.**  The `L²` norm of the synthesis integral of a coefficient
-function in the space is at most a finite constant times its order-`k` seminorm.  This is the bound
-`LeanRidgelet.enorm_bochnerSynthesis_le_quadraticSobolevSeminorm_mul` gives pointwise in the data
-variable; integrating it in that variable is what a proof has to supply. -/
+function in the space is at most a finite constant times its order-`k` seminorm.
+
+A warning about how *not* to prove it.  The theorem
+`LeanRidgelet.enorm_bochnerSynthesis_le_quadraticSobolevSeminorm_mul` gives this pointwise in the
+data variable, by Cauchy--Schwarz in the parameter -- but integrating that estimate in the data
+variable asks exactly for the square integrability of the feature over the product, which is
+condition T2, which
+`LeanRidgelet.HA.QuadraticComposite` shows forces the reconstruction constant to vanish.  The
+pointwise estimate uses only the order-`0` term of the seminorm, and that is why: a bound that does
+not see the derivatives cannot escape Hilbert--Schmidt.  A proof has to use the higher-order terms,
+pairing the derivatives of the coefficient function against a negative-order object built from the
+synthesis feature.  For an activation of polynomial growth that also needs a polynomial weight in
+the constant coefficient -- the growth index `t` of the L2 activation spaces -- which `Γ^k` as
+defined does not carry. -/
 def QuadraticSynthesisBound (lam : Measure (QuadraticParameter E)) (σ : ℝ → ℂ) (k : ℕ) : Prop :=
   ∃ C : ℝ≥0∞, C ≠ ∞ ∧ ∀ γ : QuadraticParameter E → ℂ, MemQuadraticSobolev lam k γ →
     eLpNorm (bochnerSynthesis (quadraticRelativeMeasure lam) (quadraticVectorFeature σ) γ) 2
         (volume : Measure E) ≤
       C * quadraticSobolevSeminorm lam k γ
 
+/-! ### The composite estimate -/
+
+omit [Nontrivial E] [BorelSpace (QuadraticSymmetric E)] in
+/-- **The composite is bounded, and neither factor need be.**  The two bounds compose: the analysis
+transform of a datum has order-`k` seminorm at most a constant times the datum's `L²` norm, and the
+synthesis integral of a member of the space has `L²` norm at most a constant times its seminorm, so
+the composite of the two Bochner integrals is bounded on data `L²` with the product of the two
+constants.
+
+This is the estimate the whole route exists to produce, and the point is what it does *not* say.  It
+does not say the synthesis integral is bounded on parameter `L²`: it is bounded on `Γ^k`, which is
+smaller, and the seminorm dominates the `L²` norm rather than the other way round.  So the composite
+is bounded without either factor being Hilbert--Schmidt, which is exactly the shape
+`LeanRidgelet.HA.QuadraticComposite` shows is needed -- and the shape the article's boundedness
+hypothesis takes when read as a hypothesis on the composite alone. -/
+theorem eLpNorm_bochnerSynthesis_bochnerRidgelet_le (lam : Measure (QuadraticParameter E))
+    {σ ψ : ℝ → ℂ} {k : ℕ} (hψ : QuadraticAnalysisBound lam ψ k)
+    (hσ : QuadraticSynthesisBound lam σ k) :
+    ∃ C : ℝ≥0∞, C ≠ ∞ ∧ ∀ f : Lp ℂ 2 (volume : Measure E),
+      MemQuadraticSobolev lam k
+          (bochnerRidgelet (volume : Measure E) (quadraticVectorFeature ψ) (f : E → ℂ)) →
+        eLpNorm (bochnerSynthesis (quadraticRelativeMeasure lam) (quadraticVectorFeature σ)
+            (bochnerRidgelet (volume : Measure E) (quadraticVectorFeature ψ) (f : E → ℂ))) 2
+            (volume : Measure E) ≤
+          C * eLpNorm (f : E → ℂ) 2 (volume : Measure E) := by
+  obtain ⟨Cψ, hCψ, hψ'⟩ := hψ
+  obtain ⟨Cσ, hCσ, hσ'⟩ := hσ
+  refine ⟨Cσ * Cψ, ENNReal.mul_ne_top hCσ hCψ, fun f hf ↦ ?_⟩
+  calc eLpNorm (bochnerSynthesis (quadraticRelativeMeasure lam) (quadraticVectorFeature σ)
+          (bochnerRidgelet (volume : Measure E) (quadraticVectorFeature ψ) (f : E → ℂ))) 2
+          (volume : Measure E)
+      ≤ Cσ * quadraticSobolevSeminorm lam k
+          (bochnerRidgelet (volume : Measure E) (quadraticVectorFeature ψ) (f : E → ℂ)) :=
+        hσ' _ hf
+    _ ≤ Cσ * (Cψ * eLpNorm (f : E → ℂ) 2 (volume : Measure E)) := by
+        gcongr
+        exact hψ' f
+    _ = Cσ * Cψ * eLpNorm (f : E → ℂ) 2 (volume : Measure E) := by rw [mul_assoc]
+
+/-! ### A nonzero constant from a bounded intertwining endomorphism -/
+
+omit [MeasurableSpace (QuadraticSymmetric E)] [BorelSpace (QuadraticSymmetric E)] in
+/-- **The endomorphism form of the endpoint, with no placeholder.**  A bounded intertwining
+endomorphism of data `L²` that does not annihilate some datum is a **nonzero** scalar multiple of
+the identity.  Schur gives the scalar and the probe gives its nonvanishing; this is the same
+two-line reduction as for a pair of intertwiners, in the shape the intermediate-space route
+produces. -/
+theorem exists_ne_zero_of_quadraticCompositeEndomorphism
+    (T : QuadraticCompositeEndomorphism (E := E)) (f : Lp ℂ 2 (volume : Measure E)) (hf : T f ≠ 0) :
+    ∃ c : ℂ, c ≠ 0 ∧ T.toContinuousLinearMap =
+      c • ContinuousLinearMap.id ℂ (Lp ℂ 2 (volume : Measure E)) := by
+  obtain ⟨c, hc⟩ := ha_reconstruction_of_intertwiner
+    (affineDataLpUnitaryRepresentation (Y := ℂ) (volume : Measure E))
+    affineDataLpUnitaryRepresentation_isTopologicallyIrreducible T
+  refine ⟨c, ?_, hc⟩
+  intro hc0
+  refine hf ?_
+  have h1 : T.toContinuousLinearMap f = c • f := by simpa using congr($(hc) f)
+  rw [hc0, zero_smul] at h1
+  exact h1
+
 /-! ### The two analytic inputs that remain -/
 
-/-- **Remaining: the bounded intertwining pair through `Γ^k`.**  Given the two bounds, the machine
-and the ridgelet transform exist as bounded intertwiners and their composite is the pointwise
-Bochner
-composite of the two features.
+/-- **Remaining: the composite as a bounded intertwining endomorphism.**  Given the two bounds, the
+composite of the two Bochner integrals is realized by a bounded intertwining endomorphism of data
+`L²`.
 
-Not proved here.  What is missing is not the two estimates -- those are the hypotheses -- but the
-packaging `LeanRidgelet.HA.QuadraticSobolevSpace` deliberately leaves out: a carrier for `Γ^k`, its
-completeness, the promotion of `LeanRidgelet.quadraticSobolevSeminorm_comp_smul` to a bounded action
-on that carrier, and the factorization of each Bochner integral through it.  The equivariance of the
-two integrals is already available pointwise from
-`LeanRidgelet.HA.QuadraticRelativeMeasure`. -/
-theorem exists_quadraticIntertwiners_of_bounds (lam : Measure (QuadraticParameter E))
+Not proved here, and note what is *not* missing.  The estimate is proved:
+`LeanRidgelet.eLpNorm_bochnerSynthesis_bochnerRidgelet_le` bounds the composite by the product of
+the two constants.  The equivariance is available pointwise from
+`LeanRidgelet.HA.QuadraticRelativeMeasure`.  What is missing is the packaging of a pointwise formula
+as an operator: almost-everywhere additivity of the two Bochner integrals, which needs integrability
+of each of them separately, and the membership hypothesis the estimate carries -- that the analysis
+transform of each datum lies in the space, which
+`LeanRidgelet.memQuadraticSobolev_bochnerRidgelet_of_stronglyMeasurable` supplies from the transfer
+hypotheses.
+
+An earlier version of this file asked instead for a bounded intertwining *pair* through parameter
+`L²`.  That was the wrong shape, and precisely because of the synthesis: the analysis bound is
+stronger than a parameter-`L²` bound, since the seminorm dominates the `L²` norm, so the ridgelet
+transform *is* bounded into parameter `L²`; but the synthesis bound is weaker than a parameter-`L²`
+bound for the same reason, so nothing in it makes the machine bounded there.
+
+A pair is available in one other shape, and the carrier of
+`LeanRidgelet.HA.QuadraticSobolevCarrier` is what makes it possible: take `Γ^k` itself as the
+parameter space, so that the machine goes out of it and the ridgelet transform into it, both bounded
+by the two hypotheses as stated.  That needs the restricted diagonal action bundled as a
+representation on the subspace -- the invariance and the multiplicativity are proved there, the
+bundling is not -- and it is the stronger conclusion of the two, since it also gives the article's
+right-inverse form.  This statement takes the weaker route because it is the one the article's own
+boundedness hypothesis takes. -/
+theorem exists_quadraticCompositeIntertwiner_of_bounds (lam : Measure (QuadraticParameter E))
     [lam.IsAddHaarMeasure] {σ ψ : ℝ → ℂ} {k : ℕ}
     (hψ : QuadraticAnalysisBound lam ψ k) (hσ : QuadraticSynthesisBound lam σ k) :
-    ∃ (M : QuadraticMachine lam) (R : QuadraticRidgelet lam),
+    ∃ T : QuadraticCompositeEndomorphism (E := E),
       ∀ f : Lp ℂ 2 (volume : Measure E),
-        (M (R f) : E → ℂ) =ᵐ[(volume : Measure E)]
+        (T f : E → ℂ) =ᵐ[(volume : Measure E)]
           bochnerSynthesis (quadraticRelativeMeasure lam) (quadraticVectorFeature σ)
             (bochnerRidgelet (volume : Measure E) (quadraticVectorFeature ψ) (f : E → ℂ)) := by
   sorry
@@ -220,12 +325,10 @@ satisfy both bounds and leave the pointwise composite nonvanishing on some datum
 article's admissibility constant being nonzero.
 
 Not proved here, and stated as an existence over pairs on purpose: for a fixed pair the conclusion
-is
-false, the zero synthesis feature satisfying both bounds and annihilating every datum.  The article
-fixes the activation to be the rectified linear unit; specializing this existence to a fixed
+is false, the zero synthesis feature satisfying both bounds and annihilating every datum.  The
+article fixes the activation to be the rectified linear unit; specializing this existence to a fixed
 activation needs its nonvanishing on the Fourier side together with the negative-order condition
-that
-controls its growth, and neither is assumed anywhere in this development. -/
+that controls its growth, and neither is assumed anywhere in this development. -/
 theorem exists_quadraticAdmissiblePair (lam : Measure (QuadraticParameter E))
     [lam.IsAddHaarMeasure] :
     ∃ (σ ψ : ℝ → ℂ) (k : ℕ), QuadraticAnalysisBound lam ψ k ∧ QuadraticSynthesisBound lam σ k ∧
@@ -238,37 +341,191 @@ theorem exists_quadraticAdmissiblePair (lam : Measure (QuadraticParameter E))
 /-! ### The nonzero-constant reconstruction formula -/
 
 /-- **Section 7 of the article, with a nonzero reconstruction constant.**  There are a synthesis
-feature, an analysis feature, an order, and a bounded intertwining pair realizing the two Bochner
-integrals through the intermediate coefficient space, whose reconstruction operator is a **nonzero**
-scalar multiple of the identity; the normalized ridgelet transform is then a right inverse of the
-machine.  This is the universality claim for the quadratic-form network in the form the article
-states it.
+feature, an analysis feature, an order satisfying both bounds through the intermediate coefficient
+space, and a **nonzero** constant such that the composite of the two Bochner integrals returns every
+datum multiplied by that constant.  Equivalently: the network whose coefficient function is the
+normalized analysis transform of a datum outputs that datum.  This is the universality claim for the
+quadratic-form network, stated on the network's own integrals rather than on an abstract pair of
+operators.
 
-The Schur step and the reduction of nonvanishing to a single probe carry nothing.  What this rests
-on
-is exactly the two placeholders above, `LeanRidgelet.exists_quadraticIntertwiners_of_bounds` and
+The Schur step and the reduction of nonvanishing to a single probe carry nothing, and the composite
+estimate is proved.  What this rests on is exactly the two placeholders above,
+`LeanRidgelet.exists_quadraticCompositeIntertwiner_of_bounds` and
 `LeanRidgelet.exists_quadraticAdmissiblePair`. -/
 theorem quadratic_reconstruction_nonzero (lam : Measure (QuadraticParameter E))
     [lam.IsAddHaarMeasure] :
-    ∃ (σ ψ : ℝ → ℂ) (k : ℕ) (M : QuadraticMachine lam) (R : QuadraticRidgelet lam) (c : ℂ),
-      c ≠ 0 ∧
+    ∃ (σ ψ : ℝ → ℂ) (k : ℕ) (c : ℂ), c ≠ 0 ∧
+      QuadraticAnalysisBound lam ψ k ∧ QuadraticSynthesisBound lam σ k ∧
+      ∀ f : Lp ℂ 2 (volume : Measure E),
+        bochnerSynthesis (quadraticRelativeMeasure lam) (quadraticVectorFeature σ)
+            (bochnerRidgelet (volume : Measure E) (quadraticVectorFeature ψ) (f : E → ℂ))
+          =ᵐ[(volume : Measure E)] fun x ↦ c • (f : E → ℂ) x := by
+  obtain ⟨σ, ψ, k, hψ, hσ, f, hf⟩ := exists_quadraticAdmissiblePair (E := E) lam
+  obtain ⟨T, hT⟩ := exists_quadraticCompositeIntertwiner_of_bounds lam hψ hσ
+  have hne : T f ≠ 0 := by
+    intro h
+    refine hf ((hT f).symm.trans ?_)
+    rw [h]
+    exact Lp.coeFn_zero ℂ 2 (volume : Measure E)
+  obtain ⟨c, hc, hrec⟩ := exists_ne_zero_of_quadraticCompositeEndomorphism T f hne
+  refine ⟨σ, ψ, k, c, hc, hψ, hσ, fun h ↦ ?_⟩
+  refine (hT h).symm.trans ?_
+  have hTh : T.toContinuousLinearMap h = c • h := by simpa using congr($(hrec) h)
+  rw [show T h = c • h from hTh]
+  exact Lp.coeFn_smul c h
+
+/-! ### The coorbit route: a nonzero constant with no placeholder -/
+
+/-- **Section 7 with a nonzero reconstruction constant, unconditionally.**  Take the machine to be
+the adjoint of the ridgelet transform.  Then a single datum with nonzero transform gives a
+**nonzero** reconstruction constant, the reconstruction operator is that constant times the
+identity, and the normalized ridgelet transform is a right inverse of the machine -- the article's
+endpoint, with nothing left assumed but the boundedness of the ridgelet transform itself.
+
+This is the argument of coorbit theory and of the theory of generalized wavelet transforms; see
+`LeanRidgelet.HA.AdjointReconstruction` for the general statement and for the reference.  The
+constant is `‖R f‖² / ‖f‖²`, which the orthogonality relation below exhibits, so it is real and
+positive rather than merely nonzero, and the compactness obstruction of
+`LeanRidgelet.HA.QuadraticComposite` cannot arise: no kernel is assumed square integrable, and the
+composite is a multiple of an isometry, which in infinite dimensions is not compact.
+
+What it costs is that the machine is the adjoint rather than an independently chosen synthesis
+integral.  At the level of the Bochner formulas that is the common-feature case -- the adjoint of
+the ridgelet transform against a feature is the synthesis integral against the same feature -- so
+this reconstructs with the network whose activation is the analysis feature.  Identifying the
+adjoint with the pointwise synthesis integral is a Fubini computation and is not done here; fixing
+the activation in advance is the harder problem the two placeholders above are about. -/
+theorem quadratic_reconstruction_adjoint (lam : Measure (QuadraticParameter E))
+    [lam.IsAddHaarMeasure] (R : QuadraticRidgelet lam) (f₀ : Lp ℂ 2 (volume : Measure E))
+    (hf₀ : R f₀ ≠ 0) :
+    ∃ (M : QuadraticMachine lam) (c : ℂ), c ≠ 0 ∧
       jointReconstructionOperator M R =
         c • ContinuousLinearMap.id ℂ (Lp ℂ 2 (volume : Measure E)) ∧
       Function.RightInverse (⇑(c⁻¹ • R.toContinuousLinearMap)) (⇑M) ∧
-      QuadraticAnalysisBound lam ψ k ∧ QuadraticSynthesisBound lam σ k ∧
-      ∀ f : Lp ℂ 2 (volume : Measure E),
-        (M (R f) : E → ℂ) =ᵐ[(volume : Measure E)]
-          bochnerSynthesis (quadraticRelativeMeasure lam) (quadraticVectorFeature σ)
-            (bochnerRidgelet (volume : Measure E) (quadraticVectorFeature ψ) (f : E → ℂ)) := by
-  obtain ⟨σ, ψ, k, hψ, hσ, f, hf⟩ := exists_quadraticAdmissiblePair (E := E) lam
-  obtain ⟨M, R, hMR⟩ := exists_quadraticIntertwiners_of_bounds lam hψ hσ
-  have hne : M (R f) ≠ 0 := by
-    intro h
-    refine hf ((hMR f).symm.trans ?_)
-    rw [h]
-    exact Lp.coeFn_zero ℂ 2 (volume : Measure E)
-  obtain ⟨c, hc, hrec, hright⟩ :=
-    quadratic_reconstruction_nonzero_of_apply_ne_zero lam M R f hne
-  exact ⟨σ, ψ, k, M, R, c, hc, hrec, hright, hψ, hσ, hMR⟩
+      ∀ f : Lp ℂ 2 (volume : Measure E), ⟪R f, R f⟫_ℂ = c * ⟪f, f⟫_ℂ := by
+  obtain ⟨c, hc, hscalar, horth, _⟩ := ha_adjoint_reconstruction_of_ne_zero
+    (affineDataLpUnitaryRepresentation (Y := ℂ) (volume : Measure E))
+    affineDataLpUnitaryRepresentation_isTopologicallyIrreducible R f₀ hf₀
+  exact ⟨adjointIntertwiner R, c, hc, hscalar,
+    quadraticNormalizedRidgelet_rightInverse lam (adjointIntertwiner R) R hscalar hc, horth⟩
+
+/-- **The quadratic-form network reconstructs, on its own integrals.**  Take the synthesis feature
+to be the analysis feature.  Then the synthesis integral is the adjoint of the ridgelet transform,
+so one datum with nonzero transform gives a **nonzero** constant for which the composite of the
+network's two Bochner integrals returns every datum multiplied by that constant.
+
+This is the Section 7 endpoint stated on the integrals the article writes down rather than on
+abstract operators, and it carries no placeholder.  What is assumed is what the development assumes
+everywhere for analytic input -- that the two integrals are realized by bounded intertwiners --
+together with one Fubini hypothesis and the nonvanishing probe.  The constant is `‖R f‖² / ‖f‖²`, so
+it is positive.
+
+The synthesis feature being the analysis feature is what makes the two integrals adjoint, and it is
+the whole cost of the route: this reconstructs with the network whose activation is the analysis
+feature.  An activation fixed in advance is the harder problem of the two placeholders above. -/
+theorem quadratic_bochner_reconstruction_adjoint (lam : Measure (QuadraticParameter E))
+    [lam.IsAddHaarMeasure] {ψ : ℝ → ℂ} (R : QuadraticRidgelet lam) (M : QuadraticMachine lam)
+    (hR : ∀ f : Lp ℂ 2 (volume : Measure E), (R f : QuadraticParameter E → ℂ)
+      =ᵐ[quadraticRelativeMeasure lam]
+        bochnerRidgelet (volume : Measure E) (quadraticVectorFeature ψ) (f : E → ℂ))
+    (hM : ∀ γ : Lp ℂ 2 (quadraticRelativeMeasure lam), (M γ : E → ℂ) =ᵐ[(volume : Measure E)]
+        bochnerSynthesis (quadraticRelativeMeasure lam) (quadraticVectorFeature ψ)
+          (γ : QuadraticParameter E → ℂ))
+    (hfub : ∀ (γ : Lp ℂ 2 (quadraticRelativeMeasure lam)) (f : Lp ℂ 2 (volume : Measure E)),
+      Integrable (Function.uncurry fun (x : E) (ξ : QuadraticParameter E) ↦
+        conj ((γ : QuadraticParameter E → ℂ) ξ) *
+          (conj (quadraticVectorFeature ψ x ξ) * (f : E → ℂ) x))
+        ((volume : Measure E).prod (quadraticRelativeMeasure lam)))
+    (f₀ : Lp ℂ 2 (volume : Measure E)) (hf₀ : R f₀ ≠ 0) :
+    ∃ c : ℂ, c ≠ 0 ∧ ∀ f : Lp ℂ 2 (volume : Measure E),
+      bochnerSynthesis (quadraticRelativeMeasure lam) (quadraticVectorFeature ψ)
+          (bochnerRidgelet (volume : Measure E) (quadraticVectorFeature ψ) (f : E → ℂ))
+        =ᵐ[(volume : Measure E)] fun x ↦ c • (f : E → ℂ) x := by
+  have hadj : M.toContinuousLinearMap =
+      ContinuousLinearMap.adjoint R.toContinuousLinearMap :=
+    bochnerSynthesis_eq_adjoint_bochnerRidgelet (volume : Measure E)
+      (quadraticRelativeMeasure lam) (quadraticVectorFeature ψ) M.toContinuousLinearMap
+      R.toContinuousLinearMap hM hR hfub
+  obtain ⟨c, hc, _, _, hrec⟩ := ha_adjoint_reconstruction_of_ne_zero
+    (affineDataLpUnitaryRepresentation (Y := ℂ) (volume : Measure E))
+    affineDataLpUnitaryRepresentation_isTopologicallyIrreducible R f₀ hf₀
+  refine ⟨c, hc, fun f ↦ ?_⟩
+  have hMf : M (R f) = c • f := by
+    have h := hrec f
+    rw [← hadj, ContIntertwiningMap.toContinuousLinearMap_apply] at h
+    calc M (R f) = (c * c⁻¹) • M (R f) := by rw [mul_inv_cancel₀ hc, one_smul]
+      _ = c • (c⁻¹ • M (R f)) := by rw [smul_smul]
+      _ = c • f := by rw [h]
+  have hsyn : bochnerSynthesis (quadraticRelativeMeasure lam) (quadraticVectorFeature ψ)
+        (bochnerRidgelet (volume : Measure E) (quadraticVectorFeature ψ) (f : E → ℂ))
+      =ᵐ[(volume : Measure E)]
+        bochnerSynthesis (quadraticRelativeMeasure lam) (quadraticVectorFeature ψ)
+          ((R f : QuadraticParameter E → ℂ)) :=
+    Filter.Eventually.of_forall fun x ↦
+      integral_congr_ae ((hR f).mono fun ξ hξ ↦ by simp only [hξ])
+  refine hsyn.trans (((hM (R f)).symm.trans ?_))
+  rw [hMf]
+  exact Lp.coeFn_smul c f
+
+/-! ### The endpoint through the intermediate space -/
+
+/-- A machine out of the intermediate coefficient space: an intertwiner from the representation on
+`Γ^k` to the affine data representation.  This is the shape the two bounds through `Γ^k` control --
+the synthesis is bounded on `Γ^k`, not on parameter `L²` -- so it is the shape in which a pair of
+intertwiners is available at all. -/
+abbrev QuadraticGammaMachine (lam : Measure (QuadraticParameter E)) [lam.IsAddHaarMeasure]
+    (k : ℕ) :=
+  JointEquivariantMachine (quadraticSobolevContRepresentation lam k)
+    (affineDataLpUnitaryRepresentation (Y := ℂ) (volume : Measure E)).toContRepresentation
+
+/-- A ridgelet transform into the intermediate coefficient space. -/
+abbrev QuadraticGammaRidgelet (lam : Measure (QuadraticParameter E)) [lam.IsAddHaarMeasure]
+    (k : ℕ) :=
+  JointEquivariantRidgelet
+    (affineDataLpUnitaryRepresentation (Y := ℂ) (volume : Measure E)).toContRepresentation
+    (quadraticSobolevContRepresentation lam k)
+
+/-- **Section 7 through the intermediate space.**  A machine out of `Γ^k` and a ridgelet transform
+into it compose to a scalar multiple of the identity, and a nonzero scalar makes the normalized
+transform a right inverse of the machine.  This is the article's endpoint with the parameter space
+taken to be the intermediate coefficient space rather than parameter `L²`, which is the pair shape
+the two bounds of this file can produce.
+
+Nothing is assumed: the Schur step uses the irreducibility of the affine data representation, proved
+in `LeanRidgelet.HA.AffineMackey`, and the representation on `Γ^k` is
+`LeanRidgelet.quadraticSobolevContRepresentation`.  What remains for a concrete pair is to factor
+the two Bochner integrals through the space, which is what
+`LeanRidgelet.exists_quadraticCompositeIntertwiner_of_bounds` is about. -/
+theorem quadratic_gamma_reconstruction (lam : Measure (QuadraticParameter E))
+    [lam.IsAddHaarMeasure] (k : ℕ) (M : QuadraticGammaMachine lam k)
+    (R : QuadraticGammaRidgelet lam k) :
+    ∃ c : ℂ, jointReconstructionOperator M R =
+        c • ContinuousLinearMap.id ℂ (Lp ℂ 2 (volume : Measure E)) ∧
+      (c ≠ 0 → Function.RightInverse (⇑(c⁻¹ • R.toContinuousLinearMap)) (⇑M)) := by
+  obtain ⟨c, hc⟩ := ha_reconstruction_formula
+    (affineDataLpUnitaryRepresentation (Y := ℂ) (volume : Measure E))
+    affineDataLpUnitaryRepresentation_isTopologicallyIrreducible
+    (quadraticSobolevContRepresentation lam k) M R
+  exact ⟨c, hc, fun hc0 ↦ ha_normalizedRidgelet_rightInverse M R hc hc0⟩
+
+/-- **A nonzero constant through the intermediate space, from a probe.**  One datum whose image
+under the composite is nonzero makes the constant nonzero, so the normalized transform inverts the
+machine outright.  The reduction is the same as for the other shapes; only the parameter space
+differs. -/
+theorem quadratic_gamma_reconstruction_of_ne_zero (lam : Measure (QuadraticParameter E))
+    [lam.IsAddHaarMeasure] (k : ℕ) (M : QuadraticGammaMachine lam k)
+    (R : QuadraticGammaRidgelet lam k) (f : Lp ℂ 2 (volume : Measure E)) (hf : M (R f) ≠ 0) :
+    ∃ c : ℂ, c ≠ 0 ∧
+      jointReconstructionOperator M R =
+        c • ContinuousLinearMap.id ℂ (Lp ℂ 2 (volume : Measure E)) ∧
+      Function.RightInverse (⇑(c⁻¹ • R.toContinuousLinearMap)) (⇑M) := by
+  obtain ⟨c, hc, hright⟩ := quadratic_gamma_reconstruction lam k M R
+  have hcne : c ≠ 0 := by
+    intro hc0
+    refine hf ?_
+    have h : jointReconstructionOperator M R f = c • f := by simpa using congr($(hc) f)
+    rw [hc0, zero_smul] at h
+    exact h
+  exact ⟨c, hcne, hc, hright hcne⟩
 
 end LeanRidgelet

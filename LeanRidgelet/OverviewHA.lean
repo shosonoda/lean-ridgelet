@@ -66,13 +66,17 @@ through `LeanRidgelet.HA`, whose module documentation records their Lean depende
 * Section 5 feature covariance, the vector-valued product-group `L²` action, the standard
   complexified `O(m)` output representation, and the finite-output form of Lemma 5.1 are proved.
 * The orbit-lift construction and Theorem 6.1 for group-convolutional networks are proved.
-* The Section 7 quadratic-form example is implemented as far as its algebra goes: the symmetric
-  coefficients as a subspace of the self-adjoint continuous endomorphisms, the linear parameter
-  action of the affine group, joint invariance of the scalar argument and hence of the feature for
-  every activation, the group-action law, and the block factorization of the parameter
-  determinant. The quasi-invariant parameter measure and the resulting `L²` representation of the
-  affine group on quadratic parameters are proved as well; the synthesis and ridgelet pair for
-  this parameter space remains. Section 8 contains no additional formal target.
+* The Section 7 quadratic-form example is carried to its endpoint. Its algebra is proved: the
+  symmetric coefficients as a subspace of the self-adjoint continuous endomorphisms, the linear
+  parameter action of the affine group, joint invariance of the scalar argument and hence of the
+  feature for every activation, the group-action law, and the block factorization of the parameter
+  determinant, whose congruence factor is computed in general. Its measure layer is proved twice:
+  the quasi-invariant parameter measure and its `L²` representation, and then the relatively
+  invariant measure that restores the density balance the quasi-invariant one breaks — with the
+  additive Haar measure the two representations are not balanced, and no pair of intertwiners can be
+  built. The reconstruction endpoint follows from bounded intertwiners by Schur, and the
+  reconstruction scalar is named, computed by any probe, and shown to be nonzero as soon as one
+  datum has nonzero image. Section 8 contains no additional formal target.
 
 The Euclidean bounded synthesis and ridgelet maps used by the examples are reused from the L2
 theory through `HA.L2Bridge`; the HA development does not duplicate their boundedness proof.
@@ -83,17 +87,35 @@ The `L²` unitarity needed from Appendix A is implemented, as are the finite-out
 tensor irreducibility step and the group-convolution reductions. Appendix B is covered by the
 Section 2 affine instance. Appendix C's uniform approximation of an integral representation by
 finite networks is proved in general form, for a Lipschitz Banach-valued integrand on a compact
-metric parameter space, and specializes to bounded continuous functions on an arbitrary data
-space. The Hilbert--Schmidt criterion of Appendix D is proved in general form as well: a
-square-integrable kernel gives a bounded operator on `L²`. What remains of those appendices is
-their instantiation at the parameter spaces the L2 bridge does not cover. The Mackey route
-supplies most of the input needed
-for Appendix E, and the Folland-6.29 measurable-lift step above completes it, so no proof root
-remains there.
+metric parameter space, and specializes to bounded continuous functions on an arbitrary data space;
+what remains there is its instantiation at concrete features. The Mackey route supplies most of the
+input needed for Appendix E, and the Folland-6.29 measurable-lift step above completes it, so no
+proof root remains there.
 
-The Blueprint chapters `overview-ha`, `ha-representations`, `ha-affine`, and `ha-architectures`
-remain development-only until the HA theory stabilizes. This overview contains no declaration or
-proof placeholder of its own.
+Appendix D is the one place where the formalization has to depart from the article, and the two
+remaining proof roots of the whole track are there. Its Hilbert--Schmidt criterion is proved in
+general form — a square-integrable kernel gives a bounded operator on `L²` — and instantiated for
+the quadratic feature both for the feature itself (condition T2) and for the composite kernel alone
+(condition T1). **Neither can give universality.** A square-integrable kernel makes the operator
+compact, while a scalar operator on an infinite-dimensional space is compact only for the zero
+scalar, so whenever those hypotheses hold the reconstruction constant vanishes; and for an
+activation of polynomial growth, the rectified linear unit included, T2 is false outright. What the
+L1 and L2 theories do instead is bound the analysis and the synthesis separately through a weighted
+intermediate space, where neither operator is Hilbert--Schmidt. For the quadratic feature the weight
+cannot go on the parameter measure, whose balance is pinned down above, so it goes on the
+coefficient space, and the weight comes from smoothness: a derivative in the additive parameter
+transfers onto the analysis feature. The intermediate space is therefore a Sobolev structure of
+order `k` in the constant coefficient of the parameter, and it survives the action because the
+action is a shear in that coefficient. Its seminorm, its invariance, the identity computing the
+analysis transform's seminorm from the features, and the dual synthesis bound are proved. What is
+not proved, and is stated as the track's only two placeholders, is the Hilbert-space packaging of
+that space together with the bounded intertwiners it produces, and the existence of an admissible
+pair of features leaving the composite nonvanishing — the article's admissibility constant. The
+second is stated as an existence over pairs, since for a fixed pair it is false.
+
+The Blueprint part `ha` has been published since 2026-08-19, with the child pages `overview-ha`,
+`ha-representations`, `ha-affine`, `ha-architectures`, and `ha-quadratic`. This overview contains no
+declaration or proof placeholder of its own.
 
 ## Deviations from the article
 
@@ -102,8 +124,11 @@ general Bochner lemmas use invariant measures, whereas its affine examples requi
 Lebesgue measures; `HA.BochnerIntertwining` therefore also states the corrected identities with
 explicit pushforward densities and their square-root balance. `HA.Affine` derives the concrete
 factors `‖det L‖₊` and `‖det L‖₊⁻¹` and instantiates that balance. For the quadratic feature the
-corresponding determinant is kept abstract: only its non-vanishing is used, so the explicit
-congruence determinant on symmetric coefficients is not computed. Individually bounded
-synthesis/ridgelet maps and a bounded extension of their pointwise composite are exposed as
-separate APIs, matching the two possible readings of the article's boundedness hypothesis.
+parameter Jacobian is kept abstract where only its non-vanishing is used, but the congruence
+determinant on symmetric coefficients is computed where the balance needs it, so the relative weight
+`|det A|^{-(m+1)/2}` is exhibited rather than assumed. Individually bounded synthesis/ridgelet maps
+and a bounded extension of their pointwise composite are exposed as separate APIs, matching the two
+possible readings of the article's boundedness hypothesis. The intermediate coefficient space of the
+Appendix D route is not in the article at all; it is what the L1 and L2 theories do, transported to
+this parameter space.
 -/

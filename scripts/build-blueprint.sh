@@ -155,6 +155,7 @@ pages+=(
   ha/ha-representations
   ha/ha-affine
   ha/ha-architectures
+  ha/ha-quadratic
 )
 
 pages+=(
@@ -188,6 +189,7 @@ test -e _out/blueprint/html-multi/ha/overview-ha
 test -e _out/blueprint/html-multi/ha/ha-representations
 test -e _out/blueprint/html-multi/ha/ha-affine
 test -e _out/blueprint/html-multi/ha/ha-architectures
+test -e _out/blueprint/html-multi/ha/ha-quadratic
 
 if ! grep -Eq 'ha_main_reconstruction|ha_reconstruction_detail' \
     _out/blueprint/html-multi/Dependency-Graph/index.html \

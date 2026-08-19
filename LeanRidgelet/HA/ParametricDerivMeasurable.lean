@@ -5,114 +5,66 @@ Authors: Sho Sonoda, Claude
 -/
 module
 
-public import Mathlib.Analysis.Calculus.ContDiff.Comp
-public import Mathlib.Analysis.Calculus.FDeriv.Measurable
+public import LeanRidgelet.ToMathlib.ParametricIteratedDeriv
 public import LeanRidgelet.HA.BochnerMeasurability
 public import LeanRidgelet.HA.QuadraticShear
 public import LeanRidgelet.HA.QuadraticTransfer
 
 /-!
-# Measurability of an iterated derivative in a parameter
+# The quadratic parameter: iterated derivatives measurable in the base parameter
 
 `LeanRidgelet.HA.QuadraticShear` carries two measurability hypotheses it cannot discharge, and its
-"What is established and what is not" paragraph records why: nothing in this development says that
-an iterated derivative in one coordinate of a parameter is measurable in the remaining coordinates. 
-The two hypotheses are `Measurable (LeanRidgelet.quadraticConstIteratedDeriv j T)`, in
+"What is established and what is not" paragraph records why: nothing else in this development says
+that an iterated derivative in one coordinate of a parameter is measurable in the remaining
+coordinates.  The two hypotheses are `Measurable (LeanRidgelet.quadraticConstIteratedDeriv j T)`, in
 `LeanRidgelet.lintegral_enorm_quadraticConstIteratedDeriv_comp_smul` and in
 `LeanRidgelet.lintegral_base_enorm_quadraticConstIteratedDeriv_comp_smul`, and
 `AEStronglyMeasurable (iteratedDeriv j (LeanRidgelet.quadraticConstSlice T p)) volume`, in
 `LeanRidgelet.eLpNorm_iteratedDeriv_quadraticConstSlice_comp_smul`.  This file discharges both.
 
-The two are of very different difficulty, and Mathlib already settles the easier one.
+The general statements the two rest on are ridgelet-independent and live in
+`LeanRidgelet.ToMathlib.ParametricIteratedDeriv`: an iterated derivative of positive order is
+strongly measurable for every function on the line, and for a function of a pair the iterated
+derivative in the last variable is jointly measurable either from joint smoothness (the continuity
+route) or from joint continuity one order down (Mathlib's one-step lemma).  This file only
+instantiates them, and adds the one route those statements cannot cover.
 
-*The slice-wise hypothesis is free.*  `MeasureTheory.stronglyMeasurable_deriv` says that `deriv g`
-is strongly measurable for **every** `g`, differentiable or not, because the derivative is `0` off
-the differentiability set and that set is Borel.  Since `iteratedDeriv (j + 1) g = deriv
-(iteratedDeriv j g)`, iterating costs nothing: `LeanRidgelet.stronglyMeasurable_iteratedDeriv_succ`
-needs no hypothesis on `g` at all.  Only order `0` needs anything, namely measurability of `g`
-itself.
+Instantiating is nearly free: the quadratic parameter's constant coefficient is the last of three
+coordinates rather than the second of two, and reassociating a product is a linear homeomorphism, so
+the general statements apply through `LeanRidgelet.quadraticParameterPair` unchanged.
 
-*The hypothesis in the parameter has real content.*  Mathlib's
-`measurable_deriv_with_param` is the sharp one-step statement: for a family `f : α → 𝕜 → F` whose
-uncurried form is **jointly continuous**, the parametric derivative `(a, t) ↦ deriv (f a) t` is
-jointly measurable, again with no differentiability assumed.  It cannot be iterated on its own,
-because the joint continuity it consumes is not something it produces.  So the iteration is done
-here by the continuity route: for a jointly `ContDiff` function the parametric derivative in the
-last variable is again jointly `ContDiff`, one order down (`LeanRidgelet.contDiff_parametricDeriv`,
-which is `ContDiff.fderiv_succ` composed with evaluation at `1`), and an induction on the order
-gives joint *continuity* of the parametric iterated derivative.  Feeding that continuity into
-Mathlib's one-step lemma then gains one order: `ContDiff ℝ j` gives measurability of the parametric
-derivative of order `j + 1`, not merely of order `j`.
+The route the general statements cannot cover is the analysis transform.  Its joint smoothness in
+the parameter is not known here, so the continuity route is unavailable for it; but
+`LeanRidgelet.iteratedDeriv_bochnerRidgelet_quadraticVectorFeature` says its `j`-th derivative in
+the constant coefficient *is* another analysis transform, and
+`LeanRidgelet.stronglyMeasurable_bochnerRidgelet_quadraticVectorFeature` says that one is measurable
+in the parameter.  So for the one function the boundedness route actually needs, the hypothesis is
+discharged from the transfer hypotheses alone.
 
 ## Main results
 
-* `LeanRidgelet.stronglyMeasurable_iteratedDeriv_succ`: for every `g : ℝ → F` into a complete space
-  and every `j`, `iteratedDeriv (j + 1) g` is strongly measurable.  No hypothesis whatsoever.
-* `LeanRidgelet.parametricDeriv` and `LeanRidgelet.parametricIteratedDeriv`: the derivative and the
-  iterated derivative in the last variable of a function of a pair, as functions of the pair,
-  together with the two recursions `LeanRidgelet.parametricIteratedDeriv_succ` (peel off the
-  innermost derivative) and `LeanRidgelet.parametricIteratedDeriv_succ'` (peel off the outermost).
-* `LeanRidgelet.contDiff_parametricDeriv`: the parametric derivative of a `ContDiff (m + 1)`
-  function of a pair is `ContDiff m`.
-* `LeanRidgelet.continuous_parametricIteratedDeriv`: **the continuity route.**  For `ContDiff ℝ j`,
-  the parametric iterated derivative of order `j` is jointly continuous, hence measurable
-  (`LeanRidgelet.measurable_parametricIteratedDeriv`).
-* `LeanRidgelet.measurable_parametricIteratedDeriv_succ_of_continuous`: **the limit route**, which
-  is Mathlib's `measurable_deriv_with_param`: joint continuity of the parametric iterated derivative
-  of order `j` gives joint measurability of order `j + 1`, with no differentiability hypothesis.
-  Combined with the previous item, `ContDiff ℝ j` gives measurability of order `j + 1`
-  (`LeanRidgelet.measurable_parametricIteratedDeriv_succ`).
-* `LeanRidgelet.continuous_quadraticConstIteratedDeriv` and
-  `LeanRidgelet.measurable_quadraticConstIteratedDeriv`: the instantiation at the quadratic
-  parameter space, whose constant coefficient is the last of three coordinates rather than the
-  second of two; `LeanRidgelet.quadraticConstPair` and `LeanRidgelet.quadraticParameterPair` are the
-  reassociation that mediates, and they cost nothing because reassociation of a product is a
-  linear homeomorphism.
+* `LeanRidgelet.quadraticParameterPair` and `LeanRidgelet.quadraticConstPair`: the reassociation,
+  with `LeanRidgelet.quadraticConstIteratedDeriv_eq_parametric` and
+  `LeanRidgelet.iteratedDeriv_quadraticConstSlice_eq_parametric` identifying both forms of the
+  derivative in the constant coefficient with the general parametric one.
 * `LeanRidgelet.aestronglyMeasurable_iteratedDeriv_quadraticConstSlice_succ` and
-  `LeanRidgelet.aestronglyMeasurable_iteratedDeriv_quadraticConstSlice`: the slice-wise hypothesis,
-  unconditionally for a positive order and from measurability of `T` for order `0`.
+  `LeanRidgelet.aestronglyMeasurable_iteratedDeriv_quadraticConstSlice`: **the slice-wise
+  hypothesis**, unconditionally for a positive order and from measurability of `T` for order `0`.
+* `LeanRidgelet.continuous_quadraticConstIteratedDeriv`,
+  `LeanRidgelet.measurable_quadraticConstIteratedDeriv` and
+  `LeanRidgelet.measurable_quadraticConstIteratedDeriv_succ`: **the hypothesis in the parameter**
+  for a jointly smooth coefficient function, by the continuity route.
 * `LeanRidgelet.measurable_quadraticConstIteratedDeriv_of_eq` and
   `LeanRidgelet.measurable_quadraticConstIteratedDeriv_bochnerRidgelet`: **the transfer route**, for
-  the one function this development actually cares about.  No joint smoothness of the analysis
-  transform is known here, so the `ContDiff` route is not available for it; but
-  `LeanRidgelet.iteratedDeriv_bochnerRidgelet_quadraticVectorFeature` says its `j`-th derivative in
-  the constant coefficient *is* another analysis transform, and
-  `LeanRidgelet.stronglyMeasurable_bochnerRidgelet_quadraticVectorFeature` says that one is
-  measurable in the parameter.  So for the analysis transform the hypothesis is discharged from the
-  transfer hypotheses alone.
+  the analysis transform.
 
 ## What is assumed
 
-For the slice-wise statements, completeness of the target --
-`MeasureTheory.stronglyMeasurable_deriv` needs it to know that the differentiability set is Borel --
-and nothing else.
-
-For the continuity route, that the parameter is a normed space, so that `ContDiff` in the pair makes
-sense, and `ContDiff ℝ j` of the function of the pair.  That is the natural hypothesis for a
-concrete ridgelet function built from a smooth activation, and it is genuinely a joint hypothesis:
-continuity of each derivative separately in each variable would not do.
-
-For the limit route, only that the parameter is a topological space carrying a measurable structure
-for which open sets are measurable, plus joint continuity of the parametric iterated derivative one
-order down.  It assumes no differentiability, but it does not iterate.
-
-For the transfer route, the hypotheses of
-`LeanRidgelet.iteratedDeriv_bochnerRidgelet_quadraticVectorFeature` at every base parameter -- a
-sequence of features each the derivative of the previous, integrability of each pairing, and a
-dominating function -- together with strong measurability of the `j`-th feature and of the data,
-which is what `LeanRidgelet.HA.BochnerMeasurability` consumes.  Nothing is assumed about
-differentiability in the first two coefficients, which is exactly why this route is the usable one
-for the analysis transform.
-
-## What this discharges
-
-`hmeas` of `LeanRidgelet.eLpNorm_iteratedDeriv_quadraticConstSlice_comp_smul` at every order `j + 1`
-with no hypothesis, and at order `0` from measurability of `T`; `hT` of
-`LeanRidgelet.lintegral_enorm_quadraticConstIteratedDeriv_comp_smul` and of
-`LeanRidgelet.lintegral_base_enorm_quadraticConstIteratedDeriv_comp_smul` from `ContDiff ℝ j T`, or
-from the transfer hypotheses when `T` is an analysis transform.  Nothing else about
-`LeanRidgelet.HA.QuadraticShear` changes: the shear, the commutation and the seminorm identities are
-independent of this file, and it still defines no space `Γ^k`.
+For the slice-wise statements, nothing at a positive order, and measurability of the coefficient
+function at order `0`.  For the continuity route, `ContDiff ℝ j` of the coefficient function on the
+whole parameter space -- the natural hypothesis for a concrete ridgelet function built from a smooth
+activation.  For the transfer route, the hypotheses of the derivative transfer together with
+measurability of the analysis features and of the data; no smoothness of the transform is assumed.
 -/
 
 @[expose] public section
@@ -125,175 +77,6 @@ open scoped ComplexConjugate ENNReal InnerProductSpace NNReal
 
 namespace LeanRidgelet
 
-/-! ### Iterated derivatives of a single function are measurable -/
-
-section OneVariable
-
-variable {F : Type*} [NormedAddCommGroup F] [NormedSpace ℝ F] [CompleteSpace F]
-
-/-- **An iterated derivative of positive order is strongly measurable, unconditionally.**  For every
-function on the line into a complete space, differentiable or not, the `(j + 1)`-st iterated
-derivative is strongly measurable.  Only Mathlib's `MeasureTheory.stronglyMeasurable_deriv` is used:
-the derivative vanishes off the differentiability set, which is Borel, so no regularity of `g` is
-needed, and `iteratedDeriv (j + 1) g = deriv (iteratedDeriv j g)` iterates that for free.  Order `0`
-is the only order that needs a hypothesis, since there the iterated derivative is `g` itself. -/
-theorem stronglyMeasurable_iteratedDeriv_succ (j : ℕ) (g : ℝ → F) :
-    StronglyMeasurable (iteratedDeriv (j + 1) g) := by
-  rw [iteratedDeriv_succ]
-  exact stronglyMeasurable_deriv _
-
-/-- Every iterated derivative of a strongly measurable function is strongly measurable.  For a
-positive order the hypothesis is not used; it is needed only at order `0`. -/
-theorem stronglyMeasurable_iteratedDeriv (j : ℕ) {g : ℝ → F} (hg : StronglyMeasurable g) :
-    StronglyMeasurable (iteratedDeriv j g) := by
-  cases j with
-  | zero => rwa [iteratedDeriv_zero]
-  | succ j => exact stronglyMeasurable_iteratedDeriv_succ j g
-
-end OneVariable
-
-/-! ### The derivative in the last variable of a function of a pair -/
-
-section Parametric
-
-variable {α F : Type*} [NormedAddCommGroup F] [NormedSpace ℝ F]
-
-/-- **The parametric derivative.**  The derivative in the last variable of a function of a pair,
-read again as a function of the pair.  The first component is the parameter and is not
-differentiated. -/
-def parametricDeriv (f : α × ℝ → F) : α × ℝ → F :=
-  fun p ↦ deriv (fun t ↦ f (p.1, t)) p.2
-
-/-- **The parametric iterated derivative.**  The `j`-th derivative in the last variable of a
-function of a pair, read again as a function of the pair.  This is the shape of
-`LeanRidgelet.quadraticConstIteratedDeriv`, up to the reassociation of the parameter space handled
-below. -/
-def parametricIteratedDeriv (j : ℕ) (f : α × ℝ → F) : α × ℝ → F :=
-  fun p ↦ iteratedDeriv j (fun t ↦ f (p.1, t)) p.2
-
-/-- A slice of the parametric derivative is the derivative of the slice.  This holds by
-definition. -/
-theorem parametricDeriv_slice (f : α × ℝ → F) (a : α) :
-    (fun t ↦ parametricDeriv f (a, t)) = deriv (fun t ↦ f (a, t)) := rfl
-
-/-- A slice of the parametric iterated derivative is the iterated derivative of the slice.  This
-holds by definition, and it is the bridge between statements about the pair and slice-wise
-statements. -/
-theorem parametricIteratedDeriv_slice (j : ℕ) (f : α × ℝ → F) (a : α) :
-    (fun t ↦ parametricIteratedDeriv j f (a, t)) = iteratedDeriv j (fun t ↦ f (a, t)) := rfl
-
-/-- The parametric iterated derivative of order zero is the function itself. -/
-theorem parametricIteratedDeriv_zero (f : α × ℝ → F) : parametricIteratedDeriv 0 f = f := by
-  funext p
-  change iteratedDeriv 0 (fun t ↦ f (p.1, t)) p.2 = f p
-  rw [iteratedDeriv_zero]
-
-/-- **Peeling off the innermost derivative.**  The parametric iterated derivative of order `j + 1`
-is the one of order `j` of the parametric derivative.  This is the recursion the continuity route
-descends. -/
-theorem parametricIteratedDeriv_succ (j : ℕ) (f : α × ℝ → F) :
-    parametricIteratedDeriv (j + 1) f = parametricIteratedDeriv j (parametricDeriv f) := by
-  funext p
-  change iteratedDeriv (j + 1) (fun t ↦ f (p.1, t)) p.2 =
-    iteratedDeriv j (fun t ↦ parametricDeriv f (p.1, t)) p.2
-  rw [parametricDeriv_slice, iteratedDeriv_succ']
-
-/-- **Peeling off the outermost derivative.**  The parametric iterated derivative of order `j + 1`
-is the parametric derivative of the one of order `j`.  This is the recursion the limit route uses,
-since Mathlib's parametric statement is about a single derivative of a jointly continuous family. -/
-theorem parametricIteratedDeriv_succ' (j : ℕ) (f : α × ℝ → F) :
-    parametricIteratedDeriv (j + 1) f = parametricDeriv (parametricIteratedDeriv j f) := by
-  funext p
-  change iteratedDeriv (j + 1) (fun t ↦ f (p.1, t)) p.2 =
-    deriv (fun t ↦ parametricIteratedDeriv j f (p.1, t)) p.2
-  rw [parametricIteratedDeriv_slice, iteratedDeriv_succ]
-
-end Parametric
-
-/-! ### The limit route: one derivative of a jointly continuous family -/
-
-section Limit
-
-variable {α F : Type*} [TopologicalSpace α] [MeasurableSpace α] [OpensMeasurableSpace α]
-  [NormedAddCommGroup F] [NormedSpace ℝ F] [CompleteSpace F] [MeasurableSpace F] [BorelSpace F]
-
-/-- **One parametric derivative of a jointly continuous function is jointly measurable.**  This is
-Mathlib's `measurable_deriv_with_param` in the notation of this file, and it is the sharp form of
-the limit route: the parametric derivative is a pointwise limit of difference quotients, so no
-differentiability is needed anywhere, only joint continuity.  What it does not do is iterate, since
-joint continuity of the derivative is not part of its conclusion. -/
-theorem measurable_parametricDeriv_of_continuous {f : α × ℝ → F} (hf : Continuous f) :
-    Measurable (parametricDeriv f) :=
-  measurable_deriv_with_param (f := fun (a : α) (t : ℝ) ↦ f (a, t)) hf
-
-/-- **The limit route, one order up.**  If the parametric iterated derivative of order `j` is
-jointly continuous, then the one of order `j + 1` is jointly measurable.  This gains one order over
-what continuity alone would give, and needs no differentiability. -/
-theorem measurable_parametricIteratedDeriv_succ_of_continuous {j : ℕ} {f : α × ℝ → F}
-    (hf : Continuous (parametricIteratedDeriv j f)) :
-    Measurable (parametricIteratedDeriv (j + 1) f) := by
-  rw [parametricIteratedDeriv_succ']
-  exact measurable_parametricDeriv_of_continuous hf
-
-end Limit
-
-/-! ### The continuity route: joint smoothness in the pair -/
-
-section Continuity
-
-variable {α F : Type*} [NormedAddCommGroup α] [NormedSpace ℝ α]
-  [NormedAddCommGroup F] [NormedSpace ℝ F]
-
-/-- **The parametric derivative of a jointly smooth function is jointly smooth, one order down.**
-The derivative in the last variable is the full derivative in the pair, evaluated at the last basis
-covector, so `ContDiff.fderiv_succ` gives it directly; evaluation at `1` is a continuous linear map,
-which costs no smoothness.  Nothing is assumed about how the two variables interact. -/
-theorem contDiff_parametricDeriv {m : WithTop ℕ∞} {f : α × ℝ → F} (hf : ContDiff ℝ (m + 1) f) :
-    ContDiff ℝ m (parametricDeriv f) := by
-  have huncurry : ContDiff ℝ (m + 1)
-      (Function.uncurry fun (p : α × ℝ) (z : ℝ) ↦ f (p.1, z)) :=
-    hf.comp (contDiff_fst.fst.prodMk contDiff_snd)
-  exact (ContDiff.fderiv_succ huncurry contDiff_snd).clm_apply contDiff_const
-
-/-- **The continuity route.**  For a function of a pair that is `j` times continuously
-differentiable in the pair, the `j`-th derivative in the last variable is jointly continuous in the
-pair.  The induction descends `LeanRidgelet.parametricIteratedDeriv_succ`, spending one order of
-smoothness per derivative and reading off continuity from `ContDiff ℝ 0` at the end.
-
-This is the honest general form of "the parametric iterated derivative is continuous, hence
-measurable": the hypothesis is joint smoothness, which is what a concrete ridgelet function built
-from a smooth activation has, and there is no differentiability side condition to check, since
-`ContDiff` supplies it. -/
-theorem continuous_parametricIteratedDeriv {j : ℕ} {f : α × ℝ → F} (hf : ContDiff ℝ j f) :
-    Continuous (parametricIteratedDeriv j f) := by
-  induction j generalizing f with
-  | zero =>
-    rw [parametricIteratedDeriv_zero]
-    exact hf.continuous
-  | succ j ih =>
-    rw [parametricIteratedDeriv_succ]
-    refine ih (contDiff_parametricDeriv ?_)
-    exact_mod_cast hf
-
-variable [MeasurableSpace α] [OpensMeasurableSpace α] [MeasurableSpace F] [BorelSpace F]
-
-/-- **The continuity route, as measurability.**  Joint continuity of the parametric iterated
-derivative makes it measurable for the Borel structure of the pair. -/
-theorem measurable_parametricIteratedDeriv {j : ℕ} {f : α × ℝ → F} (hf : ContDiff ℝ j f) :
-    Measurable (parametricIteratedDeriv j f) :=
-  (continuous_parametricIteratedDeriv hf).measurable
-
-/-- **The two routes combined.**  `j` orders of joint smoothness give joint measurability of the
-parametric iterated derivative of order `j + 1`: the first `j` derivatives are continuous by the
-continuity route, and the last one is measurable by Mathlib's parametric statement, which needs only
-continuity of the previous one.  At `j = 0` this says that joint continuity of `f` alone makes the
-parametric first derivative measurable. -/
-theorem measurable_parametricIteratedDeriv_succ [CompleteSpace F] {j : ℕ} {f : α × ℝ → F}
-    (hf : ContDiff ℝ j f) :
-    Measurable (parametricIteratedDeriv (j + 1) f) :=
-  measurable_parametricIteratedDeriv_succ_of_continuous (continuous_parametricIteratedDeriv hf)
-
-end Continuity
 
 /-! ### The quadratic instantiation -/
 
