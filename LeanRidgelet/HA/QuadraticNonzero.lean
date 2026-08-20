@@ -7,6 +7,7 @@ module
 
 public import LeanRidgelet.HA.AdjointReconstruction
 public import LeanRidgelet.HA.BochnerAdjoint
+public import LeanRidgelet.ToMathlib.LpOperatorOfPointwise
 public import LeanRidgelet.HA.QuadraticSobolevCarrier
 public import LeanRidgelet.HA.QuadraticReconstruction
 public import LeanRidgelet.HA.QuadraticSobolevSpace
@@ -44,15 +45,14 @@ The assembly separates cleanly into a part that is proved here and two analytic 
 
 ## What remains, and where it is recorded
 
-Two named theorems carry a `sorry`, and they are the two halves of the article's boundedness
-appendix in the shape the intermediate space needs.
-
-* `LeanRidgelet.exists_quadraticCompositeIntertwiner_of_bounds`: the two bounds through `Γ^k` --
-  `LeanRidgelet.QuadraticAnalysisBound` and `LeanRidgelet.QuadraticSynthesisBound` -- produce a
-  bounded intertwining **endomorphism** of data `L²` realizing the pointwise Bochner composite.  The
-  estimate itself is proved, in `LeanRidgelet.eLpNorm_bochnerSynthesis_bochnerRidgelet_le`; what is
-  missing is the packaging of a pointwise formula as an operator, which needs almost-everywhere
-  additivity of the two integrals.
+**One** named theorem carries a `sorry`, and it is the article's admissibility condition.  The
+packaging half is proved: `LeanRidgelet.exists_quadraticCompositeIntertwiner_of_bounds` builds the
+bounded intertwining **endomorphism** of data `L²` from the two bounds through `Γ^k` together with
+the integrability that makes the two integrals additive on almost-everywhere classes, using the
+estimate `LeanRidgelet.eLpNorm_bochnerSynthesis_bochnerRidgelet_le`, the packaging tool
+`MeasureTheory.lpOperatorOfPointwise`, and the equivariance
+`LeanRidgelet.quadraticComposite_intertwines_of_coeFn` -- which uses nothing about how the operator
+was built.
 * `LeanRidgelet.exists_quadraticAdmissiblePair`: an admissible pair exists -- some synthesis
   feature, analysis feature and order satisfy both bounds and leave the pointwise composite
   nonvanishing on
@@ -280,45 +280,131 @@ theorem exists_ne_zero_of_quadraticCompositeEndomorphism
   rw [hc0, zero_smul] at h1
   exact h1
 
-/-! ### The two analytic inputs that remain -/
+/-! ### Equivariance of any operator realizing the composite -/
 
-/-- **Remaining: the composite as a bounded intertwining endomorphism.**  Given the two bounds, the
-composite of the two Bochner integrals is realized by a bounded intertwining endomorphism of data
-`L²`.
+omit [Nontrivial E] in
+/-- **Any operator that realizes the composite pointwise intertwines the data representation.**  The
+equivariance argument uses nothing about how the operator was built: only the two pointwise Bochner
+intertwining identities of `LeanRidgelet.HA.QuadraticRelativeMeasure` and the almost-everywhere
+formula for the data representation.  `LeanRidgelet.HA.QuadraticComposite` runs it for the operator
+as a hypothesis, so it applies to an operator built any other way. -/
+theorem quadraticComposite_intertwines_of_coeFn (lam : Measure (QuadraticParameter E))
+    [lam.IsAddHaarMeasure] {σ ψ : ℝ → ℂ}
+    (T : Lp ℂ 2 (volume : Measure E) →L[ℂ] Lp ℂ 2 (volume : Measure E))
+    (hT : ∀ f : Lp ℂ 2 (volume : Measure E), (T f : E → ℂ) =ᵐ[(volume : Measure E)]
+      bochnerSynthesis (quadraticRelativeMeasure lam) (quadraticVectorFeature σ)
+        (bochnerRidgelet (volume : Measure E) (quadraticVectorFeature ψ) (f : E → ℂ)))
+    (g : E ≃ᵃ[ℝ] E) (f : Lp ℂ 2 (volume : Measure E)) :
+    T ((affineDataLpUnitaryRepresentation (Y := ℂ) (volume : Measure E) g :
+        Lp ℂ 2 (volume : Measure E) →L[ℂ] Lp ℂ 2 (volume : Measure E)) f) =
+      (affineDataLpUnitaryRepresentation (Y := ℂ) (volume : Measure E) g :
+          Lp ℂ 2 (volume : Measure E) →L[ℂ] Lp ℂ 2 (volume : Measure E)) (T f) := by
+  refine Lp.ext_iff.2 ?_
+  have hπD := affineDataLpUnitaryRepresentation_apply_ae_vector (volume : Measure E) g f
+  have hpull : bochnerRidgelet (volume : Measure E) (quadraticVectorFeature ψ)
+      (fun x ↦ ((affineDataLpUnitaryRepresentation (Y := ℂ) (volume : Measure E) g :
+        Lp ℂ 2 (volume : Measure E) →L[ℂ] Lp ℂ 2 (volume : Measure E)) f : E → ℂ) x) =
+      quasiRegularAction (radonNikodymWeight quadraticRelativeParameterJacobian) g
+        (bochnerRidgelet (volume : Measure E) (quadraticVectorFeature ψ)
+          fun x ↦ (f : E → ℂ) x) := by
+    have hstep := bochnerRidgelet_quadraticVectorFeature_congr_ae (E := E) ψ
+      (hπD.trans (Filter.EventuallyEq.of_eq
+        (quasiUnitaryPullbackAction_one_eq affineDataJacobian g fun x ↦ (f : E → ℂ) x).symm))
+    rw [hstep]
+    funext ξ
+    exact quadraticRelativeBochnerRidgelet_intertwines (volume : Measure E) ψ g
+      (fun x ↦ (f : E → ℂ) x) ξ
+  refine (hT _).trans ?_
+  rw [hpull]
+  have hsyn : bochnerSynthesis (quadraticRelativeMeasure lam) (quadraticVectorFeature σ)
+      (quasiRegularAction (radonNikodymWeight quadraticRelativeParameterJacobian) g
+        (bochnerRidgelet (volume : Measure E) (quadraticVectorFeature ψ)
+          fun x ↦ (f : E → ℂ) x)) =
+      quasiUnitaryPullbackAction affineDataJacobian
+        (1 : UnitaryRepresentation (E ≃ᵃ[ℝ] E) ℂ) g
+        (bochnerSynthesis (quadraticRelativeMeasure lam) (quadraticVectorFeature σ)
+          (bochnerRidgelet (volume : Measure E) (quadraticVectorFeature ψ)
+            fun x ↦ (f : E → ℂ) x)) := by
+    funext x
+    exact quadraticRelativeBochnerSynthesis_intertwines lam σ g _ x
+  rw [hsyn]
+  refine Filter.EventuallyEq.symm ?_
+  refine (affineDataLpUnitaryRepresentation_apply_ae_vector (volume : Measure E) g _).trans ?_
+  rw [← quasiUnitaryPullbackAction_one_eq affineDataJacobian g]
+  exact affineData_quasiUnitaryPullbackAction_congr_ae g (hT f)
 
-Not proved here, and note what is *not* missing.  The estimate is proved:
-`LeanRidgelet.eLpNorm_bochnerSynthesis_bochnerRidgelet_le` bounds the composite by the product of
-the two constants.  The equivariance is available pointwise from
-`LeanRidgelet.HA.QuadraticRelativeMeasure`.  What is missing is the packaging of a pointwise formula
-as an operator: almost-everywhere additivity of the two Bochner integrals, which needs integrability
-of each of them separately, and the membership hypothesis the estimate carries -- that the analysis
-transform of each datum lies in the space, which
-`LeanRidgelet.memQuadraticSobolev_bochnerRidgelet_of_stronglyMeasurable` supplies from the transfer
-hypotheses.
+/-! ### From the bounds to an operator, and the one analytic input that remains -/
 
-An earlier version of this file asked instead for a bounded intertwining *pair* through parameter
-`L²`.  That was the wrong shape, and precisely because of the synthesis: the analysis bound is
-stronger than a parameter-`L²` bound, since the seminorm dominates the `L²` norm, so the ridgelet
-transform *is* bounded into parameter `L²`; but the synthesis bound is weaker than a parameter-`L²`
-bound for the same reason, so nothing in it makes the machine bounded there.
+omit [Nontrivial E] in
+/-- **The composite is a bounded intertwining endomorphism.**  Given the two bounds through `Γ^k`,
+the integrability that makes the two Bochner integrals additive and homogeneous on almost-everywhere
+classes, and measurability of the composite, the composite is realized by a bounded intertwining
+endomorphism of data `L²`.
 
-A pair is available in one other shape, and the carrier of
-`LeanRidgelet.HA.QuadraticSobolevCarrier` is what makes it possible: take `Γ^k` itself as the
-parameter space, so that the machine goes out of it and the ridgelet transform into it, both bounded
-by the two hypotheses as stated.  That needs the restricted diagonal action bundled as a
-representation on the subspace -- the invariance and the multiplicativity are proved there, the
-bundling is not -- and it is the stronger conclusion of the two, since it also gives the article's
-right-inverse form.  This statement takes the weaker route because it is the one the article's own
-boundedness hypothesis takes. -/
+Every hypothesis beyond the two bounds is one that packaging a pointwise formula as an operator
+requires and that no estimate can supply.  A formula linear on functions need not be linear on
+almost-everywhere classes: splitting the defining integral over a sum needs each piece integrable,
+so `hadd` and `hsmul` are where the convergence of the two integrals enters.  Membership of the
+analysis transform in the space is what the synthesis bound is stated against, and measurability is
+what turns a finite norm into membership of `L²`.
+
+The estimate is `LeanRidgelet.eLpNorm_bochnerSynthesis_bochnerRidgelet_le`, the packaging is
+`MeasureTheory.lpOperatorOfPointwise`, and the equivariance is
+`LeanRidgelet.quadraticComposite_intertwines_of_coeFn` -- which uses nothing about how the operator
+was built. -/
 theorem exists_quadraticCompositeIntertwiner_of_bounds (lam : Measure (QuadraticParameter E))
     [lam.IsAddHaarMeasure] {σ ψ : ℝ → ℂ} {k : ℕ}
-    (hψ : QuadraticAnalysisBound lam ψ k) (hσ : QuadraticSynthesisBound lam σ k) :
+    (hψ : QuadraticAnalysisBound lam ψ k) (hσ : QuadraticSynthesisBound lam σ k)
+    (hmemΓ : ∀ f : Lp ℂ 2 (volume : Measure E), MemQuadraticSobolev lam k
+      (bochnerRidgelet (volume : Measure E) (quadraticVectorFeature ψ) (f : E → ℂ)))
+    (hmeas : ∀ f : Lp ℂ 2 (volume : Measure E), AEStronglyMeasurable
+      (bochnerSynthesis (quadraticRelativeMeasure lam) (quadraticVectorFeature σ)
+        (bochnerRidgelet (volume : Measure E) (quadraticVectorFeature ψ) (f : E → ℂ)))
+      (volume : Measure E))
+    (hadd : ∀ f h : Lp ℂ 2 (volume : Measure E),
+      bochnerSynthesis (quadraticRelativeMeasure lam) (quadraticVectorFeature σ)
+          (bochnerRidgelet (volume : Measure E) (quadraticVectorFeature ψ)
+            ((f + h : Lp ℂ 2 (volume : Measure E)) : E → ℂ))
+        =ᵐ[(volume : Measure E)]
+      bochnerSynthesis (quadraticRelativeMeasure lam) (quadraticVectorFeature σ)
+          (bochnerRidgelet (volume : Measure E) (quadraticVectorFeature ψ) (f : E → ℂ)) +
+        bochnerSynthesis (quadraticRelativeMeasure lam) (quadraticVectorFeature σ)
+          (bochnerRidgelet (volume : Measure E) (quadraticVectorFeature ψ) (h : E → ℂ)))
+    (hsmul : ∀ (c : ℂ) (f : Lp ℂ 2 (volume : Measure E)),
+      bochnerSynthesis (quadraticRelativeMeasure lam) (quadraticVectorFeature σ)
+          (bochnerRidgelet (volume : Measure E) (quadraticVectorFeature ψ)
+            ((c • f : Lp ℂ 2 (volume : Measure E)) : E → ℂ))
+        =ᵐ[(volume : Measure E)]
+      c • bochnerSynthesis (quadraticRelativeMeasure lam) (quadraticVectorFeature σ)
+          (bochnerRidgelet (volume : Measure E) (quadraticVectorFeature ψ) (f : E → ℂ))) :
     ∃ T : QuadraticCompositeEndomorphism (E := E),
       ∀ f : Lp ℂ 2 (volume : Measure E),
         (T f : E → ℂ) =ᵐ[(volume : Measure E)]
           bochnerSynthesis (quadraticRelativeMeasure lam) (quadraticVectorFeature σ)
             (bochnerRidgelet (volume : Measure E) (quadraticVectorFeature ψ) (f : E → ℂ)) := by
-  sorry
+  obtain ⟨C, hCtop, hC⟩ := eLpNorm_bochnerSynthesis_bochnerRidgelet_le lam hψ hσ
+  set Φ : (E → ℂ) → E → ℂ := fun u ↦
+    bochnerSynthesis (quadraticRelativeMeasure lam) (quadraticVectorFeature σ)
+      (bochnerRidgelet (volume : Measure E) (quadraticVectorFeature ψ) u) with hΦ
+  have hmem : ∀ f : Lp ℂ 2 (volume : Measure E), MemLp (Φ (f : E → ℂ)) 2 (volume : Measure E) :=
+    fun f ↦ ⟨hmeas f, lt_of_le_of_lt (hC f (hmemΓ f))
+      (ENNReal.mul_lt_top (lt_top_iff_ne_top.2 hCtop) (Lp.eLpNorm_lt_top f))⟩
+  have hbound : ∀ f : Lp ℂ 2 (volume : Measure E),
+      (eLpNorm (Φ (f : E → ℂ)) 2 (volume : Measure E)).toReal ≤ C.toReal * ‖f‖ := by
+    intro f
+    have h := hC f (hmemΓ f)
+    have hne : C * eLpNorm (f : E → ℂ) 2 (volume : Measure E) ≠ ∞ :=
+      (ENNReal.mul_lt_top (lt_top_iff_ne_top.2 hCtop) (Lp.eLpNorm_lt_top f)).ne
+    calc (eLpNorm (Φ (f : E → ℂ)) 2 (volume : Measure E)).toReal
+        ≤ (C * eLpNorm (f : E → ℂ) 2 (volume : Measure E)).toReal :=
+          ENNReal.toReal_le_toReal (hmem f).2.ne hne |>.2 h
+      _ = C.toReal * ‖f‖ := by rw [ENNReal.toReal_mul, ← Lp.norm_def]
+  have hcoe := fun f ↦ MeasureTheory.coeFn_lpOperatorOfPointwise
+    (ENNReal.toReal_nonneg (a := C)) hmem hadd hsmul hbound f
+  exact ⟨⟨MeasureTheory.lpOperatorOfPointwise (ENNReal.toReal_nonneg (a := C)) hmem hadd hsmul
+      hbound,
+    fun g ↦ ContinuousLinearMap.ext fun f ↦
+      quadraticComposite_intertwines_of_coeFn lam _ hcoe g f⟩, hcoe⟩
 
 /-- **Remaining: an admissible pair exists.**  Some synthesis feature, analysis feature and order
 satisfy both bounds and leave the pointwise composite nonvanishing on some datum.  This is the
@@ -332,6 +418,28 @@ that controls its growth, and neither is assumed anywhere in this development. -
 theorem exists_quadraticAdmissiblePair (lam : Measure (QuadraticParameter E))
     [lam.IsAddHaarMeasure] :
     ∃ (σ ψ : ℝ → ℂ) (k : ℕ), QuadraticAnalysisBound lam ψ k ∧ QuadraticSynthesisBound lam σ k ∧
+      (∀ f : Lp ℂ 2 (volume : Measure E), MemQuadraticSobolev lam k
+        (bochnerRidgelet (volume : Measure E) (quadraticVectorFeature ψ) (f : E → ℂ))) ∧
+      (∀ f : Lp ℂ 2 (volume : Measure E), AEStronglyMeasurable
+        (bochnerSynthesis (quadraticRelativeMeasure lam) (quadraticVectorFeature σ)
+          (bochnerRidgelet (volume : Measure E) (quadraticVectorFeature ψ) (f : E → ℂ)))
+        (volume : Measure E)) ∧
+      (∀ f h : Lp ℂ 2 (volume : Measure E),
+        bochnerSynthesis (quadraticRelativeMeasure lam) (quadraticVectorFeature σ)
+            (bochnerRidgelet (volume : Measure E) (quadraticVectorFeature ψ)
+              ((f + h : Lp ℂ 2 (volume : Measure E)) : E → ℂ))
+          =ᵐ[(volume : Measure E)]
+        bochnerSynthesis (quadraticRelativeMeasure lam) (quadraticVectorFeature σ)
+            (bochnerRidgelet (volume : Measure E) (quadraticVectorFeature ψ) (f : E → ℂ)) +
+          bochnerSynthesis (quadraticRelativeMeasure lam) (quadraticVectorFeature σ)
+            (bochnerRidgelet (volume : Measure E) (quadraticVectorFeature ψ) (h : E → ℂ))) ∧
+      (∀ (c : ℂ) (f : Lp ℂ 2 (volume : Measure E)),
+        bochnerSynthesis (quadraticRelativeMeasure lam) (quadraticVectorFeature σ)
+            (bochnerRidgelet (volume : Measure E) (quadraticVectorFeature ψ)
+              ((c • f : Lp ℂ 2 (volume : Measure E)) : E → ℂ))
+          =ᵐ[(volume : Measure E)]
+        c • bochnerSynthesis (quadraticRelativeMeasure lam) (quadraticVectorFeature σ)
+            (bochnerRidgelet (volume : Measure E) (quadraticVectorFeature ψ) (f : E → ℂ))) ∧
       ∃ f : Lp ℂ 2 (volume : Measure E),
         ¬ bochnerSynthesis (quadraticRelativeMeasure lam) (quadraticVectorFeature σ)
               (bochnerRidgelet (volume : Measure E) (quadraticVectorFeature ψ) (f : E → ℂ))
@@ -360,8 +468,10 @@ theorem quadratic_reconstruction_nonzero (lam : Measure (QuadraticParameter E))
         bochnerSynthesis (quadraticRelativeMeasure lam) (quadraticVectorFeature σ)
             (bochnerRidgelet (volume : Measure E) (quadraticVectorFeature ψ) (f : E → ℂ))
           =ᵐ[(volume : Measure E)] fun x ↦ c • (f : E → ℂ) x := by
-  obtain ⟨σ, ψ, k, hψ, hσ, f, hf⟩ := exists_quadraticAdmissiblePair (E := E) lam
-  obtain ⟨T, hT⟩ := exists_quadraticCompositeIntertwiner_of_bounds lam hψ hσ
+  obtain ⟨σ, ψ, k, hψ, hσ, hmemΓ, hmeas, hadd, hsmul, f, hf⟩ :=
+    exists_quadraticAdmissiblePair (E := E) lam
+  obtain ⟨T, hT⟩ :=
+    exists_quadraticCompositeIntertwiner_of_bounds lam hψ hσ hmemΓ hmeas hadd hsmul
   have hne : T f ≠ 0 := by
     intro h
     refine hf ((hT f).symm.trans ?_)

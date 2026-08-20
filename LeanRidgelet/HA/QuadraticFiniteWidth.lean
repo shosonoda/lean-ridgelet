@@ -6,6 +6,7 @@ Authors: Sho Sonoda, Claude
 module
 
 public import LeanRidgelet.HA.BochnerMeasurability
+public import LeanRidgelet.HA.SecondDifference
 public import LeanRidgelet.ToMathlib.LipschitzDiscretization
 
 /-!
@@ -126,5 +127,34 @@ theorem exists_finite_quadraticNetwork_approx {σ : ℝ → ℂ} (hσc : Continu
   have h := hunif x
   rw [heval] at h
   simpa [hφ, quadraticFeatureBoundedContinuous_apply, smul_eq_mul] using h
+
+/-! ### The hat function satisfies the hypotheses -/
+
+/-- **The reduced activation as a bounded continuous feature.**  The hat function of
+`LeanRidgelet.HA.SecondDifference` -- the second difference of the rectified linear unit -- is
+continuous and bounded, so the feature it defines is an element of the space whose norm is the
+supremum norm.  An activation of polynomial growth is not; differencing it twice is what makes the
+finite-width theorem applicable, and it costs only a change of analysis feature. -/
+def quadraticHatFeatureBoundedContinuous (h : ℝ) (ξ : QuadraticParameter E) : E →ᵇ ℂ :=
+  quadraticFeatureBoundedContinuous (continuous_hatComplex h) (norm_hatComplex_le h) ξ
+
+theorem quadraticHatFeatureBoundedContinuous_apply (h : ℝ) (ξ : QuadraticParameter E) (x : E) :
+    quadraticHatFeatureBoundedContinuous h ξ x = quadraticVectorFeature (hatComplex h) x ξ := rfl
+
+/-- **Appendix C for the reduced activation.**  The finite-width approximation applies to the hat
+function, hence -- through the reduction of
+`LeanRidgelet.bochnerSynthesis_bochnerRidgelet_reluComplex_secondDifference` -- to a network whose
+activation is the rectified linear unit, once the second difference is built into the analysis
+feature. -/
+theorem exists_finite_quadraticNetwork_approx_hat (h : ℝ) {Ξ : Type*} [MetricSpace Ξ]
+    [CompactSpace Ξ] [MeasurableSpace Ξ] [BorelSpace Ξ] (κ : Measure Ξ) [IsFiniteMeasure κ]
+    (ι : Ξ → QuadraticParameter E) (γ : Ξ → ℂ) {L : ℝ≥0}
+    (hlip : LipschitzWith L fun t ↦ γ t • quadraticHatFeatureBoundedContinuous h (ι t))
+    {ε : ℝ} (hε : 0 < ε) :
+    ∃ (n : ℕ) (w : Fin n → ℝ) (t : Fin n → Ξ), (∀ i, 0 ≤ w i) ∧
+      ∀ x : E, ‖(∫ s, γ s • quadraticVectorFeature (hatComplex h) x (ι s) ∂κ) -
+        ∑ i, w i • (γ (t i) • quadraticVectorFeature (hatComplex h) x (ι (t i)))‖ < ε :=
+  exists_finite_quadraticNetwork_approx (continuous_hatComplex h) (norm_hatComplex_le h) κ ι γ
+    hlip hε
 
 end LeanRidgelet

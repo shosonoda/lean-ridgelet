@@ -37,6 +37,8 @@ public import LeanRidgelet.HA.BochnerMeasurability
 public import LeanRidgelet.HA.QuadraticFiniteWidth
 public import LeanRidgelet.HA.QuadraticParameterFactor
 public import LeanRidgelet.HA.QuadraticShear
+public import LeanRidgelet.HA.SecondDifference
+public import LeanRidgelet.HA.QuadraticSecondDifference
 public import LeanRidgelet.HA.QuadraticWeighted
 public import LeanRidgelet.HA.ParametricDerivMeasurable
 public import LeanRidgelet.HA.QuadraticSobolevSpace
